@@ -1,0 +1,44 @@
+body{background-color:#ffcc99; text-align:center; font-family:Tahoma;}
+h1{color:#660000;}
+h2{color:#660000;}
+h3{color:#660000;}
+h4{color:#660000;}
+a{color:black; text-decoration: underline; font-family:Tahoma;} 
+a:hover{color:#9900cc;}
+a.dlink{color:black; text-decoration:none; font-family:Tahoma; font-size:24pt;}
+a.dlink:hover{color:#9900cc;}
+
+img.lud{margin:10px;}
+
+div{border:solid 2px black; margin: auto;}
+div.plusmin{width:30px; max-width:30px; height:30px; border:hidden; margin:0px; padding:0px;}
+div.box0{width:100%; margin-left:0px; border:hidden; text-align:left;}
+div.box1{width:90%; margin-left:30px; border:hidden; text-align:left; display:none;}
+div.box2{width:100%; margin-left:60px; border:hidden; text-align:left;}
+div.box3{width:100%; margin-left:90px; border:hidden; text-align:left;}
+div.box4{width:100%; margin-left:120px; border:hidden; text-align:left;}
+div.box5{width:100%; margin-left:150px; border:hidden; text-align:left;}
+div.box6{width:100%; margin-left:180px; border:hidden; text-align:left;}
+div.all{width:80%; border:hidden; text-align:center;}
+div.allmenu{border:hidden; width:20px; margin:0 auto;}
+div.allmenuh{border:hidden; width:20px; margin:0 auto;}
+div.mbox{border: solid 1px black; background-color: #ffcc99; width:110px; font-family:Tahoma; line-height:150%; margin:auto; float:left; cursor:default;}
+div.mboxsel{border: solid 1px black; background-color: #660000; width:110px; font-family:Tahoma; line-height:150%; margin:auto; float:left; cursor:default;}
+div.title{background-color: #000055; width:98%; margin-top:25px; margin-bottom:20px; float:left; padding:1%; opacity:0.9;}
+div.main{background-color: #000055; width:78%; display:block; margin-bottom:20px; margin-left:1%; margin-right:1%; padding:1%; float:left; overflow:hidden;}
+div.middle{width:98%; border:hidden; height:auto;}
+div.bottom{background-color: #000055; width:98%; margin-bottom:25px; padding:1%; float:left; opacity:0.9;}
+
+label{color:#660000; border-style:hidden; margin: auto;}
+tr.zazn{background-color:#660000; margin: auto;}
+font.duzy{font-family:Tahoma; font-size:36pt;}
+p{color:#660000; border-style:hidden; margin: auto;}
+p.alert{color:black; border:solid 2px darkred; background-color:red; width:50%; margin-top:25px; margin-bottom:25px;}
+p.ok{color:black; border:solid 2px green; background-color:lime; width:50%; margin-top:25px; margin-bottom:25px;}
+p.inspokr{color:black; font: 18pt;}
+p.menu{color:#660000;}
+p.menusel{color:#ffcc99;}
+.formbtnh{background-color:#660000; border: solid 2px black; color:#ffcc99;}
+.formbtn{background-color:#ffcc99; border: solid 2px black; color:#660000;}
+.formfld{background-color:#ffcc99; border: solid 2px black; color:#660000;}
+.formfld:focus{background-color:#660000; border: solid 2px black; color: #ffcc99;}
