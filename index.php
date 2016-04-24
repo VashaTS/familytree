@@ -71,25 +71,25 @@ function html_start(){
 		else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
 		<map name="logomap" id="logomap"><area title="'.$settings['site_name'].'" shape="poly" href="'.$thisfile.'?main" coords="11,177,632,177,633,211,686,211,685,181,792,176,778,15,738,31,742,65,666,67,634,81,636,135,576,138,561,68,475,62,463,14,431,29,439,67,87,63,87,12,22,15,1,80"></map>');
 	$menus=Array();
-	$menus['search']='Szukaj';
-	$menus['stats']='Ciekawostki';
-	$menus['pokaz,all']='Famuła';
+	$menus['search']='Szukaj'; //search
+	$menus['stats']='Ciekawostki'; //stats
+	$menus['pokaz,all']='Famuła'; // family tree
 	$menus['rocznik,'.date("Y")]='Roczniki';
-	$menus['zdjgru']='Zdjęcia';
-	$menus['info']='O stronie';
+	$menus['zdjgru']='Zdjęcia'; //photos
+	$menus['info']='O stronie'; //about
 	$menus2=Array();
-	$menus2['add']='Dodaj';
-	$menus2['edit']='Edytuj';
-	$menus2['todo']='Do zrobienia';
-	$menus2['settings']='Ustawienia';
-	$menus2['users']='Użytkownicy';
-	$menus2['logs']='Logi';
-	$menus2['messages']='Opinie';
+	$menus2['add']='Dodaj'; //add new person to db
+	$menus2['edit']='Edytuj'; //edit db in bulk
+	$menus2['todo']='Do zrobienia'; // todo for website maintainer
+	$menus2['settings']='Ustawienia'; //settings
+	$menus2['users']='Użytkownicy'; //website users
+	$menus2['logs']='Logi'; //logs
+	$menus2['messages']='Opinie'; //read guestbook entries
 	$menus3=Array();
     $menus3['ipban']='Ban IP';
 	$menus3['md5']='MD5';
 	$menus3['404']='404';
-	$menus3['files']='Pliki';
+	$menus3['files']='Pliki';  
 	if(isset($_COOKIE['zal'])&checkname()) $menus['logout']='Wyloguj';
 	else $menus['login']='Zaloguj';
 	echo('<div id="men1" class="menu" style="border:hidden; width:'.((count($menus)*110)+20).'px; background-color: #ffcc99; margin:auto; padding:0px; height: 30px; text-align:center; ">');
@@ -151,8 +151,8 @@ switch($id){
 		$ile_l=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie;'));
 		$ile_lnv=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie where visible=0;'));
 		$ile_z=mysql_fetch_assoc(mysql_query('select count(*) as li from zdjecia;'));
-		echo('<h3>W bazie danych jest: '.$ile_l['li'].' osób');
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' (w tym '.$ile_lnv['li'].' ukrytych)');
+		echo('<h3>W bazie danych jest: '.$ile_l['li'].' osób'); //people in db
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' (w tym '.$ile_lnv['li'].' ukrytych)'); // # of hidden
 		echo(' i '.$ile_z['li'].' zdjęć</h3>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			$rw=mysql_fetch_assoc(mysql_query('select count(*) as cnt from ludzie where lastedit="'.$_COOKIE['zal'].'";'));
@@ -251,7 +251,7 @@ switch($id){
 		html_end();
 		break;
 	}
-	case 'add':{
+	case 'add':{ //add a person to db
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(preg_match('#,personadd,#',$currentuser['flags'])){
@@ -916,14 +916,14 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie ciekowostek, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-			echo('<h3>Najdłużej żyli:</h3>');
+			echo('<h3>Najdłużej żyli:</h3>'); //length of life
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
 			else $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where visible=1 and ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
 			for($i=0;$i<mysql_num_rows($maxl);$i+=1){
 				$maxlength=mysql_fetch_assoc($maxl);
 				echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maxlength['id'].'">'.$maxlength['imie'].' '.$maxlength['nazwisko'].'</a> ('.$maxlength['ur'].'-'.$maxlength['zm'].') - '.$maxlength['wiek'].' lat</p>');
 			}
-			echo('<h3>Najwięcej dzieci:</h3>');
+			echo('<h3>Najwięcej dzieci:</h3>'); //most children
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where rodzic1!=0;');
 			else $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where visible=1 and rodzic1!=0;');
 			$max=0;
@@ -939,7 +939,7 @@ switch($id){
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where id='.$mid.';'));
 			else $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where visible=1 and id='.$mid.';'));
 			echo('<p>'.linkujludzia($mid,2).' i '.linkujludzia($zona['zona1'],2).' - '.$max.' dzieci</p>');
-			echo('<h3>Najwięcej wnuków:</h3>');
+			echo('<h3>Najwięcej wnuków:</h3>'); //most grand children
 			$maxwn=0;
 			$maxwn_id=0;
 			$chi1=mysql_query('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
@@ -952,7 +952,7 @@ switch($id){
 				}
 			}
 			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' wnuków');
-			echo('<h3>Najczęściej występujące imie:</h3>');
+			echo('<h3>Najczęściej występujące imie:</h3>'); //most frequient name
 			$imm=mysql_query('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
 			$imk=mysql_query('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
 			for($i=0;$i<mysql_num_rows($imm);$i+=1){
@@ -1072,7 +1072,7 @@ switch($id){
 					}
 				}
 			}
-			echo('<h3>Ludzie niewidoczni dla niezalogowanych:</h3>');
+			echo('<h3>Ludzie niewidoczni dla wszystkich:</h3>'); //invisible for non-admins
 			$res6=mysql_query('select id from ludzie where visible=0;');
 			for($i=0;$i<mysql_num_rows($res6);$i+=1){
 				$one=mysql_fetch_assoc($res6);
@@ -1678,7 +1678,7 @@ switch($id){
 						echo('<p>'.linkujludzia($row['id'],2).'</p>');
 					}
 				}
-				$res=mysql_query('select * from zdjecia where rok='.htmlspecialchars($id2).' and path like "%gru%";');
+				$res=mysql_query('select * from zdjecia where rok='.htmlspecialchars($id2).' and path like "%gru%";'); //pictures taken in year $id2
 				if(mysql_num_rows($res)>0){
 					echo('<h3>Zdjęcia zrobione w '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
