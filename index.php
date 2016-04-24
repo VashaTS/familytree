@@ -9,7 +9,7 @@ include('db_connection.php');
 mysql_query('SET NAMES utf-8');
 $settings=mysql_fetch_assoc(mysql_query('select * from settings'));
 if(isset($_COOKIE['zal'])){
-	setcookie('zal',$_COOKIE['zal'],(time()+60*5));
+	setcookie('zal',$_COOKIE['zal'],(time()+60*10));
 	$currentuser=mysql_fetch_assoc(mysql_query('select id,flags from users where name="'.$_COOKIE['zal'].'" limit 1;'));
 }
 require('fpdf/fpdf.php');
@@ -110,7 +110,7 @@ function html_start(){
 }
 function html_end(){ //+google ad & analytics
 	global $ver;
-	echo('<hr><font size="1">Drzewo genealogiczne v'.$ver.' Copyleft 2012-'.date('Y').'</font><br></div><p>');
+	echo('<hr><font size="1">Drzewo genealogiczne v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a></font><br></div><p>');
 	if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
 google_ad_client = "ca-pub-5875141216022917";
 /* famula_dol */
@@ -942,7 +942,7 @@ switch($id){
 			echo('<h3>Najwięcej wnuków:</h3>');
 			$maxwn=0;
 			$maxwn_id=0;
-			$chi1=mysql_query('select id from ludzie where ur<'.(date('y')-15).';'); //starsi niż 15 lat
+			$chi1=mysql_query('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
 			for($i=0;$i<mysql_num_rows($chi1);$i+=1){
 				$r1=mysql_fetch_assoc($chi1);
 				$actwn=ilupot($r1['id'],2);
@@ -1119,9 +1119,9 @@ switch($id){
 					if($theone){
 						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-						echo('<b><a href="'.$thisfile.'?tree,'.$id3.'">Rysuj drzewo</a> | <a href="'.$thisfile.'?pokr,'.$id3.'">Spr. pokrewieństwo</a></b>');
+						echo('<center><b><a href="'.$thisfile.'?tree,'.$id3.'">Rysuj drzewo</a> | <a href="'.$thisfile.'?pokr,'.$id3.'">Spr. pokrewieństwo</a></b>');
 						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' | <a href="'.$thisfile.'?edit1,'.$id3.'">Edytuj</a> | <a href="'.$thisfile.'?add,'.$theone['id'].'">Dodaj dziecko</a>');
-						echo('<table width="100%" border="0"><tr><td width="50%" align="right" colspan="2">');
+						echo('<table width="80%" border="0"><tr><td width="50%" align="right" colspan="2">');
 						$zdjnum=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby="'.$id3.'";'));
 						$zdjnumall=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby like "%'.$id3.'%";'));
 						$slu=mysql_fetch_assoc(mysql_query('select * from zdjecia where osoby="'.$id3.'" and slub=1 limit 1;'));
@@ -1232,7 +1232,7 @@ switch($id){
 						}
 						echo('</td></tr><tr><td colspan="2" align="center">');
 						echo('<p>'.$theone['uwagi'].'</p>');
-						echo('</td></tr></table>');
+						echo('</td></tr></table></center>');
 					}
 					else{
 						echo('<p class="alert">Nie ma takiego ;)</p>');
