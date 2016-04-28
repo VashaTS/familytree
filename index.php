@@ -1,5 +1,7 @@
 <?php
 // drzewo genealogiczne
+$lng='pl';
+include('lang.php');
 $ver='1.4a';
 // 2016-04-23
 ini_set( 'display_errors', 'Off' );
@@ -54,9 +56,9 @@ $jestans=0; // global var for pokr
 include('functions.php');
 
 function html_start(){
-	global $ver,$settings,$currentuser;
+	global $ver,$settings,$currentuser,$lang,$lng;
 	header("Content-Type: text/html; charset=UTF-8");
-	echo('<html><head><title>Drzewo genealogiczne');
+	echo('<html><head><title>'.$lang[$lng][1]);
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' v'.$ver);
 	echo('</title><link rel="stylesheet" type="text/css" href="rodzina.css" />
 		<script type="text/javascript" src="rodzina.js"></script>');
@@ -67,31 +69,31 @@ function html_start(){
 		});
 		');
 		echo('</script></head><body><p>');
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': tryb administracyjny</a></h1>'); 
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
 		else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
 		<map name="logomap" id="logomap"><area title="'.$settings['site_name'].'" shape="poly" href="'.$thisfile.'?main" coords="11,177,632,177,633,211,686,211,685,181,792,176,778,15,738,31,742,65,666,67,634,81,636,135,576,138,561,68,475,62,463,14,431,29,439,67,87,63,87,12,22,15,1,80"></map>');
 	$menus=Array();
-	$menus['search']='Szukaj'; //search
-	$menus['stats']='Ciekawostki'; //stats
-	$menus['pokaz,all']='Famuła'; // family tree
-	$menus['rocznik,'.date("Y")]='Roczniki';
-	$menus['zdjgru']='Zdjęcia'; //photos
-	$menus['info']='O stronie'; //about
+	$menus['search']=$lang[$lng][3]; //search
+	$menus['stats']=$lang[$lng][4]; //stats
+	$menus['pokaz,all']=$lang[$lng][5]; // family tree
+	$menus['rocznik,'.date("Y")]=$lang[$lng][6];
+	$menus['zdjgru']=$lang[$lng][7]; //photos
+	$menus['info']=$lang[$lng][8]; //about
 	$menus2=Array();
-	$menus2['add']='Dodaj'; //add new person to db
-	$menus2['edit']='Edytuj'; //edit db in bulk
-	$menus2['todo']='Do zrobienia'; // todo for website maintainer
-	$menus2['settings']='Ustawienia'; //settings
-	$menus2['users']='Użytkownicy'; //website users
-	$menus2['logs']='Logi'; //logs
-	$menus2['messages']='Opinie'; //read guestbook entries
+	$menus2['add']=$lang[$lng][9]; //add new person to db
+	$menus2['edit']=$lang[$lng][10]; //edit db in bulk
+	$menus2['todo']=$lang[$lng][11]; // todo for website maintainer
+	$menus2['settings']=$lang[$lng][12]; //settings
+	$menus2['users']=$lang[$lng][13]; //website users
+	$menus2['logs']=$lang[$lng][14]; //logs
+	$menus2['messages']=$lang[$lng][15]; //read guestbook entries
 	$menus3=Array();
     $menus3['ipban']='Ban IP';
 	$menus3['md5']='MD5';
 	$menus3['404']='404';
-	$menus3['files']='Pliki';  
-	if(isset($_COOKIE['zal'])&checkname()) $menus['logout']='Wyloguj';
-	else $menus['login']='Zaloguj';
+	$menus3['files']=$lang[$lng][16];  
+	if(isset($_COOKIE['zal'])&checkname()) $menus['logout']=$lang[$lng][17];
+	else $menus['login']=$lang[$lng][18];
 	echo('<div id="men1" class="menu" style="border:hidden; width:'.((count($menus)*110)+20).'px; background-color: #ffcc99; margin:auto; padding:0px; height: 30px; text-align:center; ">');
 	foreach($menus as $k => $v) echo('<div class="mbox" onmouseover="highl(this.id)" onmouseout="downl(this.id)" onclick="menuclick(this.id)" id="'.$k.'"><p id="'.$k.'_p" class="menu">'.$v.'</p></div>');
 	echo('</div>');
@@ -106,11 +108,11 @@ function html_start(){
 		}
 	}
 	echo('<p>'.$settings['all_podmenu'].'</p><hr>');
-	if(isset($_COOKIE['pokr'])&($_COOKIE['pokr']!=0)) echo('<p class="ok">Wybierz drugą osobę do spr. pokrewieństwa <a href="'.$thisfile.'?pokr,del">Anuluj</a></p>');
+	if(isset($_COOKIE['pokr'])&($_COOKIE['pokr']!=0)) echo('<p class="ok">'.$lang[$lng][19].' <a href="'.$thisfile.'?pokr,del">'.$lang[$lng][20].'</a></p>');
 }
 function html_end(){ //+google ad & analytics
-	global $ver;
-	echo('<hr><font size="1">Drzewo genealogiczne v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a></font><br></div><p>');
+	global $ver,$lang,$lng;
+	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a></font><br></div><p>');
 	if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
 google_ad_client = "ca-pub-5875141216022917";
 /* famula_dol */
@@ -147,13 +149,13 @@ switch($id){
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $odroku=mysql_fetch_assoc(mysql_query('select min(ur) as minur from ludzie where ur!=0;'));
 		else $odroku=mysql_fetch_assoc(mysql_query('select min(ur) as minur from ludzie where visible=1 and ur!=0;'));
-		echo('<h2>'.$settings['main_opis'].', od roku '.$odroku['minur'].'</h2>');
+		echo('<h2>'.$settings['main_opis'].', '.$lang[$lng][21].' '.$odroku['minur'].'</h2>');
 		$ile_l=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie;'));
 		$ile_lnv=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie where visible=0;'));
 		$ile_z=mysql_fetch_assoc(mysql_query('select count(*) as li from zdjecia;'));
-		echo('<h3>W bazie danych jest: '.$ile_l['li'].' osób'); //people in db
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' (w tym '.$ile_lnv['li'].' ukrytych)'); // # of hidden
-		echo(' i '.$ile_z['li'].' zdjęć</h3>');
+		echo('<h3>'.$lang[$lng][22].' '.$ile_l['li'].' '.$lang[$lng][23]); //people in db
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' ('.$lang[$lng][24].' '.$ile_lnv['li'].' '.$lang[$lng][25].')'); // # of hidden
+		echo(' '.$lang[$lng][26].' '.$ile_z['li'].' '.$lang[$lng][27].'</h3>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			$rw=mysql_fetch_assoc(mysql_query('select count(*) as cnt from ludzie where lastedit="'.$_COOKIE['zal'].'";'));
 			$lt=mysql_fetch_assoc(mysql_query('select time from logs where user="'.$_COOKIE['zal'].'" order by time desc limit 1,1;'));
@@ -162,13 +164,13 @@ switch($id){
 			$lastvis=mktime(12,0,0,$lt1[1],$lt1[2],$lt1[0]);
 			$today=time();
 			$tdiff=$today-$lastvis;
-			echo('<h3>Witaj '.$_COOKIE['zal'].'! </h3>
-			<p>Ostatnio widzieliśmy cię '.floor($tdiff/60/60/24).' dni temu!</p>
-			<p>Dodanych / zmienionych przez ciebie: '.$rw['cnt'].'</p><br>');
+			echo('<h3>'.$lang[$lng][28].' '.$_COOKIE['zal'].'! </h3>
+			<p>'.$lang[$lng][29].' '.floor($tdiff/60/60/24).' '.$lang[$lng][30].'!</p>
+			<p>'.$lang[$lng][31].': '.$rw['cnt'].'</p><br>');
 			
-			if(preg_match('#,menu2view,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz zarządzać tą stroną</h4>');
-			else echo('<h4>&#10008; Nie możesz zarządzać tą stroną</h4>');
-			if(preg_match('#,personadd,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz dodawać nowych ludzi</h4>');
+			if(preg_match('#,menu2view,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][32].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][33].'</h4>');
+			if(preg_match('#,personadd,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][34].'</h4>');
 			else echo('<h4>&#10008; Nie możesz dodawać nowych ludzi</h4>');
 			if(preg_match('#,persondel,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz usuwać ludzi</h4>');
 			else echo('<h4>&#10008; Nie możesz usuwać ludzi</h4>');
