@@ -171,25 +171,25 @@ switch($id){
 			if(preg_match('#,menu2view,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][32].'</h4>');
 			else echo('<h4>&#10008; '.$lang[$lng][33].'</h4>');
 			if(preg_match('#,personadd,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][34].'</h4>');
-			else echo('<h4>&#10008; Nie możesz dodawać nowych ludzi</h4>');
-			if(preg_match('#,persondel,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz usuwać ludzi</h4>');
-			else echo('<h4>&#10008; Nie możesz usuwać ludzi</h4>');
-			if(preg_match('#,personedit,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz edytować ludzi</h4>');
-			else echo('<h4>&#10008; Nie możesz edytowac ludzi</h4>');
-			if(preg_match('#,picadd,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz dodawać zdjęcia</h4>');
-			else echo('<h4>&#10008; Nie możesz dodawać zdjęć</h4>');
-			if(preg_match('#,picdel,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz usuwać zdjęcia</h4>');
-			else echo('<h4>&#10008; Nie możesz usuwać zdjęć</h4>');
-			if(preg_match('#,picedit,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz edytować zdjęcia</h4>');
-			else echo('<h4>&#10008; Nie możesz edytować zdjęć</h4>');
-			if(preg_match('#,grupersonadd,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz dodawać ludzi do zdjęć</h4>');
-			else echo('<h4>&#10008; Nie możesz dodawać ludzi do zdjęć</h4>');
-			if(preg_match('#,grupersondel,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz usuwać ludzi ze zdjęć</h4>');
-			else echo('<h4>&#10008; Nie możesz usuwać ludzi ze zdjęć</h4>');
-			if(preg_match('#,useredit,#',$currentuser['flags'])) echo('<h4>&#10004; Możesz edytować użytkowników</h4>');
-			else echo('<h4>&#10008; Nie możesz edytowac użytkowników</h4>');
-			if(preg_match('#,menu3view,#',$currentuser['flags'])) echo('<h4>&#10004; Widzisz rozszerzone menu</h4>');
-			else echo('<h4>&#10008; Nie widzisz rozszerzonego menu</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][35].'</h4>');
+			if(preg_match('#,persondel,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][36].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][37].'</h4>');
+			if(preg_match('#,personedit,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][38].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][39].'</h4>');
+			if(preg_match('#,picadd,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][40].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][41].'</h4>');
+			if(preg_match('#,picdel,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][42].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][43].'</h4>');
+			if(preg_match('#,picedit,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][44].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][45].'</h4>');
+			if(preg_match('#,grupersonadd,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][46].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][47].'</h4>');
+			if(preg_match('#,grupersondel,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][48].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][49].'</h4>');
+			if(preg_match('#,useredit,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][50].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][51].'</h4>');
+			if(preg_match('#,menu3view,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][52].'</h4>');
+			else echo('<h4>&#10008; '.$lang[$lng][53].'</h4>');
 		}
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie strony głównej", time="'.date("Y-m-d H:i:s").'"');
 		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie strony głównej, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
@@ -199,7 +199,7 @@ switch($id){
 	case 'login':{ // ALL CAN SEE
 		html_start();
 		echo('<form name="login" action="'.$thisfile.'?login-do" method="POST"><label>login:<input class="formfld" type="text" name="login"></label><br>
-		<label>hasło:<input class="formfld" type="password" name="pass"></label><br><input class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" id="loginbtn" type="submit" name="submit" value="Zaloguj"></form>');
+		<label>'.$lang[$lng][54].':<input class="formfld" type="password" name="pass"></label><br><input class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" id="loginbtn" type="submit" name="submit" value="'.$lang[$lng][18].'"></form>');
 		html_end();
 		break;
 	}
@@ -223,22 +223,22 @@ switch($id){
 				}
 				else{
 					html_start();
-					echo('<p class="alert">Zły login lub hasło</p>');
-					mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+					echo('<p class="alert">'.$lang[$lng][55].'</p>');
+					mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - hasło, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 					html_end();
 				}
 			}
 			else{
 				html_start();
-				echo('<p class="alert">Zły login lub hasło</p>');
-				mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+				echo('<p class="alert">'.$lang[$lng][55].'</p>');
+				mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - login, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 				html_end();
 			}
 		}
 		else{
 			html_start();
-			echo('<p class="alert">Brak loginu lub hasła</p>');
-			mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+			echo('<p class="alert">'.$lang[$lng][55].'</p>');
+			mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - puste pole, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			html_end();
 		}
 		break;
@@ -249,7 +249,7 @@ switch($id){
 		unset($_COOKIE['zal']);
 		unset($_COOKIE['ssid']);
 		html_start();
-		echo('<p class="ok">Wylogowano</p>');
+		echo('<p class="ok">'.$lang[$lng][56].'</p>');
 		html_end();
 		break;
 	}
@@ -871,9 +871,9 @@ switch($id){
 	case 'search':{
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
-			echo('<p><b>Uwaga! Wpisuj nazwisko rodowe!</b><form name="search" method="POST" action="'.$thisfile.'?search"><center><table border="0"><tr><td>imie</td><td>nazwisko</td><td>&nbsp;</td></tr><tr><td><input class="formfld" type="text" name="q1" value="'.$_POST['q1'].'"></td><td><input class="formfld" type="text" name="q2" value="'.$_POST['q2'].'"></td><td><input class="formbtn" id="szukaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="Szukaj"></td></tr><tr><td align="center" colspan="2"><label><input class="formfld" type="checkbox" name="exact" value="1"');
+			echo('<p><b>'.$lang[$lng][57].'</b><form name="search" method="POST" action="'.$thisfile.'?search"><center><table border="0"><tr><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>&nbsp;</td></tr><tr><td><input class="formfld" type="text" name="q1" value="'.$_POST['q1'].'"></td><td><input class="formfld" type="text" name="q2" value="'.$_POST['q2'].'"></td><td><input class="formbtn" id="szukaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="'.$lang[$lng][3].'"></td></tr><tr><td align="center" colspan="2"><label><input class="formfld" type="checkbox" name="exact" value="1"');
 			if(isset($_POST['exact'])) echo(' checked="checked"');
-			echo('>dokładnie to</label></td><td>&nbsp;</td></tr></table></center></form></p><br>');
+			echo('>'.$lang[$lng][58].'</label></td><td>&nbsp;</td></tr></table></center></form></p><br>');
 			if(strlen($id2)>2) $_POST['q1']=$id2;
 			if(strlen($id3)>2) $_POST['q2']=$id3;
 			if(isset($_POST['q1'])|isset($_POST['q2'])){
@@ -895,19 +895,21 @@ switch($id){
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie like "%'.htmlspecialchars($_POST['q1']).'%" and nazwisko like "%'.htmlspecialchars($_POST['q2']).'%" order by imie,nazwisko;');
 					else $res=mysql_query('select id from ludzie where visible=1 and (imie like "%'.htmlspecialchars($_POST['q1']).'%" and nazwisko like "%'.htmlspecialchars($_POST['q2']).'%") order by imie,nazwisko;');
 				}
-				echo('<h2>Znaleziono '.mysql_num_rows($res).' os');
+				echo('<h2>'.$lang[$lng][61].' '.mysql_num_rows($res).' '.$lang[$lng][62]);
 				if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Szukanie '.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'", time="'.date("Y-m-d H:i:s").'";');
 				else mysql_query('insert into logs set user="niezalogowany", action="Szukanie <a href="'.$thisfile.'?search,'.$_POST['q1'].','.$_POST['q2'].'">'.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'</a>, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-				if(mysql_num_rows($res)==1) echo('obę');
-				else if(((substr(mysql_num_rows($res),-1,1)=='2')|(substr(mysql_num_rows($res),-1,1)=='3')|(substr(mysql_num_rows($res),-1,1)=='4'))&(substr(mysql_num_rows($res),-2,1)!='1')) echo ('oby');
-				else echo('ób');
+				if($lng=='pl'){
+					if(mysql_num_rows($res)==1) echo('obę');
+					else if(((substr(mysql_num_rows($res),-1,1)=='2')|(substr(mysql_num_rows($res),-1,1)=='3')|(substr(mysql_num_rows($res),-1,1)=='4'))&(substr(mysql_num_rows($res),-2,1)!='1')) echo ('oby');
+					else echo('ób');
+				}
 				echo('</h2>');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<p>'.linkujludzia($row['id'],3).'</p>');
 				}
 				if(mysql_num_rows($res)==0){
-					echo('<h3>A powinien ktoś być? jeżeli tak, <a href="'.$thisfile.'?kontakt">Zgłoś to</a></h3>');
+					echo('<h3>'.$lang[$lng][63].', <a href="'.$thisfile.'?kontakt">'.$lang[$lng][64].'</a></h3>');
 				}
 			}
 		}
