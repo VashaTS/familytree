@@ -75,6 +75,7 @@ function odmiana_k($imie){
 	return $new;
 }
 function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodziców, żon/mężów, dzieci
+	global $lang,$lng;
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$uid.';'));
 	else $row=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$uid.';'));
 	switch($style){
@@ -83,8 +84,8 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				else $rur=$row['ur'];
 				if($row['zm']==0) $rzm='?';
 				else $rzm=$row['zm'];
-				if($row['sex']=='k') $rse='córka';
-				else $rse='syn';
+				if($row['sex']=='k') $rse=$lang[$lng][65];
+				else $rse=$lang[$lng][66];
 				$wynik='<a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'];
 				if($rzm=='?'){
 					if($rur!='?') $wynik.=' ('.$rur.')';
