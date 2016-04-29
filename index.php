@@ -1,6 +1,7 @@
 <?php
 // drzewo genealogiczne
 $lng='pl';
+if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
 $ver='1.4a';
 // 2016-04-23
@@ -70,10 +71,11 @@ function html_start(){
 		');
 		echo('</script></head><body>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
+			echo('<div style="float:right; border:none; vertical-align:center;">');
 			foreach($lang as $k1 => $v1){
-				echo('<a href=""><img src="flags/'.$k1.'.png"></a>');
+				echo('<a href="'.$thisfile.'?set-lang,'.$k1.'"><img border="1" src="flags/'.$k1.'.png"></a>');
 			}
-			echo('<br>');
+			echo('</div><br>');
 		}
 		echo('<p>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
@@ -208,6 +210,22 @@ switch($id){
 		echo('<form name="login" action="'.$thisfile.'?login-do" method="POST"><label>login:<input class="formfld" type="text" name="login"></label><br>
 		<label>'.$lang[$lng][54].':<input class="formfld" type="password" name="pass"></label><br><input class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" id="loginbtn" type="submit" name="submit" value="'.$lang[$lng][18].'"></form>');
 		html_end();
+		break;
+	}
+	case 'set-lang':{
+		if(isset($lang[$id2])){
+			setcookie('lan',$id2,(time()+60*60*24*61));
+			html_start();
+			echo('<p class="ok">Login OK</p><script type="text/javascript">
+			document.location="'.$thisfile.'?main";
+			</script>');
+			html_end();
+		}
+		else{
+			html_start();
+			echo('<p class="alert">Jaki język?</p>');
+			html_end();
+		}
 		break;
 	}
 	case 'login-do':{ // ALL CAN SEE
@@ -927,14 +945,14 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie ciekowostek, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-			echo('<h3>Najdłużej żyli:</h3>'); //length of life
+			echo('<h3>'.$lang[$lng][92].':</h3>'); //length of life
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
 			else $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where visible=1 and ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
 			for($i=0;$i<mysql_num_rows($maxl);$i+=1){
 				$maxlength=mysql_fetch_assoc($maxl);
-				echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maxlength['id'].'">'.$maxlength['imie'].' '.$maxlength['nazwisko'].'</a> ('.$maxlength['ur'].'-'.$maxlength['zm'].') - '.$maxlength['wiek'].' lat</p>');
+				echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maxlength['id'].'">'.$maxlength['imie'].' '.$maxlength['nazwisko'].'</a> ('.$maxlength['ur'].'-'.$maxlength['zm'].') - '.$maxlength['wiek'].' '.$lang[$lng][94].'</p>');
 			}
-			echo('<h3>Najwięcej dzieci:</h3>'); //most children
+			echo('<h3>'.$lang[$lng][93].':</h3>'); //most children
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where rodzic1!=0;');
 			else $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where visible=1 and rodzic1!=0;');
 			$max=0;
@@ -949,8 +967,8 @@ switch($id){
 			}
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where id='.$mid.';'));
 			else $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where visible=1 and id='.$mid.';'));
-			echo('<p>'.linkujludzia($mid,2).' i '.linkujludzia($zona['zona1'],2).' - '.$max.' dzieci</p>');
-			echo('<h3>Najwięcej wnuków:</h3>'); //most grand children
+			echo('<p>'.linkujludzia($mid,2).' i '.linkujludzia($zona['zona1'],2).' - '.$max.' '.strtolower($lang[$lng][76]).'</p>');
+			echo('<h3>'.$lang[$lng][95].':</h3>'); //most grand children
 			$maxwn=0;
 			$maxwn_id=0;
 			$chi1=mysql_query('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
@@ -962,8 +980,8 @@ switch($id){
 					$maxwn=$actwn;
 				}
 			}
-			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' wnuków');
-			echo('<h3>Najczęściej występujące imie:</h3>'); //most frequient name
+			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' '.strtolower($lang[$lng][77]));
+			echo('<h3>'.$lang[$lng][96].':</h3>'); //most frequient name
 			$imm=mysql_query('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
 			$imk=mysql_query('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
 			for($i=0;$i<mysql_num_rows($imm);$i+=1){
@@ -984,7 +1002,7 @@ switch($id){
 					$immax=$k;
 				}
 			}
-			echo('<p>Męskie: '.$immax.' ('.$immaxc.')</p>');
+			echo('<p>'.$lang[$lng][97].': '.$immax.' ('.$immaxc.')</p>');
 			$kimmax='';
 			$kimmaxc=0;
 			foreach($imionak as $k => $v){
@@ -993,12 +1011,12 @@ switch($id){
 					$kimmax=$k;
 				}
 			}
-			echo('<p>Żeńskie: '.$kimmax.' ('.$kimmaxc.')</p>');
+			echo('<p>'.$lang[$lng][98].': '.$kimmax.' ('.$kimmaxc.')</p>');
 		}
 		//life expectancy normal distribution
-		echo('<h3>Rozkład normalny długości życia</h3>');
+		echo('<h3>'.$lang[$lng][99].'</h3>');
 		$q1=mysql_query('select ur,zm from ludzie where ur>0 and zm>0;');
-		echo('<p>Na podstawie danych '.mysql_num_rows($q1).' osób (znana data urodzenia i śmierci)</p>');
+		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
 		$a1=Array();
 		for($dz=0;$dz<=110;$dz+=1) $a1[$dz]=0;
 		for($i1=0;$i1<mysql_num_rows($q1);$i1+=1){
@@ -1032,7 +1050,7 @@ switch($id){
 	case 'todo':{ // auto-generated data completion check
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-			echo('<h3>Nieznane imie lub nazwisko</h3>');
+			echo('<h3>'.$lang[$lng][102].'</h3>');
 			$res=mysql_query('select id from ludzie where imie="???" or nazwisko="???";');
 			echo('<table border="0"><tr><td>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -1045,14 +1063,14 @@ switch($id){
 				echo('<p>'.linkujludzia($row['id'],1).'</p>');
 			}
 			echo('</td></tr></table>');
-			echo('<h3>Napewno jeszcze żyją? (ponad 95 lat)</h3>');
+			echo('<h3>'.$lang[$lng][103].'</h3>');
 			$res=mysql_query('select id,ur from ludzie where ur<'.(date('Y')-95).' and ur!=0 and zm=0;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<p>'.linkujludzia($row['id'],1).' (ma '.(date('Y')-$row['ur']).' lat)</p>');
 			}
 			$res=mysql_query('select id,pok,zona1,zona2,zona3 from ludzie where sex="m";');
-			if(mysql_num_rows($res)>0) echo('<h3>Małżeństwa w różnych pokoleniach: napewno dobrze?</h3>');
+			if(mysql_num_rows($res)>0) echo('<h3>'.$lang[$lng][104].'</h3>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				if($row['zona1']!=0){
@@ -1068,7 +1086,7 @@ switch($id){
 					if($row['pok']!=$z3['pok']) echo('<p>'.linkujludzia($row['id'],2).' jest z pokolenia '.$row['pok'].', a jego żona '.linkujludzia($row['zona1'],2).' jest z pokolenia '.$z3['pok'].'</p>');
 				}
 			}
-			echo('<h3>Napewno dobrze?</h3>');
+			echo('<h3>'.$lang[$lng][105].'</h3>');
 			$res=mysql_query('select id,rodzic1,rodzic2,ur from ludzie;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$one=mysql_fetch_assoc($res);
@@ -1083,13 +1101,18 @@ switch($id){
 					}
 				}
 			}
-			echo('<h3>Ludzie niewidoczni dla wszystkich:</h3>'); //invisible for non-admins
+			echo('<h3>'.$lang[$lng][106].':</h3>'); //invisible for non-admins
 			$res6=mysql_query('select id from ludzie where visible=0;');
 			for($i=0;$i<mysql_num_rows($res6);$i+=1){
 				$one=mysql_fetch_assoc($res6);
 				echo(linkujludzia($one['id'],2));
 			}
 			mysql_free_result($res6);
+			echo('<h3>'.$lang[$lng][107].'</h3>');
+			foreach($lang as $kk => $vv){
+				if(count($vv)==count($lang['pl'])) echo($kk.' OK, ');
+				else echo($kk.' Bad, ');
+			}
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Do zrobienia, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
@@ -2346,7 +2369,7 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Spowodował 404", time="'.date("Y-m-d H:i:s").'";');
 		else mysql_query('insert into logs set user="niezalogowany", action="Spowodował 404, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-		echo('<p class="alert">404: Nie ma takiej strony</p><br><p>albo nie masz uprawnień do jej przeglądania</p>');
+		echo('<p class="alert">404: '.$lang[$lng][89].'</p>');
 		html_end();
 	}
 }
