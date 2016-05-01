@@ -99,7 +99,7 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 					else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
 					else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
-					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' i '.odmiana_k($r2['imie']);
+					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
 				}
 			break;
 		}

@@ -129,6 +129,11 @@ $lang['pl'][127]='lat';
 $lang['pl'][128]='Jest chrzestnym';
 $lang['pl'][129]='Anulowano';
 $lang['pl'][130]='Brak pokrewieństwa';
+$lang['pl'][131]='Możesz normalnie przegądać stronę. Kliknij na link "<b>Spr. pokrewieństwo</b>" przy drugiej osobie';
+$lang['pl'][132]='OK, teraz wybierz drugą osobę';
+$lang['pl'][133]='Nie wiem kogo sprawdzić. Zgłoś ten błąd do administratora';
+$lang['pl'][134]='wygenerowano na stronie';
+$lang['pl'][135]='i';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -260,5 +265,10 @@ $lang['en'][127]='years';
 $lang['en'][128]='Godparent of';
 $lang['en'][129]='Canceled';
 $lang['en'][130]='No relation';
+$lang['en'][131]='You can navigate as usual. Click on "<b>Check relations</b>" link on second person\'s page';
+$lang['en'][132]='OK, now select second person.';
+$lang['en'][133]='Who to check?. Report this error to administrator';
+$lang['en'][134]='Generated on';
+$lang['en'][135]='and';
 
 ?>

@@ -1159,7 +1159,7 @@ switch($id){
 						$zdjnum=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby="'.$id3.'";'));
 						$zdjnumall=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby like "%'.$id3.'%";'));
 						$slu=mysql_fetch_assoc(mysql_query('select * from zdjecia where osoby="'.$id3.'" and slub=1 limit 1;'));
-						if($zdjnum['num']==0) echo('<img src="brakzdj.png" class="lud" border="4" title="'.$lang[$lng][71].'">');
+						if($zdjnum['num']==0) echo('<img src="brakzdj_'.$lng.'.png" class="lud" border="4" title="'.$lang[$lng][71].'">');
 						if($slu){
 							echo('<img src="'.$slu['path'].'" class="lud" border="4" title="'.$lang[$lng][72].' '.$slu['rok'].'">');
 							$zdj=mysql_query('select * from zdjecia where osoby="'.$id3.'" and slub=0 order by rok desc,id desc limit 1;');
@@ -1359,7 +1359,7 @@ switch($id){
 							else $zb=mysql_fetch_assoc(mysql_query('select path from zdjecia where osoby="'.$b.'" order by rok desc;'));
 							echo('<table border="0" width="100%"><tr><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$a.'"><img class="lud" border="4" src="');
 							if(strlen($za['path'])>4) echo($za['path']);
-							else echo('brakzdj.png');
+							else echo('brakzdj_'.$lng.'.png');
 							echo('"><br><p class="inspokr">'.$oa['imie'].' '.$oa['nazwisko'].'</p></a></td><td width="60%"><p class="inspokr">');
 							if($p=='NIE ZNALEZIONO') echo($lang[$lng][130]);
 							else{
@@ -1369,7 +1369,7 @@ switch($id){
 							}
 							echo('</p></td><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$b.'"><img class="lud" border="4" src="');
 							if(strlen($zb['path'])>4) echo($zb['path']);
-							else echo('brakzdj.png');
+							else echo('brakzdj_'.$lng.'.png');
 							echo('"><br><p class="inspokr">'.$ob['imie'].' '.$ob['nazwisko'].'</p></a></td></tr></table>');
 							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.'", time="'.date("Y-m-d H:i:s").'";');
 							else mysql_query('insert into logs set user="niezalogowany", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
@@ -1384,7 +1384,7 @@ switch($id){
 					else{
 						setcookie('pokr',$id2);
 						html_start();
-						echo('<p class="ok">OK, teraz wybierz drugą osobę</p><br><p>Możesz normalnie przegądać stronę. Kliknij na link "<b>Spr. pokrewieństwo</b>" przy drugiej osobie</p>');
+						echo('<p class="ok">'.$lang[$lng][132].'</p><br><p>'.$lang[$lng][131].'</p>');
 						echo('<script type="text/javascript">
 						document.location="'.$thisfile.'?search";
 						</script>');
@@ -1394,7 +1394,7 @@ switch($id){
 			}
 			else{
 				html_start();
-				echo('<p class="alert">Nie wiem kogo sprawdzić. Zgłoś ten błąd do administratora</p>');
+				echo('<p class="alert">'.$lang[$lng][133].'</p>');
 				html_end();
 			}
 			break;
@@ -1602,7 +1602,7 @@ switch($id){
 					}
 					$pdf->SetXY($w-50,$h+15);
 					$pdf->SetTextColor(100,100,100);
-					$pdf->Write(0,UTF8_2_ISO88592('wygenerowano na stronie: '.$settings['site_name']));
+					$pdf->Write(0,UTF8_2_ISO88592($lang[$lng][134].': '.$settings['site_name']));
 					$pdf->SetAuthor('Szymon Marciniak');
 					$pdf->SetCreator(UTF8_2_ISO88592($settings['site_name']));
 					$pdf->Output($filename);
