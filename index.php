@@ -1730,7 +1730,8 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie O strinie", time="'.date("Y-m-d H:i:s").'"');
 		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie O strinie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-		echo($settings['about']); // edit this in index.php?settings
+		echo('<h3>'.$lang[$lng][144].':</h3><a href="index.php?pokaz,one,78">Szymon Marciniak</a> ('.$lang[$lng][21].' 2012)<h3><a href="index.php?kontakt">'.$lang[$lng][145].'</a></h3> <h3>'.$lang[$lng][146].':</h3><a href="index.php?pokaz,one,76">Jolanta Marciniak</a> ('.$lang[$lng][21].' 2004)<br><br>');
+		echo('<img src="zeszyty.png" border="0" title="Papierowe zapiski Joli"> <img src="andrzej.jpg" border="0" title="Zapiski rodzinne Andrzeja Marciniaka (1890) z lat 1921 - 1952"><br><br>');  // my particular use case - no translation
 		html_end();
 		break;
 	}
@@ -1757,16 +1758,16 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Kontakt", time="'.date("Y-m-d H:i:s").'"');
 		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie Kontakt, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 		if(isset($_POST['submit'])){
-			if(mysql_query('insert into opinie set tresc="Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']).'", time="'.date("Y-m-d H:i:s").'", ip="'.$_SERVER['REMOTE_ADDR'].'";')) echo('<p class="ok">Wysłano</p>');
-			else echo('<p class="alert">Nie udało się wysłać</p>');
+			if(mysql_query('insert into opinie set tresc="Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']).'", time="'.date("Y-m-d H:i:s").'", ip="'.$_SERVER['REMOTE_ADDR'].'";')) echo('<p class="ok">'.$lang[$lng][147].'</p>');
+			else echo('<p class="alert">'.$lang[$lng][148].'</p>');
 			$headers ="MIME-Version: 1.0\n"; 
 			$headers.="Content-type: text/html; charset=UTF-8\n"; 
 			mail($settings['admin_mail'],'Nowy wpis na famule','Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']),$headers);
 		}
-		echo('<h3>Kontakt w sprawie zmian na stronie albo dodawania nowych ludzi:</h3>
-		<p>W szczególności interesujące będą:  		<center><table border="0"><tr><td> 		<li>daty urodzin i śmierci ludzi, którzy nie żyją od dawna</li> 		<li>zdjęcia (czym starsze tym lepsze)</li> 		<li>informacje o rodzicach, żon i mężów</li></td></tr></table> 		</center></p>
-		<p><form name="kont" action="'.$thisfile.'?kontakt" method="POST"><label>Imię i Nazwisko: <input type="text" name="imie" size="40" class="formfld"></label><br><textarea name="tresc" rows="6" cols="60" class="formfld"></textarea><br><label>email: <input type="text" name="email" class="formfld"></label><br>
-		<input type="submit" name="submit" value="Wyślij" class="formbtn" id="wyslijopinie" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);"></form></p>');
+		echo('<h3>'.$lang[$lng][136].':</h3>
+		<p>'.$lang[$lng][137].':<center><table border="0"><tr><td><li>'.$lang[$lng][138].'</li><li>'.$lang[$lng][139].'</li> <li>'.$lang[$lng][140].'</li></td></tr></table> </center></p>
+		<p><form name="kont" action="'.$thisfile.'?kontakt" method="POST"><label>'.$lang[$lng][141].': <input type="text" name="imie" size="40" class="formfld"></label><br><textarea name="tresc" rows="6" cols="60" class="formfld"></textarea><br><label>email: <input type="text" name="email" class="formfld"></label><br>
+		<input type="submit" name="submit" value="'.$lang[$lng][142].'" class="formbtn" id="wyslijopinie" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);"></form></p>');
 		html_end();
 		break;
 	}
@@ -1821,7 +1822,7 @@ switch($id){
 							}
 							else echo('<p class="alert">Nie udało sie usunąć zdjęcia nr '.$id2.'. Zgłoś ten błąd do adminsitratora.</p>');
 						}
-						else echo('<p class="alert">Nie ma takiego zdjęcia grupowego</p>');
+						else echo('<p class="alert">'.$lang[$lng][143].'</p>');
 					}
 					else{
 						echo('<p>Czy napewno usunąć to zdjęcie?</p><p class="alert"><a href="'.$thisfile.'?zdjgru-del,'.$id2.',taknapewno">Tak, napewno usunąć</a></p><p class="ok"><a href="'.$thisfile.'?zdjgru1,'.$id2.'">Nie usuwaj</a></p>');
@@ -1831,7 +1832,7 @@ switch($id){
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-				echo('<p class="alert">Nie masz uprawnień do usuwania zdjęć</p>');
+				echo('<p class="alert">'.$lang[$lng][43].'</p>');
 			}
 		}
 		else{
@@ -1877,8 +1878,7 @@ switch($id){
 				}
 				echo('</map>');
 				if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie zdjęcia'.htmlspecialchars($id2).': '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
-				//else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie zdjęcia '.$row['opis'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');		
-				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$row['path'].'">Edytuj zdjęcie</a> | <a href="'.$thisfile.'?zdjgru-del,'.$row['id'].'">Usuń zdjęcie</a><br>');
+				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$row['path'].'">'.$lang[$lng][149].'</a> | <a href="'.$thisfile.'?zdjgru-del,'.$row['id'].'">'.$lang[$lng][150].'</a><br>');
 			}
 		}
 		html_end();
@@ -1905,16 +1905,16 @@ switch($id){
 					}
 					if(mysql_query('update zdjecia set osoby="'.$noso.'", coords="'.$ncrd.'" where id='.$zdjecie['id'].';')){
 						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto ludzia ze zdjęcia grupowego nr '.$zdjecie['id'].'", time="'.date("Y-m-d H:i:s").'";');
-						echo('<p class="ok">Poprawnie usunięto osobe ze zdjęcia</p>');
+						echo('<p class="ok">'.$lang[$lng][151].'</p>');
 					}
-					else echo('<p class="ok">Nie udało się usunąć osoby ze zdjęcia</p>');
-					echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$id2.'">Wróć do edytowania tego zdjęcia</a>');
+					else echo('<p class="ok">'.$lang[$lng][152].'</p>');
+					echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$id2.'">'.$lang[$lng][153].'</a>');
 				}
-				else echo('<p class="alert">Nie wiem kogo usunąć</p>');
+				else echo('<p class="alert">'.$lang[$lng][154].'</p>');
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usuwania ludzi ze zdjęć grupowych, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-				echo('<p class="alert">Nie masz uprawnień do usuwania ludzi ze zdjęć</p>');
+				echo('<p class="alert">'.$lang[$lng][49].'</p>');
 			}
 		}
 		else{
@@ -1931,12 +1931,12 @@ switch($id){
 				if(isset($_POST['submit'])){
 					if(mysql_query('update zdjecia set rok='.htmlspecialchars($_POST['rok']).', opis="'.htmlspecialchars($_POST['opis']).'", cat="'.htmlspecialchars($_POST['cat']).'" where id='.htmlspecialchars($_POST['id']).';')){
 						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia '.htmlspecialchars($_POST['opis']).'", time="'.date("Y-m-d H:i:s").'";');
-						echo('<p class="ok">Poprawnie zmieniono</p>');
+						echo('<p class="ok">'.$lang[$lng][155].'</p>');
 					}
-					else echo('<p class="alert">Nie udało się zmienić</p>');
-					echo('<a href="'.$thisfile.'?zdjgru1,'.$_POST['id'].'">Wróć do zdjęcia</a>');
+					else echo('<p class="alert">'.$lang[$lng][157].'</p>');
+					echo('<a href="'.$thisfile.'?zdjgru1,'.$_POST['id'].'">'.$lang[$lng][158].'</a>');
 				}
-				else echo('<p class="alert">Na tę strone można wejść tylko przez klikniecie przycisku</p>');
+				else echo('<p class="alert">'.$lang[$lng][156].'</p>');
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
@@ -2046,7 +2046,7 @@ switch($id){
 							imagejpeg($min,'gfx/'.$newname.'m.jpg');
 							echo('<form name="stg2" action="'.$thisfile.'?zdjgru-add" method="POST"><table border="0"><tr><td><div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\'gfx/'.$newname.'.jpg\');width:'.$width_duz.'px;height:'.$nih.'px;"></td></tr>');
 							echo('<input type="hidden" name="zdjname" value="'.$newname.'"><input type="hidden" name="rok" value="'.$_POST['rok'].'"><input type="hidden" name="opis" value="'.$_POST['opis'].'">');
-							echo('<tr><td><select class="formfld" id="z1" name="kto"><option value="0">Nieznany</option>');
+							echo('<tr><td><select class="formfld" id="z1" name="kto"><option value="0">'.$lang[$lng][113].'</option>');
 							$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie');
 							for($i=0;$i<mysql_num_rows($res);$i+=1){
 								$row=mysql_fetch_assoc($res);
@@ -2116,14 +2116,14 @@ switch($id){
 							$zdjdel=mysql_fetch_assoc(mysql_query('select * from zdjecia where id='.$_POST['id'].';'));
 							if(mysql_query('delete from zdjecia where id='.$_POST['id'].';')){
 								unlink($zdjdel['path']);
-								echo('<p class="ok">Poprawnie usunięto zdjęcie</p>');
+								echo('<p class="ok">'.$lang[$lng][159].'</p>');
 								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie", time="'.date("Y-m-d H:i:s").'";');
 							}
-							else echo('<p class="alert">Nie udało się usunąć zdjęcia</p>');
+							else echo('<p class="alert">'.$lang[$lng][160].'</p>');
 						}
 						else{
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia '.$zdjdel['path'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-							echo('<p class="alert">Nie masz uprawnień do usuwania zdjęć</p>');
+							echo('<p class="alert">'.$lang[$lng][43].'</p>');
 						}
 					}
 					if(isset($_POST['zmien'])){
@@ -2137,15 +2137,15 @@ switch($id){
 								$q.=' where id='.$_POST['id'].';';
 								if(mysql_query($q)){
 									mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia", time="'.date("Y-m-d H:i:s").'";');
-									echo('<p class="ok">Poprawnie zmieniono zdjęcie</p>');
+									echo('<p class="ok">'.$lang[$lng][162].'</p>');
 								}
-								else echo('<p class="alert">Nie udało się zmienic zdjecia</p>');
+								else echo('<p class="alert">'.$lang[$lng][163].'</p>');
 							}
-							else echo('<p class="alert">Podaj rok jako 4 cyfry</p>');
+							else echo('<p class="alert">'.$lang[$lng][161].'</p>');
 						}
 						else{
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjecia, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-							echo('<p class="alert">Nie masz uprawnień do edytowania zdjęć</p>');
+							echo('<p class="alert">'.$lang[$lng][45].'</p>');
 						}
 					}
 				}
