@@ -1016,33 +1016,35 @@ switch($id){
 		//life expectancy normal distribution
 		echo('<h3>'.$lang[$lng][99].'</h3>');
 		$q1=mysql_query('select ur,zm from ludzie where ur>0 and zm>0;');
+		$fnam='norm/normaldist'.mysql_num_rows($q1).'.png';
 		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
-		$a1=Array();
-		for($dz=0;$dz<=110;$dz+=1) $a1[$dz]=0;
-		for($i1=0;$i1<mysql_num_rows($q1);$i1+=1){
-			$r1=mysql_fetch_assoc($q1);
-			$latc=($r1['zm']-$r1['ur']);
-			$a1[$latc]=$a1[$latc]+1;
+		if(!file_exists($fnam)){
+			$a1=Array();
+			for($dz=0;$dz<=110;$dz+=1) $a1[$dz]=0;
+			for($i1=0;$i1<mysql_num_rows($q1);$i1+=1){
+				$r1=mysql_fetch_assoc($q1);
+				$latc=($r1['zm']-$r1['ur']);
+				$a1[$latc]=$a1[$latc]+1;
+			}
+			ksort($a1);
+			$colwidth=15;
+			$imgw=50+(110*$colwidth);
+			$imgh=250;
+			$img=imagecreatetruecolor($imgw,$imgh);
+			$black=imagecolorallocate($img,0,0,0);
+			$white=imagecolorallocate($img,255,255,255);
+			$blue=imagecolorallocate($img,20,20,240);
+			imagefilledrectangle($img,0,0,$imgw,$imgh,$black); // whole image black
+			imageline($img,50,0,50,($imgh-20),$white); //vertical line
+			imageline($img,50,($imgh-20),$imgw,($imgh-20),$white); //horizontal line
+			imagestring($img,2,10,5,max($a1),$white);
+			imagestring($img,2,10,((($imgh-50)/2)+5),round(max($a1)/2,0),$white);
+			foreach($a1 as $k => $v){
+				imagestring($img,1,(50+($k*$colwidth)+($colwidth/2)),($imgh-19),$k,$white);
+				imagefilledrectangle($img,(51+($k*$colwidth)),($imgh-21),(49+(($k+1)*$colwidth)),(($imgh-20)-(($v/max($a1))*($imgh-20))-1),$blue);
+			}
+			imagepng($img,$fnam);
 		}
-		ksort($a1);
-		$colwidth=15;
-		$imgw=50+(110*$colwidth);
-		$imgh=250;
-		$img=imagecreatetruecolor($imgw,$imgh);
-		$black=imagecolorallocate($img,0,0,0);
-		$white=imagecolorallocate($img,255,255,255);
-		$blue=imagecolorallocate($img,20,20,240);
-		imagefilledrectangle($img,0,0,$imgw,$imgh,$black); // whole image black
-		imageline($img,50,0,50,($imgh-20),$white); //vertical line
-		imageline($img,50,($imgh-20),$imgw,($imgh-20),$white); //horizontal line
-		imagestring($img,2,10,5,max($a1),$white);
-		imagestring($img,2,10,((($imgh-50)/2)+5),round(max($a1)/2,0),$white);
-		foreach($a1 as $k => $v){
-			imagestring($img,1,(50+($k*$colwidth)+($colwidth/2)),($imgh-19),$k,$white);
-			imagefilledrectangle($img,(51+($k*$colwidth)),($imgh-21),(49+(($k+1)*$colwidth)),(($imgh-20)-(($v/max($a1))*($imgh-20))-1),$blue);
-		}
-		$fnam='norm/normaldist'.date('mHis').'.png';
-		imagepng($img,$fnam);
 		echo('<img src="'.$fnam.'">');
 		html_end();
 		break;
