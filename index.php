@@ -283,8 +283,8 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(preg_match('#,personadd,#',$currentuser['flags'])){
 				if(isset($_POST['submit'])){
-					if(strlen($_POST['imie'])>=3){
-						if(strlen($_POST['nazwisko'])>=3){
+					if(strlen($_POST['imie'])>=3){ // maybe should be 2 ?
+						if(strlen($_POST['nazwisko'])>=3){ // maybe should be 2 ?
 							if(is_numeric($_POST['ur'])&((($_POST['ur']>999)&($_POST['ur']<=date("Y")))|($_POST['ur']==0))){
 								if(is_numeric($_POST['zm'])&(($_POST['zm']==0)|(($_POST['zm']>=$_POST['ur'])&($_POST['zm']<=date("Y"))))){
 									$r1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic1']));
@@ -298,13 +298,13 @@ switch($id){
 												echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' '.$lang[$lng][174].'!</p>');
 												mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
 											}
-											else echo('<p class="alert">Nie udało się dodać: błąd mysql</p>');
+											else echo('<p class="alert">'.$lang[$lng][175].'</p>');
 										}
-										else echo('<p class="alert">Widoczność musi być 0 lub 1</p>');
+										else echo('<p class="alert">'.$lang[$lng][176].'</p>');
 									}
-									else echo('<p class="alert">Rodzice muszą być różnej płci, muszą być starsi</p>');
+									else echo('<p class="alert">'.$lang[$lng][177].'</p>');
 								}
-								else echo('<p class="alert">rok smierci nie może być większy niż rok urodzenia, ani niż obecny rok</p>');
+								else echo('<p class="alert">'.$lang[$lng][178].'</p>');
 							}
 							else echo('<p class="alert">Rok urodzenia musi zawierać 4 cyfry, oraz nie może być większy niż '.date("Y").'</p>');
 						}
@@ -1011,7 +1011,7 @@ switch($id){
 					$kimmax=$k;
 				}
 			}
-			echo('<p>'.$lang[$lng][98].': <a href="'.$thisfile.'?search,'.$immax.'">'.$kimmax.'</a> ('.$kimmaxc.')</p>');
+			echo('<p>'.$lang[$lng][98].': <a href="'.$thisfile.'?search,'.$kimmax.'">'.$kimmax.'</a> ('.$kimmaxc.')</p>');
 		}
 		//life expectancy normal distribution
 		echo('<h3>'.$lang[$lng][99].'</h3>');

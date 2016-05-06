@@ -172,7 +172,11 @@ $lang['pl'][170]='Nazwa strony';
 $lang['pl'][171]='Email administratora';
 $lang['pl'][172]='Ilość najstarszych w ciekawostkach';
 $lang['pl'][173]='Zapisz';
-$lang['pl'][174]='dodano';
+$lang['pl'][174]='Dodano';
+$lang['pl'][175]='Nie udało się dodać: błąd mysql';
+$lang['pl'][176]='Widoczność musi być 0 lub 1';
+$lang['pl'][177]='Rodzice muszą być różnej płci, muszą być starsi';
+$lang['pl'][178]='rok smierci nie może być większy niż rok urodzenia, ani niż obecny rok';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -347,6 +351,10 @@ $lang['en'][170]='Page name';
 $lang['en'][171]='Admin email';
 $lang['en'][172]='Number of oldest in "Stats"';
 $lang['en'][173]='Zapisz';
-$lang['en'][174]='added';
+$lang['en'][174]='Added';
+$lang['en'][175]='Unable to add: mysql error';
+$lang['en'][176]='Visibility must be either 0 or 1';
+$lang['en'][177]='Parents must be different sex, and older than kid';
+$lang['en'][178]='year of death cannot be greater than year of birth, and cannot be greater than current year';
 
 ?>
