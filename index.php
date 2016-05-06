@@ -1731,7 +1731,7 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie O strinie", time="'.date("Y-m-d H:i:s").'"');
 		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie O strinie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 		echo('<h3>'.$lang[$lng][144].':</h3><a href="index.php?pokaz,one,78">Szymon Marciniak</a> ('.$lang[$lng][21].' 2012)<h3><a href="index.php?kontakt">'.$lang[$lng][145].'</a></h3> <h3>'.$lang[$lng][146].':</h3><a href="index.php?pokaz,one,76">Jolanta Marciniak</a> ('.$lang[$lng][21].' 2004)<br><br>');
-		echo('<img src="zeszyty.png" border="0" title="Papierowe zapiski Joli"> <img src="andrzej.jpg" border="0" title="Zapiski rodzinne Andrzeja Marciniaka (1890) z lat 1921 - 1952"><br><br>');  // my particular use case - no translation
+		echo($settings['about']);  //change this in settings
 		html_end();
 		break;
 	}
@@ -1940,7 +1940,7 @@ switch($id){
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-				echo('<p class="alert">Nie masz uprawnień do edytowania zdjęć</p>');
+				echo('<p class="alert">'.$lang[$lng][45].'</p>');
 			}
 		}
 		else{
@@ -1977,7 +1977,7 @@ switch($id){
 					}
 					else{
 						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodawania ludzi do zdjęć grupowych, mimo braku uprawnień", time="'.date('Y-m-d H:i:s').'";');
-						echo('<p class="alert">Nie masz uprawnień do dodawania ludzi do zdjęć</p>');
+						echo('<p class="alert">'.$lang[$lng][47].'</p>');
 					}
 				}
 				$actzdj=mysql_fetch_assoc(mysql_query('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
@@ -2096,7 +2096,7 @@ switch($id){
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-				echo('<p class="alert">Nie masz uprawnień do dodawania zdjęć</p>');
+				echo('<p class="alert">'.$lang[$lng][41].'</p>');
 			}
 		}
 		else{
@@ -2150,7 +2150,7 @@ switch($id){
 					}
 				}
 				mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie wszystkich zdjęć '.linkujludzia($id2,2).', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-				echo('<h3>'.linkujludzia($id2,2).' - Zdjęcia</h3>');
+				echo('<h3>'.linkujludzia($id2,2).' - '.$lang[$lng][166].'</h3>');
 				$res=mysql_query('select * from zdjecia where osoby="'.htmlspecialchars($id2).'" order by rok desc,id desc;');
 				echo('<table border="0">');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -2238,20 +2238,21 @@ switch($id){
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(isset($_POST['submit'])){
 				if(mysql_query('update settings set edit_pp='.htmlspecialchars($_POST['edit_pp']).', site_name="'.htmlspecialchars($_POST['site_name']).'", main_opis="'.strip_tags($_POST['main_opis'],'<a><b><i><u>').'", all_podmenu="'.strip_tags($_POST['all_podmenu'],'<a><b><i><u>').'", about="'.strip_tags($_POST['about'],'<a><b><i><u><table><tr><td><img><li><center><p><h3><br>').'", admin_mail="'.$_POST['admin_mail'].'", stats_ll='.$_POST['stats_ll'].';')){
-					echo('<p class="ok">Poprawnie zmieniono</p>');
+					echo('<p class="ok">'.$lang[$lng][155].'</p><script type="text/javascript">
+					document.location="'.$thisfile.'?settings";
+					</script>');
 					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmiana ustawień", time="'.date("Y-m-d H:i:s").'";');
 				}
-				else echo('<p class="alert">Nie udało się zmienić</p>');
+				else echo('<p class="alert">'.$lang[$lng][157].'</p>');
 			}
-			echo('<form name="setts" action="'.$thisfile.'?settings" method="POST"><table border="0">
-			<tr><td>opis na stronie głównej</td><td><textarea name="main_opis" rows="3" cols="100" class="formfld">'.$settings['main_opis'].'</textarea></td></tr>
-			<tr><td>tekst pod menu</td><td><textarea name="all_podmenu" rows="3" cols="100" class="formfld">'.$settings['all_podmenu'].'</textarea></td></tr>
-			<tr><td>tekst "O stronie"</td><td><textarea name="about" rows="8" cols="100" class="formfld">'.$settings['about'].'</textarea></td></tr>
-			<tr><td>Pozycji na stronę w Edytuj</td><td><input type="text" name="edit_pp" size="3" maxlength="3" value="'.$settings['edit_pp'].'" class="formfld"></td></tr>
-			<tr><td>Nazwa strony</td><td><input type="text" name="site_name" size="20" maxlength="20" value="'.$settings['site_name'].'" class="formfld"</td></tr>
-			<tr><td>Email administratora</td><td><input type="text" name="admin_mail" size="30" maxlength="30" value="'.$settings['admin_mail'].'" class="formfld"></td></tr>
-			<tr><td>Ilość najstarszych w ciekawostkach</td><td><input type="text" name="stats_ll" size="3" maxlength="2" value="'.$settings['stats_ll'].'" class="formfld"></td></tr>
-			<tr><td colspan="2" align="center"><input type="submit" name="submit" value="Zapisz" id="settzapisz" class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></tr></table></form>');
+			echo('<form name="setts" action="'.$thisfile.'?settings" method="POST"><table border="0"><tr><td>'.$lang[$lng][167].'</td><td><textarea name="main_opis" rows="3" cols="100" class="formfld">'.$settings['main_opis'].'</textarea></td></tr>');
+			//<tr><td>tekst pod menu</td><td><textarea name="all_podmenu" rows="3" cols="100" class="formfld">'.$settings['all_podmenu'].'</textarea></td></tr>
+			echo('<tr><td>'.$lang[$lng][168].'</td><td><textarea name="about" rows="8" cols="100" class="formfld">'.$settings['about'].'</textarea></td></tr>');
+			echo('<tr><td>'.$lang[$lng][169].'</td><td><input type="text" name="edit_pp" size="3" maxlength="3" value="'.$settings['edit_pp'].'" class="formfld"></td></tr>');
+			echo('<tr><td>'.$lang[$lng][170].'</td><td><input type="text" name="site_name" size="20" maxlength="20" value="'.$settings['site_name'].'" class="formfld"</td></tr>');
+			echo('<tr><td>'.$lang[$lng][171].'</td><td><input type="text" name="admin_mail" size="30" maxlength="30" value="'.$settings['admin_mail'].'" class="formfld"></td></tr>');
+			echo('<tr><td>'.$lang[$lng][172].'</td><td><input type="text" name="stats_ll" size="3" maxlength="2" value="'.$settings['stats_ll'].'" class="formfld"></td></tr>');
+			echo('<tr><td colspan="2" align="center"><input type="submit" name="submit" value="'.$lang[$lng][173].'" id="settzapisz" class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></tr></table></form>');
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Ustawień, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
@@ -2269,7 +2270,7 @@ switch($id){
 			$res=mysql_query('select * from logs where user like "%'.$id2.'%" and action not like "%66.249.%" and action not like "%81.15.212.181%" order by time desc limit '.($id3*200).',200;');
 			$res2=mysql_query('select distinct(user) as users from logs;');
 			echo('<center><table border="1"><tr><td colspan="3">');
-			if($id3>=1) echo('<a href="'.$thisfile.'?logs,'.$id2.','.($id3-1).'">-◄poprzednia-</a>');
+			if($id3>=1) echo('<a href="'.$thisfile.'?logs,'.$id2.','.($id3-1).'">-◄'.$lang[$lng][164].'-</a>');
 			if($id3==0) echo('<b>');
 			echo('<a href="'.$thisfile.'?logs,'.$id2.',0">-1-</a>');
 			if($id3==0) echo('</b>');
@@ -2284,7 +2285,7 @@ switch($id){
 				echo('<a href="'.$thisfile.'?logs,'.$id2.','.$i.'">-'.($i+1).'-</a>');
 				if($id3==$i) echo('</b>');
 			}
-			echo('<a href="'.$thisfile.'?logs,'.$id2.','.($id3+1).'">następna►</td></tr><tr><td colspan="3">');
+			echo('<a href="'.$thisfile.'?logs,'.$id2.','.($id3+1).'">'.$lang[$lng][165].'►</td></tr><tr><td colspan="3">');
 			if(strlen($id2)<3) echo('<b>');
 			echo('&nbsp;<a href="'.$thisfile.'?logs">Wszystkie</a>&nbsp;');
 			if(strlen($id2)<3) echo('</b>');
@@ -2350,7 +2351,7 @@ switch($id){
 	case 'md5':{
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu3view,#',$currentuser['flags']))) echo('<p class="ok">'.md5($id2.'dupa').'</p>');
-		else echo('<p class="alert">Nie masz uprawnień do oglądania tej strony.</p>');
+		else echo('<p class="alert">'.$lang[$lng][89].'</p>');
 		html_end();
 		break;
 	}
@@ -2361,7 +2362,7 @@ switch($id){
 				  <a href="rodzina.css">rodzina.css</a><br>
 				  <a href="rodzina.js">rodzina.js</a><br>');
 		}
-		else echo('<p class="alert">Nie masz uprawnień do oglądania tej strony.</p>');
+		else echo('<p class="alert">'.$lang[$lng][89].'</p>');
 		html_end();
 		break;
 	}
