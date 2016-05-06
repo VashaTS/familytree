@@ -172,6 +172,7 @@ $lang['pl'][170]='Nazwa strony';
 $lang['pl'][171]='Email administratora';
 $lang['pl'][172]='Ilość najstarszych w ciekawostkach';
 $lang['pl'][173]='Zapisz';
+$lang['pl'][174]='dodano';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -346,5 +347,6 @@ $lang['en'][170]='Page name';
 $lang['en'][171]='Admin email';
 $lang['en'][172]='Number of oldest in "Stats"';
 $lang['en'][173]='Zapisz';
+$lang['en'][174]='added';
 
 ?>

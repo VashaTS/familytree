@@ -295,7 +295,7 @@ switch($id){
 											if($_POST['sex']=='m') $q.=', zona1='.$_POST['zona'];
 											$q.=', uwagi="'.htmlspecialchars($_POST['uwagi']).'", lastedit="'.$_COOKIE['zal'].'", adres="'.htmlspecialchars($_POST['adres']).'", visible='.htmlspecialchars($_POST['visible']).';';
 											if(mysql_query($q)){
-												echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' dodano!</p>');
+												echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' '.$lang[$lng][174].'!</p>');
 												mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
 											}
 											else echo('<p class="alert">Nie udało się dodać: błąd mysql</p>');
@@ -1002,7 +1002,7 @@ switch($id){
 					$immax=$k;
 				}
 			}
-			echo('<p>'.$lang[$lng][97].': '.$immax.' ('.$immaxc.')</p>');
+			echo('<p>'.$lang[$lng][97].': <a href="'.$thisfile.'?search,'.$immax.'">'.$immax.'</a> ('.$immaxc.')</p>');
 			$kimmax='';
 			$kimmaxc=0;
 			foreach($imionak as $k => $v){
@@ -1011,7 +1011,7 @@ switch($id){
 					$kimmax=$k;
 				}
 			}
-			echo('<p>'.$lang[$lng][98].': '.$kimmax.' ('.$kimmaxc.')</p>');
+			echo('<p>'.$lang[$lng][98].': <a href="'.$thisfile.'?search,'.$immax.'">'.$kimmax.'</a> ('.$kimmaxc.')</p>');
 		}
 		//life expectancy normal distribution
 		echo('<h3>'.$lang[$lng][99].'</h3>');
