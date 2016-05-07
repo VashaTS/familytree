@@ -177,6 +177,13 @@ $lang['pl'][175]='Nie udało się dodać: błąd mysql';
 $lang['pl'][176]='Widoczność musi być 0 lub 1';
 $lang['pl'][177]='Rodzice muszą być różnej płci, muszą być starsi';
 $lang['pl'][178]='rok smierci nie może być większy niż rok urodzenia, ani niż obecny rok';
+$lang['pl'][179]='Najpierw się';
+$lang['pl'][180]='zaloguj';
+$lang['pl'][181]='zdjęcie ze ślubu';
+$lang['pl'][182]='Jest na zdjęciach grupowych';
+$lang['pl'][183]='Kogo zdjęcia pokazać?';
+$lang['pl'][184]='Usuń';
+$lang['pl'][185]='Zmień';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -356,5 +363,12 @@ $lang['en'][175]='Unable to add: mysql error';
 $lang['en'][176]='Visibility must be either 0 or 1';
 $lang['en'][177]='Parents must be different sex, and older than kid';
 $lang['en'][178]='year of death cannot be greater than year of birth, and cannot be greater than current year';
+$lang['en'][179]='You have to';
+$lang['en'][180]='log in';
+$lang['en'][181]='wedding photo';
+$lang['en'][182]='Group photos this person is in';
+$lang['en'][183]='Who to show? unknown id';
+$lang['en'][184]='Delete';
+$lang['en'][185]='Change';
 
 ?>

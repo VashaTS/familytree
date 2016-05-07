@@ -53,7 +53,7 @@ for($i=0;$i<mysql_num_rows($banned);$i+=1){
 }
 $width_duz=1200; //only for new pics
 $width_min=200;	
-$jestans=0; // global var for pokr
+$jestans=0; // global var for pokr function
 include('functions.php');
 
 function html_start(){
@@ -1015,10 +1015,10 @@ switch($id){
 		}
 		//life expectancy normal distribution
 		echo('<h3>'.$lang[$lng][99].'</h3>');
-		$q1=mysql_query('select ur,zm from ludzie where ur>0 and zm>0;');
+		$q1=mysql_query('select ur,zm from ludzie where ur>0 and zm>0;'); //known date of birth and death
 		$fnam='norm/normaldist'.mysql_num_rows($q1).'.png';
 		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
-		if(!file_exists($fnam)){
+		if(!file_exists($fnam)){  //use existing file if number of people didnt change
 			$a1=Array();
 			for($dz=0;$dz<=110;$dz+=1) $a1[$dz]=0;
 			for($i1=0;$i1<mysql_num_rows($q1);$i1+=1){
@@ -1037,8 +1037,8 @@ switch($id){
 			imagefilledrectangle($img,0,0,$imgw,$imgh,$black); // whole image black
 			imageline($img,50,0,50,($imgh-20),$white); //vertical line
 			imageline($img,50,($imgh-20),$imgw,($imgh-20),$white); //horizontal line
-			imagestring($img,2,10,5,max($a1),$white);
-			imagestring($img,2,10,((($imgh-50)/2)+5),round(max($a1)/2,0),$white);
+			imagestring($img,2,10,5,max($a1),$white); //max number on Y axis
+			imagestring($img,2,10,((($imgh-50)/2)+5),round(max($a1)/2,0),$white); //half number on Y axis
 			foreach($a1 as $k => $v){
 				imagestring($img,1,(50+($k*$colwidth)+($colwidth/2)),($imgh-19),$k,$white);
 				imagefilledrectangle($img,(51+($k*$colwidth)),($imgh-21),(49+(($k+1)*$colwidth)),(($imgh-20)-(($v/max($a1))*($imgh-20))-1),$blue);
@@ -1118,7 +1118,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Do zrobienia, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -1285,7 +1285,7 @@ switch($id){
 	case 'pokr':{
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(isset($id2)){
-				mysql_query('update ludzie set byl=0;');
+				mysql_query('update ludzie set byl=0;'); //temp column
 				if($id2=='del'){
 					setcookie('pokr',0,date("U")-500);
 					unset($_COOKIE['pokr']);
@@ -1367,7 +1367,7 @@ switch($id){
 							else{
 								if($oa['sex']=='k') echo(odmiana_k($oa['imie']));
 								else echo(odmiana_m($oa['imie']));
-								echo(' '.$p.' to jest '.$ob['imie']);
+								echo(' '.str_replace('_',' ',$p).' to jest '.$ob['imie']);
 							}
 							echo('</p></td><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$b.'"><img class="lud" border="4" src="');
 							if(strlen($zb['path'])>4) echo($zb['path']);
@@ -1750,7 +1750,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do wiadomości, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -1921,7 +1921,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania ludzi ze zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -1947,7 +1947,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Edycji zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2022,7 +2022,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania ludzi do zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2083,7 +2083,7 @@ switch($id){
 								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcia grupowe '.htmlspecialchars($_POST['zdjname']).'", time="'.date("Y-m-d H:i:s").'";');
 								echo('<p class="ok">Poprawnie dodano zdjęcie</p><a href="'.$thisfile.'?zdjgru-dodos,'.$_POST['zdjname'].'">Dodaj jeszcze jedną osobę do tego zdjęcia</a>');
 							}
-							else echo('<p class="alert">Błąd w zapytaniu mysql</p>');
+							else echo('<p class="alert">'.$lang[$lng][175].'</p>');
 						}
 						else echo('<p class="alert">Plik nie istnieje</p>');
 					}
@@ -2103,7 +2103,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2166,12 +2166,12 @@ switch($id){
 						echo('> Ślubne</label> <label><input type="checkbox" name="komunia" class="formfld"');
 						if($row['komunia']==1) echo(' checked="checked"');
 						echo('> Komunia</label></td><td>
-						<input type="submit" name="zmien" value="Zmień" class="formbtn" id="zdjid'.$row['id'].'" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">
-						<input type="submit" name="del" value="Usuń" class="formbtn" id="zdjdel'.$row['id'].'" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form>');
+						<input type="submit" name="zmien" value="'.$lang[$lng][185].'" class="formbtn" id="zdjid'.$row['id'].'" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">
+						<input type="submit" name="del" value="'.$lang[$lng][184].'" class="formbtn" id="zdjdel'.$row['id'].'" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form>');
 					}
 					else{
 						echo('<h2>'.$row['rok']);
-						if($row['slub']==1) echo(', zdjęcie ze ślubu');
+						if($row['slub']==1) echo(', '.$lang[$lng][181]);
 						echo('</h2>');
 					}
 					echo('</td></tr>');
@@ -2179,7 +2179,7 @@ switch($id){
 				echo('</table>');
 				$zdjgru=mysql_query('select * from zdjecia where osoby like "%,'.htmlspecialchars($id2).',%" order by rok;');
 				if(mysql_num_rows($zdjgru)>0){
-					echo('<hr><h3>Jest na zdjęciach grupowych:</h3>');
+					echo('<hr><h3>'.$lang[$lng][182].':</h3>');
 					for($l=0;$l<mysql_num_rows($zdjgru);$l+=1){
 						$row2=mysql_fetch_assoc($zdjgru);
 						$pat=explode('.',$row2['path']);
@@ -2188,7 +2188,7 @@ switch($id){
 					}
 				}
 			}
-			else echo('<p class="alert">Kogo zdjęcia pokazać?</p>');
+			else echo('<p class="alert">'.$lang[$lng][183].'</p>');
 		}
 		html_end();
 		break;
@@ -2230,7 +2230,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Użytkowników, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2248,7 +2248,6 @@ switch($id){
 				else echo('<p class="alert">'.$lang[$lng][157].'</p>');
 			}
 			echo('<form name="setts" action="'.$thisfile.'?settings" method="POST"><table border="0"><tr><td>'.$lang[$lng][167].'</td><td><textarea name="main_opis" rows="3" cols="100" class="formfld">'.$settings['main_opis'].'</textarea></td></tr>');
-			//<tr><td>tekst pod menu</td><td><textarea name="all_podmenu" rows="3" cols="100" class="formfld">'.$settings['all_podmenu'].'</textarea></td></tr>
 			echo('<tr><td>'.$lang[$lng][168].'</td><td><textarea name="about" rows="8" cols="100" class="formfld">'.$settings['about'].'</textarea></td></tr>');
 			echo('<tr><td>'.$lang[$lng][169].'</td><td><input type="text" name="edit_pp" size="3" maxlength="3" value="'.$settings['edit_pp'].'" class="formfld"></td></tr>');
 			echo('<tr><td>'.$lang[$lng][170].'</td><td><input type="text" name="site_name" size="20" maxlength="20" value="'.$settings['site_name'].'" class="formfld"</td></tr>');
@@ -2258,7 +2257,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Ustawień, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2305,7 +2304,7 @@ switch($id){
 			echo('</table></center>');
 		}
 		else{
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Logów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		}
 		html_end();
@@ -2344,7 +2343,7 @@ switch($id){
 			echo('</table>');
 		}
 		else{
-			echo('<p class="alert">Najpierw się <a href="'.$thisfile.'?login">zaloguj</a></p>');
+			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Listy Banów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		}
 		html_end();
@@ -2352,8 +2351,8 @@ switch($id){
 	}
 	case 'md5':{
 		html_start();
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu3view,#',$currentuser['flags']))) echo('<p class="ok">'.md5($id2.'dupa').'</p>');
-		else echo('<p class="alert">'.$lang[$lng][89].'</p>');
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu3view,#',$currentuser['flags']))) echo('<p class="ok">MD5: '.md5($id2.'dupa').'</p><p class="ok">SHA256: '.hash('sha256',$id2.'dupa').'</p>');
+		else echo('<p class="alert">MD5: '.$lang[$lng][89].'</p>');
 		html_end();
 		break;
 	}
