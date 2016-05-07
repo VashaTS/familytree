@@ -45,6 +45,7 @@ else $id='main';
 $id2=$vars[1];
 $id3=$vars[2];
 $id4=$vars[3];
+$id5=$vars[4];
 if($id=='pokr') for($k=0;$k<2000;$k+=1) $byl[$k]=0;
 $banned=mysql_query('select * from banip;');
 for($i=0;$i<mysql_num_rows($banned);$i+=1){
@@ -57,7 +58,7 @@ $jestans=0; // global var for pokr function
 include('functions.php');
 
 function html_start(){
-	global $ver,$settings,$currentuser,$lang,$lng;
+	global $ver,$settings,$currentuser,$lang,$lng,$id,$id2,$id3;
 	header("Content-Type: text/html; charset=UTF-8");
 	echo('<html><head><title>'.$lang[$lng][1]);
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' v'.$ver);
@@ -70,13 +71,13 @@ function html_start(){
 		});
 		');
 		echo('</script></head><body>');
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
+		//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			echo('<div style="float:right; border:none; vertical-align:center;">');
 			foreach($lang as $k1 => $v1){
-				echo('<a href="'.$thisfile.'?set-lang,'.$k1.'"><img border="1" src="flags/'.$k1.'.png"></a>');
+				echo('<a href="'.$thisfile.'?set-lang,'.$k1.','.$id.','.$id2.','.$id3.'"><img border="1" src="flags/'.$k1.'.png"></a>');
 			}
 			echo('</div><br>');
-		}
+		//}
 		echo('<p>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
 		else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
@@ -217,7 +218,7 @@ switch($id){
 			setcookie('lan',$id2,(time()+60*60*24*61));
 			html_start();
 			echo('<p class="ok">Login OK</p><script type="text/javascript">
-			document.location="'.$thisfile.'?main";
+			document.location="'.$thisfile.'?'.$id3.','.$id4.','.$id5.'";
 			</script>');
 			html_end();
 		}
