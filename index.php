@@ -3,7 +3,7 @@
 $lng='pl';
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.4a';
+$ver='1.4c';
 // 2016-04-23
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','128M');
@@ -122,7 +122,7 @@ function html_start(){
 }
 function html_end(){ //+google ad & analytics
 	global $ver,$lang,$lng;
-	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a></font><br></div><p>');
+	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a> | <a href="'.$thisfile.'?cookies">'.$lang[$lng][195].'</a></font><br></div><p>');
 	if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
 google_ad_client = "ca-pub-5875141216022917";
 /* famula_dol */
@@ -153,7 +153,7 @@ echo("
 }
 
 //IF($_SERVER['REMOTE_ADDR']!='81.15.212.181') $id='404';  // UNCOMMENT TO MAKE LOCAL -- EMERGENCY USE ONLY
-if((!(isset($_COOKIE['zal'])&checkname()))&($id!='login-do')&($id!='main')&($id!='kontakt')&($id!='info')) $id='login'; // niezalogowani widzą: main, login, login-do, kontakt
+if((!(isset($_COOKIE['zal'])&checkname()))&($id!='login-do')&($id!='main')&($id!='kontakt')&($id!='info')&($id!='set-lang')&($id!='cookies')) $id='login'; // niezalogowani widzą: main, login, login-do, kontakt
 switch($id){
 	case 'main':{
 		html_start();
@@ -224,7 +224,7 @@ switch($id){
 		}
 		else{
 			html_start();
-			echo('<p class="alert">Jaki język?</p>');
+			echo('<p class="alert">'.$lang[$lng][186].'</p>');
 			html_end();
 		}
 		break;
@@ -284,8 +284,8 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(preg_match('#,personadd,#',$currentuser['flags'])){
 				if(isset($_POST['submit'])){
-					if(strlen($_POST['imie'])>=3){ // maybe should be 2 ?
-						if(strlen($_POST['nazwisko'])>=3){ // maybe should be 2 ?
+					if(strlen($_POST['imie'])>=2){
+						if(strlen($_POST['nazwisko'])>=2){
 							if(is_numeric($_POST['ur'])&((($_POST['ur']>999)&($_POST['ur']<=date("Y")))|($_POST['ur']==0))){
 								if(is_numeric($_POST['zm'])&(($_POST['zm']==0)|(($_POST['zm']>=$_POST['ur'])&($_POST['zm']<=date("Y"))))){
 									$r1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic1']));
@@ -307,11 +307,11 @@ switch($id){
 								}
 								else echo('<p class="alert">'.$lang[$lng][178].'</p>');
 							}
-							else echo('<p class="alert">Rok urodzenia musi zawierać 4 cyfry, oraz nie może być większy niż '.date("Y").'</p>');
+							else echo('<p class="alert">'.$lang[$lng][121].' '.date("Y").'</p>');
 						}
-						else echo('<p class="alert">Nazwisko musi mieć conajmniej 3 znaki</p>');
+						else echo('<p class="alert">'.$lang[$lng][187].'</p>');
 					}
-					else echo('<p class="alert">Imię musi mieć conajmniej 3 znaki</p>');
+					else echo('<p class="alert">'.$lang[$lng][188].'</p>');
 				}
 			echo('<script>
 				function pokolenie(iid){
@@ -338,7 +338,7 @@ switch($id){
 			}
 			echo('document.dodaj.pok.value=ludzie[iid];
 				document.getElementById(\'r2\').selectedIndex=zonaindex[iid];
-				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>imie:<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>nazwisko:<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40"></label><br>
+				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>'.$lang[$lng][59].':<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40"></label><br>
 				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.substr($lang[$lng][97],0,1).'</label><label><input class="formfld" type="radio" name="sex" value="k">'.substr($lang[$lng][98],0,1).'</label> <label>adres:<input type="text" name="adres" class="formfld" size="12"></label><br>
 				<label>'.$lang[$lng][79].':<select class="formfld" id="r1" name="rodzic1" onchange="pokolenie(this.options[this.selectedIndex].value)"><option value="0">'.$lang[$lng][113].'</option>');
 			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
@@ -377,7 +377,7 @@ switch($id){
 				echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 			}
 			echo('</select><label>'.$lang[$lng][119].'<input type="text" class="formfld" size="2" maxlength="2" name="visible" value="1"></label></label><br><textarea class="formfld" name="uwagi" rows="5" cols="60"></textarea>
-			<input class="formbtn" id="dodaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="Zapisz"></form>');
+			<input class="formbtn" id="dodaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="'.$lang[$lng][173].'"></form>');
 		}
 		else{
 			echo('<p class="alert">'.$lang[$lng][35].'</p>');
@@ -386,7 +386,7 @@ switch($id){
 	}
 	else{
 		mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodaj, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-		echo('<p class="alert">Najpierw musisz się <a href="'.$thisfile.'?login">zalogować</a></p>');
+		echo('<p class="alert">'.$lang[$lng][179].'<a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 	}
 		html_end();
 		break;
@@ -418,18 +418,18 @@ switch($id){
 										echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' '.$lang[$lng][120].'!</p>');
 										mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmieniono '.htmlspecialchars($_POST['imie']).' '.htmls($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
 									}
-									else echo('<p class="alert">Rodzice muszą być różnej płci, muszą być starsi</p>');
+									else echo('<p class="alert">'.$lang[$lng][177].'</p>');
 								}
-								else echo('<p class="alert">rok smierci nie może być większy niż rok urodzenia, ani niż obecny rok</p>');
+								else echo('<p class="alert">'.$lang[$lng][178].'</p>');
 							}
 							else echo('<p class="alert">'.$lang[$lng][121].' '.date("Y").'</p>');
 						}
-						else echo('<p class="alert">Nazwisko musi mieć conajmniej 3 znaki</p>');
+						else echo('<p class="alert">'.$lang[$lng][187].'</p>');
 					}
-					else echo('<p class="alert">Imię musi mieć conajmniej 3 znaki</p>');	
+					else echo('<p class="alert">'.$lang[$lng][188].'</p>');	
 				}
 				else{
-					echo('<p class="alert">Nie masz uprawnień do edytowania ludzi</p>');
+					echo('<p class="alert">'.$lang[$lng][39].'</p>');
 					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 				}
 			}
@@ -442,17 +442,17 @@ switch($id){
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto '.$row['imie'].' '.$row['nazwisko'].'", time="'.date("Y-m-d H:i:s").'"');
 							echo('<p class="ok">'.$row['imie'].' '.$row['nazwisko'].' Usunieto</p>');
 						}
-						else echo('<p class="alert">Nie udało sie usunąć</p>');
+						else echo('<p class="alert">'.$lang[$lng][189].'</p>');
 					}
 					else echo('<p class="alert">Nie ma kogo usunąć</p>');
 				}
 				else{
-					echo('<p class="alert">Nie masz uprawnień do usuwania ludzi</p>');
+					echo('<p class="alert">'.$lang[$lng][37].'</p>');
 					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia '.$row['imie'].' '.$row['nazwisko'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 				}
 			}
 			echo('<table border="1"><tr><th colspan="'.$colspan.'">Edycja bazy danych</th></tr><tr><th colspan="'.$colspan.'">');
-			if($str>1) echo('<a href="'.$thisfile.'?edit,'.($str-1).'">&lt;&lt;Poprzednia</a> | ');
+			if($str>1) echo('<a href="'.$thisfile.'?edit,'.($str-1).'">&lt;&lt;'.$lang[$lng][164].'</a> | ');
 			if($nop<20){
 				for($i=1;$i<=$nop;$i+=1){
 					echo('<a href="'.$thisfile.'?edit,'.$i.'">');
@@ -531,8 +531,8 @@ switch($id){
 					}
 				}
 			}
-			if($str<$nop) echo(' | <a href="'.$thisfile.'?edit,'.($str+1).'">Następna&gt;&gt;</a>');
-			echo('</th></tr><tr><td>id</td><td>imie</td><td>nazwisko</td><td>ur</td><td>zm</td><td>rodzice</td><td>zony</td><td>pł</td><td>pok</td><td>adres</td><td>uwagi</td><td>akcje</td></tr>');
+			if($str<$nop) echo(' | <a href="'.$thisfile.'?edit,'.($str+1).'">'.$lang[$lng][165].'&gt;&gt;</a>');
+			echo('</th></tr><tr><td>id</td><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>ur</td><td>zm</td><td>rodzice</td><td>zony</td><td>pł</td><td>pok</td><td>adres</td><td>uwagi</td><td>akcje</td></tr>');
 			$res=mysql_query('select * from ludzie order by id limit '.(($str-1)*$edit_ipp).','.$edit_ipp.';');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -542,7 +542,7 @@ switch($id){
 				<td><input class="formfld" type="text" name="nazwisko" value="'.$row['nazwisko'].'" maxlength="40" size="20"></td>
 				<td><input class="formfld" type="text" name="ur" size="4" maxlength="4" value="'.$row['ur'].'"></td>
 				<td><input class="formfld" type="text" name="zm" size="4" maxlength="4" value="'.$row['zm'].'"></td>
-				<td><select class="formfld" name="rodzic1"><option value="0">Nieznany</option>');
+				<td><select class="formfld" name="rodzic1"><option value="0">'.$lang[$lng][113].'</option>');
 			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m";');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
@@ -552,7 +552,7 @@ switch($id){
 				for($ji=0;$ji<$row2['pok'];$ji+=1) echo('-');
 				echo($row2['imie'].' '.$row2['nazwisko'].' ('.$row2['ur'].')</option>');
 			}
-			echo('</select><select class="formfld" name="rodzic2"><option value="0">Nieznany</option>');
+			echo('</select><select class="formfld" name="rodzic2"><option value="0">'.$lang[$lng][113].'</option>');
 			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k";');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
@@ -599,7 +599,7 @@ switch($id){
 			</tr></form>');
 			}
 			echo('<tr><th colspan="'.$colspan.'">');
-			if($str>1) echo('<a href="'.$thisfile.'?edit,'.($str-1).'">&lt;&lt;Poprzednia</a> | ');
+			if($str>1) echo('<a href="'.$thisfile.'?edit,'.($str-1).'">&lt;&lt;'.$lang[$lng][164].'</a> | ');
 			if($nop<20){
 				for($i=1;$i<=$nop;$i+=1){
 					echo('<a href="'.$thisfile.'?edit,'.$i.'">');
@@ -678,7 +678,7 @@ switch($id){
 					}
 				}
 			}
-			if($str<$nop) echo(' | <a href="'.$thisfile.'?edit,'.($str+1).'">Następna&gt;&gt;</a>');
+			if($str<$nop) echo(' | <a href="'.$thisfile.'?edit,'.($str+1).'">'.$lang[$lng][165].'&gt;&gt;</a>');
 			echo('</th></tr></table>');
 		}
 		else{
@@ -692,7 +692,7 @@ switch($id){
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 		$logs_in=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.htmlspecialchars($id2).' limit 1;'));
-			echo('<a href="'.$thisfile.'?pokaz,one,'.$id2.'">Wróć do opisu</a>');
+			echo('<a href="'.$thisfile.'?pokaz,one,'.$id2.'">'.$lang[$lng][190].'</a>');
 			if(isset($_POST['zdjdod'])){
 				if(preg_match('#,picadd,#',$currentuser['flags'])){
 					if(is_uploaded_file($_FILES['zdj']['tmp_name'])){
@@ -706,11 +706,11 @@ switch($id){
 							$nim=imagecreatetruecolor(200,$nih);
 							imagecopyresampled($nim,$im,0,0,0,0,200,$nih,$imsize[0],$imsize[1]);
 							imagejpeg($nim,'gfx/'.$newname.'.jpg');
-							echo('<p class="ok">Plik '.$_FILES['zdj']['name'].' został dodany do galerii</p>');
+							echo('<p class="ok">'.$lang[$lng][191].' '.$_FILES['zdj']['name'].' '.$lang[$lng][192].'</p>');
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcie '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						}
 						else{
-							echo('Plik: <strong>'.$_FILES['zdj']['name'].'</strong> jest zbyt duży! Jego rozmiar przekracza '.($_POST['MAX_FILE_SIZE']/1024/1024).' MB<br>');
+							echo($lang[$lng][191].': <strong>'.$_FILES['zdj']['name'].'</strong> '.$lang[$lng][193].' '.($_POST['MAX_FILE_SIZE']/1024/1024).' MB<br>');
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zbyt dużego zdjęcia  '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						}	
 					}
@@ -759,13 +759,13 @@ switch($id){
 												}
 												else echo('<p class="alert">Nieudane zapytanie do SQL. Skontaktuj się z Administratorem</p>');
 											}
-											else echo('<p class="alert">Widoczność może mieć wartości: 0 lub 1</p>');
+											else echo('<p class="alert">'.$lang[$lng][176].'</p>');
 										}
 										else echo('<p class="alert">Chrzestni muszą być różnej płci, muszą być starsi</p>');
 									}
-									else echo('<p class="alert">Rodzice muszą być różnej płci, muszą być starsi</p>');
+									else echo('<p class="alert">'.$lang[$lng][177].'</p>');
 								}
-								else echo('<p class="alert">rok smierci nie może być większy niż rok urodzenia, ani niż obecny rok</p>');
+								else echo('<p class="alert">'.$lang[$lng][178].'</p>');
 							}
 							else echo('<p class="alert">Rok urodzenia musi zawierać 4 cyfry, oraz nie może być większy niż '.date("Y").'</p>');
 						}
@@ -792,7 +792,7 @@ switch($id){
 				<td><input class="formbtn" id="zdjdod" name="zdjdod" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" value="Wyślij" /></td></tr></table></form>
 				</td><td width="50%">');
 				echo('<form name="edit1" method="POST" action="'.$thisfile.'?edit1,'.$id2.'">');
-				echo('<label>imie:<input type="text" name="imie" value="'.$theone['imie'].'" class="formfld" maxlength="20" size="20"></label> <label>nazwisko:<input type="text" name="nazwisko" value="'.$theone['nazwisko'].'" class="formfld" maxlength="40"></label><label title="wpisać tylko jeżeli inne niż nazwisko ojca lub inne niż nazwisko po mężu"><br>prawdziwe nazwisko: <input name="rnazw" type="text" size="20" name="rnazw" class="formfld" value="'.$theone['rnazw'].'"></label><br>');
+				echo('<label>'.$lang[$lng][59].':<input type="text" name="imie" value="'.$theone['imie'].'" class="formfld" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input type="text" name="nazwisko" value="'.$theone['nazwisko'].'" class="formfld" maxlength="40"></label><label title="wpisać tylko jeżeli inne niż nazwisko ojca lub inne niż nazwisko po mężu"><br>prawdziwe nazwisko: <input name="rnazw" type="text" size="20" name="rnazw" class="formfld" value="'.$theone['rnazw'].'"></label><br>');
 				echo('<label>ur:<input type="text" name="ur" value="'.$theone['ur'].'" size="4" maxlength="4" class="formfld"></label> <label>zm:<input type="text" name="zm" value="'.$theone['zm'].'" size="4" maxlength="4" class="formfld"</label> <label>płeć:<input type="text" name="sex" value="'.$theone['sex'].'" class="formfld" size="1" maxlength="1"></label> <label>pokolenie: <input type="text" class="formfld" name="pok" value="'.$theone['pok'].'" size="2" maxlength="2"></label><label>widoczniść:<input type="text" class="formfld" size="2" maxlength="2" name="visible" value="'.$theone['visible'].'"></label><br>');
 				echo('<label>adres:<input type="text" name="adres" value="'.$theone['adres'].'" class="formfld"></label>');
 				echo('</td></tr><tr><td>');
@@ -805,8 +805,8 @@ switch($id){
 					}
 				}
 				echo('</td><td>');
-				echo('<h3>Żona:</h3>');
-				echo('<select class="formfld" id="z1" name="zona1"><option value="0">Nieznany</option>');
+				echo('<h3>'.$lang[$lng][75].':</h3>');
+				echo('<select class="formfld" id="z1" name="zona1"><option value="0">'.$lang[$lng][113].'</option>');
 				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
@@ -2365,6 +2365,12 @@ switch($id){
 				  <a href="rodzina.js">rodzina.js</a><br>');
 		}
 		else echo('<p class="alert">'.$lang[$lng][89].'</p>');
+		html_end();
+		break;
+	}
+	case 'cookies':{
+		html_start();
+		echo('<p>'.$lang[$lng][194].'</p>');
 		html_end();
 		break;
 	}

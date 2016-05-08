@@ -184,6 +184,16 @@ $lang['pl'][182]='Jest na zdjęciach grupowych';
 $lang['pl'][183]='Kogo zdjęcia pokazać?';
 $lang['pl'][184]='Usuń';
 $lang['pl'][185]='Zmień';
+$lang['pl'][186]='Jaki język?';
+$lang['pl'][187]='Nazwisko musi mieć conajmniej 2 znaki';
+$lang['pl'][188]='Imię musi mieć conajmniej 2 znaki';
+$lang['pl'][189]='Nie udało sie usunąć';
+$lang['pl'][190]='Wróć do opisu';
+$lang['pl'][191]='Plik';
+$lang['pl'][192]='został dodany do galerii';
+$lang['pl'][193]='jest zbyt duży! Jego rozmiar przekracza';
+$lang['pl'][194]='Ta strona użwya plików cookies do zapisywania ustawień.<br>Jeżeli się z tym nie zgadzasz, możesz wyłączyć pliki cookies w swojej przeglądarce lub nie odwiedzać tej strony';
+$lang['pl'][195]='Polityka ciasteczek';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -370,5 +380,15 @@ $lang['en'][182]='Group photos this person is in';
 $lang['en'][183]='Who to show? unknown id';
 $lang['en'][184]='Delete';
 $lang['en'][185]='Change';
+$lang['en'][186]='Which language?';
+$lang['en'][187]='Surname must be at least 2 characters long';
+$lang['en'][188]='first name must be at least 2 characters long';
+$lang['en'][189]='Unable to delete';
+$lang['en'][190]='Back to viewing this person';
+$lang['en'][191]='File';
+$lang['en'][192]='has been added to gallery';
+$lang['en'][193]='is too big. It\'s size exceeds';
+$lang['en'][194]='This page uses cookie files. Deal with it.<br>If you don\'t want this, disable cookies in your browser<br>or never visit this page again';
+$lang['en'][195]='Cookie policy';
 
 ?>
