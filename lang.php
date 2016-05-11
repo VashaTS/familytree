@@ -194,6 +194,13 @@ $lang['pl'][192]='został dodany do galerii';
 $lang['pl'][193]='jest zbyt duży! Jego rozmiar przekracza';
 $lang['pl'][194]='Ta strona użwya plików cookies do zapisywania ustawień.<br>Jeżeli się z tym nie zgadzasz, możesz wyłączyć pliki cookies w swojej przeglądarce lub nie odwiedzać tej strony';
 $lang['pl'][195]='Polityka ciasteczek';
+$lang['pl'][196]='Kogo pokazać';
+$lang['pl'][197]='Generowanie drzewa dla';
+$lang['pl'][198]='adres';
+$lang['pl'][199]='Edycja bazy danych';
+$lang['pl'][200]='Usunięto';
+$lang['pl'][201]='Niepoprawny plik';
+$lang['pl'][202]='wróć do';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -390,5 +397,12 @@ $lang['en'][192]='has been added to gallery';
 $lang['en'][193]='is too big. It\'s size exceeds';
 $lang['en'][194]='This page uses cookie files. Deal with it.<br>If you don\'t want this, disable cookies in your browser<br>or never visit this page again';
 $lang['en'][195]='Cookie policy';
+$lang['en'][196]='Who to show';
+$lang['en'][197]='Generate tree for';
+$lang['en'][198]='address';
+$lang['en'][199]='Editing database';
+$lang['en'][200]='Deleted';
+$lang['en'][201]='Bad image file';
+$lang['en'][202]='back to';
 
 ?>

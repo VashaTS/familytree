@@ -76,7 +76,7 @@ function html_start(){
 			foreach($lang as $k1 => $v1){
 				echo('<a href="'.$thisfile.'?set-lang,'.$k1.','.$id.','.$id2.','.$id3.'"><img border="1" src="flags/'.$k1.'.png"></a>');
 			}
-			echo('</div><br>');
+			echo('</div><br><br><br>');
 		//}
 		echo('<p>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
@@ -339,7 +339,7 @@ switch($id){
 			echo('document.dodaj.pok.value=ludzie[iid];
 				document.getElementById(\'r2\').selectedIndex=zonaindex[iid];
 				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>'.$lang[$lng][59].':<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40"></label><br>
-				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.substr($lang[$lng][97],0,1).'</label><label><input class="formfld" type="radio" name="sex" value="k">'.substr($lang[$lng][98],0,1).'</label> <label>adres:<input type="text" name="adres" class="formfld" size="12"></label><br>
+				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.substr($lang[$lng][97],0,1).'</label><label><input class="formfld" type="radio" name="sex" value="k">'.substr($lang[$lng][98],0,1).'</label> <label>'.$lang[$lng][198].':<input type="text" name="adres" class="formfld" size="12"></label><br>
 				<label>'.$lang[$lng][79].':<select class="formfld" id="r1" name="rodzic1" onchange="pokolenie(this.options[this.selectedIndex].value)"><option value="0">'.$lang[$lng][113].'</option>');
 			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -440,18 +440,18 @@ switch($id){
 						$row=mysql_fetch_assoc($res);
 						if(mysql_query('delete from ludzie where id='.htmlspecialchars($_POST['id']).';')){
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto '.$row['imie'].' '.$row['nazwisko'].'", time="'.date("Y-m-d H:i:s").'"');
-							echo('<p class="ok">'.$row['imie'].' '.$row['nazwisko'].' Usunieto</p>');
+							echo('<p class="ok">'.$row['imie'].' '.$row['nazwisko'].' '.$lang[$lng][200].'</p>');
 						}
 						else echo('<p class="alert">'.$lang[$lng][189].'</p>');
 					}
-					else echo('<p class="alert">Nie ma kogo usunąć</p>');
+					else echo('<p class="alert">'.$lang[$lng][154].'</p>');
 				}
 				else{
 					echo('<p class="alert">'.$lang[$lng][37].'</p>');
 					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia '.$row['imie'].' '.$row['nazwisko'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 				}
 			}
-			echo('<table border="1"><tr><th colspan="'.$colspan.'">Edycja bazy danych</th></tr><tr><th colspan="'.$colspan.'">');
+			echo('<table border="1"><tr><th colspan="'.$colspan.'">'.$lang[$lng][199].'</th></tr><tr><th colspan="'.$colspan.'">');
 			if($str>1) echo('<a href="'.$thisfile.'?edit,'.($str-1).'">&lt;&lt;'.$lang[$lng][164].'</a> | ');
 			if($nop<20){
 				for($i=1;$i<=$nop;$i+=1){
@@ -714,11 +714,11 @@ switch($id){
 							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zbyt dużego zdjęcia  '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						}	
 					}
-					else echo('<p class="alert">Niepoprawny plik</p>');
+					else echo('<p class="alert">'.$lang[$lng][201].'</p>');
 				}
 				else{
 					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia '.$logs_in['imie'].' '.$logs_in['nazwisko'].' mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
-					echo('<p class="alert">Nie masz uprawnień do dodawania zdjęć</p>');
+					echo('<p class="alert">'.$lang[$lng][41].'</p>');
 				}
 			}
 			if(isset($_POST['del'])){
@@ -1572,7 +1572,7 @@ switch($id){
 								//5 pra pra pra
 								$pdf->SetXY($w-50,$h+15);
 								$pdf->SetTextColor(100,100,100);
-								$pdf->Write(0,UTF8_2_ISO88592('wygenerowano na stronie: '.$settings['site_name']));
+								$pdf->Write(0,UTF8_2_ISO88592($lang[$lng][134].': '.$settings['site_name']));
 								$pdf->SetTextColor(0,0,0);
 								$pdf->AddPage();
 								$pdf->SetFont('arialpl','', 8);
@@ -1609,7 +1609,7 @@ switch($id){
 					$pdf->SetAuthor('Szymon Marciniak');
 					$pdf->SetCreator(UTF8_2_ISO88592($settings['site_name']));
 					$pdf->Output($filename);
-					echo('<a href="'.$thisfile.'?pokaz,one,'.$theone['id'].'">wróć do '.$theone['imie'].' '.$theone['nazwisko'].'</a><br><br>Plik PDF gotowy! <a href="'.$filename.'" target="blank"><b>Pokaż</b></a>');
+					echo('<a href="'.$thisfile.'?pokaz,one,'.$theone['id'].'">'.$lang[$lng][202].' '.$theone['imie'].' '.$theone['nazwisko'].'</a><br><br>Plik PDF gotowy! <a href="'.$filename.'" target="blank"><b>Pokaż</b></a>');
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
@@ -1672,7 +1672,7 @@ switch($id){
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else{
-					echo('<p>Generowanie drzewa dla: '.linkujludzia($id2,2).'</p><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">
+					echo('<p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">
 					<p>Pokoleń wstecz:</p>
 					<label><input type="radio" class="formfld" name="pok" value="2"> do dziadków</label><br>
 					<label><input type="radio" class="formfld" name="pok" value="3"> do pradziadków</label><br>
@@ -1684,7 +1684,7 @@ switch($id){
 					echo('</form>');
 				}
 			}
-			else echo('<p class="alert">Kogo pokazać?</p>');
+			else echo('<p class="alert">'.$lang[$lng][196].'?</p>');
 		}
 		html_end();
 		break;
