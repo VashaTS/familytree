@@ -201,6 +201,13 @@ $lang['pl'][199]='Edycja bazy danych';
 $lang['pl'][200]='Usunięto';
 $lang['pl'][201]='Niepoprawny plik';
 $lang['pl'][202]='wróć do';
+$lang['pl'][203]='Pokoleń wstecz';
+$lang['pl'][204]='do dziadków';
+$lang['pl'][205]='Czy napewno usunąć to zdjęcie';
+$lang['pl'][206]='Tak, napewno usunąć';
+$lang['pl'][207]='Nie usuwaj';
+$lang['pl'][208]='Nie wiem co usunąć! Zgłoś ten błąd do adiministratora';
+$lang['pl'][209]='Pliku nie ma w bazie danych';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -404,5 +411,12 @@ $lang['en'][199]='Editing database';
 $lang['en'][200]='Deleted';
 $lang['en'][201]='Bad image file';
 $lang['en'][202]='back to';
+$lang['en'][203]='No. of generations';
+$lang['en'][204]='grandparents';
+$lang['en'][205]='Really delete this photo';
+$lang['en'][206]='Yes, delete this';
+$lang['en'][207]='Do not delete';
+$lang['en'][208]='DOn\'t know what to delete. Report this error to admin';
+$lang['en'][209]='No such file in database';
 
 ?>

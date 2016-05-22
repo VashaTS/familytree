@@ -1067,7 +1067,7 @@ switch($id){
 			}
 			echo('</td></tr></table>');
 			echo('<h3>'.$lang[$lng][103].'</h3>');
-			$res=mysql_query('select id,ur from ludzie where ur<'.(date('Y')-95).' and ur!=0 and zm=0;');
+			$res=mysql_query('select id,ur from ludzie where ur<'.(date('Y')-95).' and ur!=0 and zm=0 order by ur asc;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<p>'.linkujludzia($row['id'],1).' (ma '.(date('Y')-$row['ur']).' lat)</p>');
@@ -1604,6 +1604,7 @@ switch($id){
 						}
 					}
 					$pdf->SetXY($w-50,$h+15);
+					$pdf->SetFont('arialpl',9);
 					$pdf->SetTextColor(100,100,100);
 					$pdf->Write(0,UTF8_2_ISO88592($lang[$lng][134].': '.$settings['site_name']));
 					$pdf->SetAuthor('Szymon Marciniak');
@@ -1614,7 +1615,8 @@ switch($id){
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else if(isset($_POST['submit2'])){ //obrazek w górę
-					switch((($_POST['pok'])-1)){
+					echo('post pok: '.$_POST['pok2'].'<br>');
+					switch(($_POST['pok2']-1)){ // = # of rows
 						case 1:{
 							$l=ilupot($id2,1);
 							break;
@@ -1626,7 +1628,6 @@ switch($id){
 							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
 								$d=mysql_fetch_assoc($d0);
 								$d1=ilupot($d['id'],1);
-								echo($d1.' : '.linkujludzia($d['id']).'<br>'); //debug
 								if($d1>$maxp) $maxp=$d1;
 							}
 							$l=$maxp*$l0;
@@ -1634,53 +1635,71 @@ switch($id){
 						}
 						case 3:{
 							$l0=ilupot($id2,1);
-							$d0=mysql_fetch_array(mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';'));
+							$d0=mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
 							$maxp=1;
 							$maxp2=1;
-							foreach($d0 as $d){
-								$d1=mysql_fetch_array(mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($d['id']).' or rodzic2='.htmlspecialchars($d['id']).';'));
-								foreach($d1 as $dd){
+							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
+								$d=mysql_fetch_assoc($d0);
+								$d1=mysql_query('select id from ludzie where rodzic1='.$d['id'].' or rodzic2='.$d['id'].';');
+								for($iiii=0;$iiii<mysql_num_rows($d1);$iiii+=1){
+									$dd=mysql_fetch_assoc($d1);
 									$d2=ilupot($dd['id'],1);
 									if($d2>$maxp2) $maxp2=$d2;
 								}
+								if(mysql_num_rows($d1)>$maxp) $maxp=mysql_num_rows($d1);
 							}
-							$l=$maxp2*$maxp*$l0;
+							//echo('<br>l0: '.$l0.', maxp: '.$maxp.', maxp2: '.$maxp2.'<br>'); //debug
+							$l=$maxp*$maxp2*$l0;
 							break;
 						}
 						case 4:{
 							$l0=ilupot($id2,1);
-							$d0=mysql_fetch_array(mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';'));
+							$d0=mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
 							$maxp=1;
 							$maxp2=1;
 							$maxp3=1;
-							foreach($d0 as $d){
-								$d1=mysql_fetch_array(mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($d['id']).' or rodzic2='.htmlspecialchars($d['id']).';'));
-								foreach($d1 as $dd){
-									$d2=mysql_fetch_array(mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($dd['id']).' or rodzic2='.htmlspecialchars($dd['id']).';'));
-									foreach($d2 as $ddd){
+							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
+								$d=mysql_fetch_assoc($d0);
+								$d1=mysql_query('select id from ludzie where rodzic1='.$d['id'].' or rodzic2='.$d['id'].';');
+								for($iiii=0;$iiii<mysql_num_rows($d1);$iiii+=1){
+									$dd=mysql_fetch_assoc($d1);
+									$d2=mysql_query('select id from ludzie where rodzic1='.$dd['id'].' or rodzic2='.$dd['id'].';');
+									for($i5;$i5<mysql_num_rows($d2);$i5+=1){
+										$ddd=mysql_fetch_assoc($d2);
 										$d3=ilupot($ddd['id'],1);
 										if($d3>$maxp3) $maxp3=$d3;
 									}
+									if(mysql_num_rows($d2)>$maxp2) $maxp2=mysql_num_rows($d2);
 								}
+								if(mysql_num_rows($d1)>$maxp) $maxp=mysql_num_rows($d1);
 							}
-							$l=$maxp3*$maxp2*$maxp*$l0;
+							//echo('<br>l0: '.$l0.', maxp: '.$maxp.', maxp2: '.$maxp2.', maxp3: '.$maxp3.'<br>'); //debug
+							$l=$maxp*$maxp2*$maxp3*$l0;
 							break;
 						}
 					}
-					echo(ilupot($id2,1).' Ludzi: '.$l.' x '.$_POST['pok']);
+					echo('Ludzi: '.$l.' x '.$_POST['pok2'].'<br>Stron: '.round(($l/16),0));
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else{
 					echo('<p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">
-					<p>Pokoleń wstecz:</p>
-					<label><input type="radio" class="formfld" name="pok" value="2"> do dziadków</label><br>
-					<label><input type="radio" class="formfld" name="pok" value="3"> do pradziadków</label><br>
-					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> do prapradziadków</label><br>');
-					echo('<label><input type="radio" class="formfld" name="pok" value="5"> do pra pra pra dziadków (2 strony)</label><br>');
+					<p>'.$lang[$lng][203].':</p>
+					<label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
+					<label><input type="radio" class="formfld" name="pok" value="3"> 3 (do pradziadków)</label><br>
+					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 (do prapradziadków)</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 (do pra pra pra dziadków) - 2 strony</label><br>');
 					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> Ze zdjęciami</label><br>');
 					echo('<input type="submit" name="submit" value="Generuj" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<input type="submit" name="submit2" value="Generuj w górę" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
+						echo('<br><br><p>Drzewo w górę</p>');
+						echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
+						echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
+						echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
+						echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
+						echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
+						echo('<input type="submit" name="submit2" value="Generuj w górę" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
+					}
 					echo('</form>');
 				}
 			}
@@ -1828,10 +1847,10 @@ switch($id){
 						else echo('<p class="alert">'.$lang[$lng][143].'</p>');
 					}
 					else{
-						echo('<p>Czy napewno usunąć to zdjęcie?</p><p class="alert"><a href="'.$thisfile.'?zdjgru-del,'.$id2.',taknapewno">Tak, napewno usunąć</a></p><p class="ok"><a href="'.$thisfile.'?zdjgru1,'.$id2.'">Nie usuwaj</a></p>');
+						echo('<p>'.$lang[$lng][205].'?</p><p class="alert"><a href="'.$thisfile.'?zdjgru-del,'.$id2.',taknapewno">'.$lang[$lng][206].'</a></p><p class="ok"><a href="'.$thisfile.'?zdjgru1,'.$id2.'">'.$lang[$lng][207].'</a></p>');
 					}
 				}
-				else echo('<p class="alert">Nie wiem co usunąć! Zgłoś ten błąd do adiministratora.</p>');
+				else echo('<p class="alert">'.$lang[$lng][208].'.</p>');
 			}
 			else{
 				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
@@ -1840,7 +1859,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class="alert">Nie masz dostępu do tej strony</a></p>');
+			echo('<p class="alert">'.$lang[$lng][89].'</a></p>');
 		}
 		html_end();
 		break;
@@ -2017,7 +2036,7 @@ switch($id){
 					}
 					echo('</td></tr></table></form>');
 				}
-				else echo('<p class="alert">Pliku nie ma w bazie danych</p>');
+				else echo('<p class="alert">'.$lang[$lng][209].'</p>');
 			}
 			else echo('<p class="alert">Brak nazwy zdjęcia</p>');
 		}
