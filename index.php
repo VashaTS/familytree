@@ -1604,7 +1604,7 @@ switch($id){
 						}
 					}
 					$pdf->SetXY($w-50,$h+15);
-					$pdf->SetFont('arialpl',9);
+					$pdf->SetFont('arialpl','',9);
 					$pdf->SetTextColor(100,100,100);
 					$pdf->Write(0,UTF8_2_ISO88592($lang[$lng][134].': '.$settings['site_name']));
 					$pdf->SetAuthor('Szymon Marciniak');
