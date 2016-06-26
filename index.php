@@ -941,7 +941,7 @@ switch($id){
 		}
 		html_end();
 		break;
-	} ///// do tąd
+	}
 	case 'stats':{
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){

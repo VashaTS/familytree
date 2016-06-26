@@ -108,8 +108,8 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				else $rur=$row['ur'];
 				if($row['zm']==0) $rzm='?';
 				else $rzm=$row['zm'];
-				if($row['sex']=='k') $rse='córka';
-				else $rse='syn';
+				if($row['sex']=='k') $rse=$lang[$lng][65];
+				else $rse=$lang[$lng][66];
 				$wynik='<a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'].'</a>';
 				if($rzm=='?'){
 					if($rur!='?') $wynik.=' ('.$rur.')';
@@ -124,8 +124,8 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				else $rur=$row['ur'];
 				if($row['zm']==0) $rzm='?';
 				else $rzm=$row['zm'];
-				if($row['sex']=='k') $rse='córka';
-				else $rse='syn';
+				if($row['sex']=='k') $rse=$lang[$lng][65];
+				else $rse=$lang[$lng][66];
 				$wynik='<a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'];
 				if($rzm=='?'){
 					if($rur!='?') $wynik.=' ('.$rur.')';
@@ -139,7 +139,7 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 					else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
 					else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
-					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' i '.odmiana_k($r2['imie']);
+					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
 				}
 				if(strlen($row['adres'])>4) $wynik.=', '.$row['adres'];
 			break;
