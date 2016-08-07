@@ -63,9 +63,12 @@ function html_start(){
 	echo('<html><head><title>'.$lang[$lng][1]);
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' v'.$ver);
 	echo('</title><link rel="stylesheet" type="text/css" href="rodzina.css" />
-		<script type="text/javascript" src="rodzina.js"></script>');
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<script src="jquery.js"></script>
-		<script src="jquery.maplight.js"></script><script>
+		<script type="text/javascript" src="rodzina.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<script type="text/javascript">
 		$(document).ready(function(){
 		$(\'img[usemap]\').maphilight();
 		});
@@ -2008,7 +2011,7 @@ switch($id){
 					echo('<tr><td colspan="3"><form name=zdjgruedit" action="'.$thisfile.'?zdjgru-edit" method="POST"><label>rok:<input type="text" name="rok" size="4" class="formfld" maxlength="4" value="'.$actzdj['rok'].'"></label> <label>opis:<input type="text" name="opis" class="formfld" value="'.$actzdj['opis'].'" size="80"></label> <label title="s, l lub k">typ: <input type="tekst" name="cat" class="formfld" size="1" maxlength="1" value="'.$actzdj['cat'].'"></label><input type="hidden" name="id" value="'.$actzdj['id'].'"> <input type="submit" name="submit" value="Zapisz" class="formbtn" id="zdjeditgru" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form></td></tr>');
 					echo('<form name="stg2" action="'.$thisfile.'?zdjgru-dodos,'.$id2.'" method="POST"><table border="0" width="100%"><tr><td colspan="3" text-align="center"><div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\''.$actzdj['path'].'\');width:'.$imsize[0].'px;height:'.$imsize[1].'px;"></td></tr>');
 					echo('<input type="hidden" name="zdjname" value="'.$actzdj['path'].'"><input type="hidden" name="rok" value="'.$actzdj['rok'].'">');
-					echo('<tr><td valign="top"><select class="formfld" id="z1" name="kto"><option value="0">Nieznany</option>');
+					echo('<tr><td valign="top"><select class="selectspecial" id="kto" name="kto" width="50%"><option value="0">Nieznany</option>');
 					$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie,ur;');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
 						$row=mysql_fetch_assoc($res);
@@ -2016,7 +2019,7 @@ switch($id){
 						for($j=0;$j<$row['pok'];$j+=1) echo('-');
 						echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 					}
-					echo('</select><br>');
+					echo('</select><script type=\'text/javascript\'>$(\'#kto\').select2();</script><br>');
 					for($i=0;$i<8;$i+=1){ //8 points should be enough for everyone...
 						echo('<input type="text" name="posx'.$i.'" size="4" class="formfld" value="0"><input type="text" name="posy'.$i.'" size="4" class="formfld" value="0"><br>');
 					}

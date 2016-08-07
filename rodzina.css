@@ -42,3 +42,4 @@ p.menusel{color:#ffcc99;}
 .formbtn{background-color:#ffcc99; border: solid 2px black; color:#660000;}
 .formfld{background-color:#ffcc99; border: solid 2px black; color:#660000;}
 .formfld:focus{background-color:#660000; border: solid 2px black; color: #ffcc99;}
+.selectspecial{width:50%;}
