@@ -3,8 +3,8 @@
 $lng='pl';
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.4c';
-// 2016-04-23
+$ver='1.4d';
+// 2016-08-17
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','128M');
 error_reporting( E_ALL );
@@ -908,21 +908,21 @@ switch($id){
 			if(isset($_POST['q1'])|isset($_POST['q2'])){
 				if(isset($_POST['exact'])){
 					if((strlen($_POST['q1'])>0)&(strlen($_POST['q2'])>0)){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars($_POST['q1']).'" and nazwisko="'.htmlspecialchars($_POST['q2']).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars($_POST['q1']).'" and nazwisko="'.htmlspecialchars($_POST['q2']).'" order by imie,nazwisko;');			
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
+						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');			
 					}
 					else if(strlen($_POST['q1'])>0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars($_POST['q1']).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars($_POST['q1']).'" order by imie,nazwisko;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
+						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
 					}
 					else if(strlen($_POST['q2'])>0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where nazwisko="'.htmlspecialchars($_POST['q2']).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and nazwisko="'.htmlspecialchars($_POST['q2']).'" order by imie,nazwisko;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
+						else $res=mysql_query('select id from ludzie where visible=1 and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
 					}
 				}
 				else{
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie like "%'.htmlspecialchars($_POST['q1']).'%" and nazwisko like "%'.htmlspecialchars($_POST['q2']).'%" order by imie,nazwisko;');
-					else $res=mysql_query('select id from ludzie where visible=1 and (imie like "%'.htmlspecialchars($_POST['q1']).'%" and nazwisko like "%'.htmlspecialchars($_POST['q2']).'%") order by imie,nazwisko;');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%" order by imie,nazwisko;');
+					else $res=mysql_query('select id from ludzie where visible=1 and (imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%") order by imie,nazwisko;');
 				}
 				echo('<h2>'.$lang[$lng][61].' '.mysql_num_rows($res).' '.$lang[$lng][62]);
 				if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Szukanie '.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'", time="'.date("Y-m-d H:i:s").'";');
@@ -2009,7 +2009,9 @@ switch($id){
 				if($actzdj){
 					$imsize=getimagesize($actzdj['path']);
 					echo('<tr><td colspan="3"><form name=zdjgruedit" action="'.$thisfile.'?zdjgru-edit" method="POST"><label>rok:<input type="text" name="rok" size="4" class="formfld" maxlength="4" value="'.$actzdj['rok'].'"></label> <label>opis:<input type="text" name="opis" class="formfld" value="'.$actzdj['opis'].'" size="80"></label> <label title="s, l lub k">typ: <input type="tekst" name="cat" class="formfld" size="1" maxlength="1" value="'.$actzdj['cat'].'"></label><input type="hidden" name="id" value="'.$actzdj['id'].'"> <input type="submit" name="submit" value="Zapisz" class="formbtn" id="zdjeditgru" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form></td></tr>');
-					echo('<form name="stg2" action="'.$thisfile.'?zdjgru-dodos,'.$id2.'" method="POST"><table border="0" width="100%"><tr><td colspan="3" text-align="center"><div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\''.$actzdj['path'].'\');width:'.$imsize[0].'px;height:'.$imsize[1].'px;"></td></tr>');
+					echo('<form name="stg2" action="'.$thisfile.'?zdjgru-dodos,'.$id2.'" method="POST"><table border="0" width="100%"><tr><td colspan="3" text-align="center">');
+					//echo('<canvas id="theCanvas" width="'.$imsize[0].'" height="'.$imsize[1].'"></canvas>');
+					echo('<div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\''.$actzdj['path'].'\');width:'.$imsize[0].'px;height:'.$imsize[1].'px;"></td></tr>');
 					echo('<input type="hidden" name="zdjname" value="'.$actzdj['path'].'"><input type="hidden" name="rok" value="'.$actzdj['rok'].'">');
 					echo('<tr><td valign="top"><select class="selectspecial" id="kto" name="kto" width="50%"><option value="0">Nieznany</option>');
 					$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie,ur;');
