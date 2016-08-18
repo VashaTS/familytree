@@ -2043,7 +2043,7 @@ switch($id){
 				}
 				else echo('<p class="alert">'.$lang[$lng][209].'</p>');
 			}
-			else echo('<p class="alert">Brak nazwy zdjęcia</p>');
+			else echo('<p class="alert">'.$lang[$lng][213].'</p>');
 		}
 		else{
 			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania ludzi do zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
@@ -2085,13 +2085,13 @@ switch($id){
 							for($i=0;$i<8;$i+=1){
 								echo('<input type="text" name="posx'.$i.'" size="4" class="formfld" value="0"><input type="text" name="posy'.$i.'" size="4" class="formfld" value="0"><br>');
 							}
-							echo('<input type="submit" name="stage2" class="formbtn" value="Zapisz" id="dodozdj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></tr></table></form>');
+							echo('<input type="submit" name="stage2" class="formbtn" value="'.$lang[$lng][173].'" id="dodozdj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></tr></table></form>');
 						}
 						else{
-							echo('Plik: <strong>'.$_FILES['zdj']['name'].'</strong> jest zbyt duży! Jego rozmiar przekracza '.($_POST['MAX_FILE_SIZE']/1024/1024).' MB<br>');
+							echo($lang[$lng][191].': <strong>'.$_FILES['zdj']['name'].'</strong> '.$lang[$lng][210].' '.($_POST['MAX_FILE_SIZE']/1024/1024).' MiB<br>');
 						}	
 					}
-					else echo('<p class="alert">Niepoprawny plik</p>');
+					else echo('<p class="alert">'.$lang[$lng][211].'</p>');
 				}
 				else if(isset($_POST['stage2'])){
 					if(isset($_POST['zdjname'])){
@@ -2117,8 +2117,8 @@ switch($id){
 				else{ //form
 					echo('<form enctype="multipart/form-data" action="'.$thisfile.'?zdjgru-add" method="POST">
 						<input type="hidden" name="MAX_FILE_SIZE" value="100000000" />
-						<table border="0"><tr><td>Dodaj zdjęcie:</td><td>Rok</td><td>&nbsp;</td></tr><tr><td><input class="formfld" name="zdj" type="file" /></td><td><input type="text" name="rok" class="formfld" size="4" maxlength="4"></td>
-						<td><input class="formbtn" id="grudod" name="stage1" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" value="Wyślij" /></td></tr><tr><td colspan="2"><textarea rows="5" cols="60" name="opis" class="formfld"></textarea></td></tr></table></form>');
+						<table border="0"><tr><td>'.$lang[$lng][212].':</td><td>Rok</td><td>&nbsp;</td></tr><tr><td><input class="formfld" name="zdj" type="file" /></td><td><input type="text" name="rok" class="formfld" size="4" maxlength="4"></td>
+						<td><input class="formbtn" id="grudod" name="stage1" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" value="'.$lnag[$lng][142].'" /></td></tr><tr><td colspan="2"><textarea rows="5" cols="60" name="opis" class="formfld"></textarea></td></tr></table></form>');
 				}
 			}
 			else{
