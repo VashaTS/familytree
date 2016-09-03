@@ -1056,6 +1056,7 @@ switch($id){
 	case 'todo':{ // auto-generated data completion check
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
+			print_r($currentuser);
 			echo('<h3>'.$lang[$lng][102].'</h3>');
 			$res=mysql_query('select id from ludzie where imie="???" or nazwisko="???";');
 			echo('<table border="0"><tr><td>');

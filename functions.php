@@ -65,7 +65,7 @@ function odmiana_m($imie){
 	return $new;
 }
 
-function plfirstup($string, $e ='utf-8') { 
+function plfirstup($string, $e ='utf-8') { // żak, łuczak, etc
         if (function_exists('mb_strtoupper') && function_exists('mb_substr') && !empty($string)) { 
             $string = mb_strtolower($string, $e); 
             $upper = mb_strtoupper($string, $e); 
@@ -90,7 +90,7 @@ function odmiana_k($imie){
 	return $new;
 }
 function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodziców, żon/mężów, dzieci
-	global $lang,$lng;
+	global $lang,$lng,$currentuser;
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$uid.';'));
 	else $row=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$uid.';'));
 	switch($style){
@@ -238,7 +238,7 @@ function ilupot($person_id,$pokolen_wstecz){ // MASSIVE MEMORY USAGE! <- maybe n
 	return $pot;
 }
 function pokrewienstwo($a,$b){
-	global $jestans;
+	global $jestans,$currentuser;
 	$jestans=0;
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $self=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,byl,sex,rodzic1,rodzic2,zona1,zona2,zona3 from ludzie where id='.$a.';'));
 		else $self=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,byl,sex,rodzic1,rodzic2,zona1,zona2,zona3 from ludzie where visible=1 and id='.$a.';'));
