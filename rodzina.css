@@ -7,6 +7,8 @@ a{color:black; text-decoration: underline; font-family:Tahoma;}
 a:hover{color:#9900cc;}
 a.dlink{color:black; text-decoration:none; font-family:Tahoma; font-size:24pt;}
 a.dlink:hover{color:#9900cc;}
+a.nvperson{color: yellow; text-shadow: 0 0 4px white,0 0 7px black;}
+a.nvperson:hover{color: red; text-shadow: 0 0 4px white,0 0 7px white;}
 
 img.lud{margin:10px;}
 

@@ -101,7 +101,9 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				else $rzm=$row['zm'];
 				if($row['sex']=='k') $rse=$lang[$lng][65];
 				else $rse=$lang[$lng][66];
-				$wynik='<a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'];
+				$wynik='<a';
+				if($row['visible']==0) $wynik.=' class="nvperson"';
+				$wynik.=' href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'];
 				if($rzm=='?'){
 					if($rur!='?') $wynik.=' ('.$rur.')';
 				}
@@ -110,11 +112,16 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				}
 				$wynik.='</a>';
 				if(($row['rodzic1']!=0)&($row['rodzic2']!=0)){
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic1'].';'));
-					else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
-					else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
-					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
+					$visr1=mysql_fetch_assoc(mysql_query('select visible from ludzie where id='.$row['rodzic1'].';'));
+					$visr2=mysql_fetch_assoc(mysql_query('select visible from ludzie where id='.$row['rodzic2'].';'));
+					if((($visr1['visibe']==1)&($visr2['visible']==1))|((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags'])))){
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic1'].';'));
+						else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
+						else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
+						$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
+					}
+					// to do else statements with 1 parent
 				}
 			break;
 		}
@@ -125,7 +132,9 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				else $rzm=$row['zm'];
 				if($row['sex']=='k') $rse=$lang[$lng][65];
 				else $rse=$lang[$lng][66];
-				$wynik='<a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'].'</a>';
+				$wynik='<a';
+				if($row['visible']==0) $wynik.=' class="nvperson"';
+				$wynik.=' href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'].'</a>';
 				if($rzm=='?'){
 					if($rur!='?') $wynik.=' ('.$rur.')';
 				}
@@ -150,11 +159,16 @@ function linkujludzia($uid,$style=1){ // inline - do szukajki, zdjęć, rodzicó
 				}
 				$wynik.='</a>';
 				if(($row['rodzic1']!=0)&($row['rodzic2']!=0)){
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic1'].';'));
-					else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
-					else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
-					$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
+					$visr1=mysql_fetch_assoc(mysql_query('select visible from ludzie where id='.$row['rodzic1'].';'));
+					$visr2=mysql_fetch_assoc(mysql_query('select visible from ludzie where id='.$row['rodzic2'].';'));
+					if((($visr1['visibe']==1)&($visr2['visible']==1))|((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags'])))){
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic1'].';'));
+						else $r1=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic1'].';'));
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where id='.$row['rodzic2'].';'));
+						else $r2=mysql_fetch_assoc(mysql_query('select imie from ludzie where visible=1 and id='.$row['rodzic2'].';'));
+						$wynik.=', '.$rse.' '.odmiana_m($r1['imie']).' '.$lang[$lng][135].' '.odmiana_k($r2['imie']);
+					}
+					//seme else as in case 1
 				}
 				if(strlen($row['adres'])>4) $wynik.=', '.$row['adres'];
 			break;
