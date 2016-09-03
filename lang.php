@@ -212,6 +212,8 @@ $lang['pl'][210]='jest zbyt duży! Jego rozmiar przekracza';
 $lang['pl'][211]='Niepoprawny plik';
 $lang['pl'][212]='Dodaj zdjęcie';
 $lang['pl'][213]='Brak nazwy zdjęcia';
+$lang['pl'][214]='M';
+$lang['pl'][215]='K';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -426,5 +428,7 @@ $lang['en'][210]='is too big! It\'s size exceeds';
 $lang['en'][211]='Wrong file';
 $lang['en'][212]='Add photo';
 $lang['en'][213]='Missing photo name';
+$lang['en'][214]='M';
+$lang['en'][215]='F';
 
 ?>

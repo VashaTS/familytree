@@ -330,17 +330,19 @@ switch($id){
 				$row2=mysql_fetch_assoc(mysql_query('select id,zona1 from ludzie where zona1='.$row['id'].' limit 1;'));
 				if($row2['zona1']!=0) echo('zonaindex['.$row2['id'].']="'.($i+1).'";');
 			}
+			$nsurn='';
 			if(isset($id2)){
 				$tbr1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
 				$tbr2=$tbr1['zona1'];
 				if($tbr1['zona2']!=0) $tbr2=$tbr1['zona2'];
 				if($tbr1['zona3']!=0) $tbr2=$tbr1['zona3'];
 				$npok=($tbr1['pok']+1);
+				$nsurn=$tbr1['nazwisko'];
 			}
 			echo('document.dodaj.pok.value=ludzie[iid];
 				document.getElementById(\'r2\').selectedIndex=zonaindex[iid];
-				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>'.$lang[$lng][59].':<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40"></label><br>
-				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.substr($lang[$lng][97],0,1).'</label><label><input class="formfld" type="radio" name="sex" value="k">'.substr($lang[$lng][98],0,1).'</label> <label>'.$lang[$lng][198].':<input type="text" name="adres" class="formfld" size="12"></label><br>
+				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>'.$lang[$lng][59].':<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40" value="'.$nsurn.'"></label><br>
+				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.$lang[$lng][214].'</label><label><input class="formfld" type="radio" name="sex" value="k">'.$lang[$lng][215].'</label> <label>'.$lang[$lng][198].':<input type="text" name="adres" class="formfld" size="12"></label><br>
 				<label>'.$lang[$lng][79].':<select class="formfld" id="r1" name="rodzic1" onchange="pokolenie(this.options[this.selectedIndex].value)"><option value="0">'.$lang[$lng][113].'</option>');
 			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -353,7 +355,8 @@ switch($id){
 				for($j=0;$j<$row['pok'];$j+=1) echo('-');
 				echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 			}
-			echo('</select><select class="formfld" id="r2" name="rodzic2"><option value="0">'.$lang[$lng][113].'</option>');
+			echo('</select><script type=\'text/javascript\'>$(\'#r1\').select2();</script>
+			<select class="formfld" id="r2" name="rodzic2"><option value="0">'.$lang[$lng][113].'</option>');
 			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -365,10 +368,11 @@ switch($id){
 				for($j=0;$j<$row['pok'];$j+=1) echo('-');
 				echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 			}
-			echo('</select></label> <label>'.$lang[$lng][114].':<input class="formfld" type="text" id="pok" name="pok" value="');
+			echo('</select><script type=\'text/javascript\'>$(\'#r2\').select2();</script>
+			</label> <label>'.$lang[$lng][114].':<input class="formfld" type="text" id="pok" name="pok" value="');
 			if(isset($id2)) echo($npok);
 			else echo('0');
-			echo('" size="3" title="W papierowych zapiskach:'."\n".'0 - Czarni'."\n".'1 - Fioletowi'."\n".'2 - Niebiescy'."\n".'3 - Zieloni'."\n".'4 - Czerwoni'."\n".'5 - Pomarańczowi"></label> <label>'.$lang[$lng][75].': <select class="formfld" name="zona"><option value="0">'.$lang[$lng][115].'</option>');
+			echo('" size="3" title="W papierowych zapiskach:'."\n".'0 - Czarni'."\n".'1 - Fioletowi'."\n".'2 - Niebiescy'."\n".'3 - Zieloni'."\n".'4 - Czerwoni'."\n".'5 - Pomarańczowi"></label> <label>'.$lang[$lng][75].': <select class="formfld" name="zona" id="zona"><option value="0">'.$lang[$lng][115].'</option>');
 			if(strlen($id2)>2) $res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" and imie="'.htmlspecialchars($id2).'" order by id;');
 			else $res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by imie,nazwisko;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -377,7 +381,8 @@ switch($id){
 				for($j=0;$j<$row['pok'];$j+=1) echo('-');
 				echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 			}
-			echo('</select><label>'.$lang[$lng][119].'<input type="text" class="formfld" size="2" maxlength="2" name="visible" value="1"></label></label><br><textarea class="formfld" name="uwagi" rows="5" cols="60"></textarea>
+			echo('</select><script type=\'text/javascript\'>$(\'#zona\').select2();</script>
+			<label>'.$lang[$lng][119].'<input type="text" class="formfld" size="2" maxlength="2" name="visible" value="1"></label></label><br><textarea class="formfld" name="uwagi" rows="5" cols="60"></textarea>
 			<input class="formbtn" id="dodaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="'.$lang[$lng][173].'"></form>');
 		}
 		else{
