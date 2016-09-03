@@ -3,8 +3,8 @@
 $lng='pl';
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.4d';
-// 2016-08-17
+$ver='1.4e';
+// 2016-09-03
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','128M');
 error_reporting( E_ALL );
@@ -13,7 +13,7 @@ mysql_query('SET NAMES utf-8');
 $settings=mysql_fetch_assoc(mysql_query('select * from settings'));
 if(isset($_COOKIE['zal'])){
 	setcookie('zal',$_COOKIE['zal'],(time()+60*10));
-	$currentuser=mysql_fetch_assoc(mysql_query('select id,flags from users where name="'.$_COOKIE['zal'].'" limit 1;'));
+	$currentuser=mysql_fetch_assoc(mysql_query('select id,flags from users where name="'.$_COOKIE['zal'].'" limit 1;')); //this is a global varrible used by functions!
 }
 require('fpdf/fpdf.php');
 class PDF extends FPDF { 
@@ -74,13 +74,11 @@ function html_start(){
 		});
 		');
 		echo('</script></head><body>');
-		//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			echo('<div style="float:right; border:none; vertical-align:center;">');
 			foreach($lang as $k1 => $v1){
 				echo('<a href="'.$thisfile.'?set-lang,'.$k1.','.$id.','.$id2.','.$id3.'"><img border="1" src="flags/'.$k1.'.png"></a>');
 			}
 			echo('</div><br><br><br>');
-		//}
 		echo('<p>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
 		else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
@@ -1134,7 +1132,7 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			switch($co){
-				case 'all':{
+				case 'all':{ //famuła menu item
 					$ipk=mysql_fetch_assoc(mysql_query('select min(pok) as s,max(pok) as e from ludzie'));
 					mysql_query('update ludzie set byl=0;');
 					$li=0;
