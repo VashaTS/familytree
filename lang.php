@@ -214,6 +214,13 @@ $lang['pl'][212]='Dodaj zdjęcie';
 $lang['pl'][213]='Brak nazwy zdjęcia';
 $lang['pl'][214]='M';
 $lang['pl'][215]='K';
+$lang['pl'][216]='Plik nie istnieje';
+$lang['pl'][217]='Brak nazwy pliku';
+$lang['pl'][218]='Generuj';
+$lang['pl'][219]='do pradziadków';
+$lang['pl'][220]='do prapradziadków';
+$lang['pl'][221]='do pra pra pra dziadków) - 2 strony';
+$lang['pl'][222]='Ze zdjęciami';
 
 $lang['en'][1]='Family Tree';
 $lang['en'][2]='admin mode';
@@ -430,5 +437,12 @@ $lang['en'][212]='Add photo';
 $lang['en'][213]='Missing photo name';
 $lang['en'][214]='M';
 $lang['en'][215]='F';
+$lang['en'][216]='No such file';
+$lang['en'][217]='No file name';
+$lang['en'][218]='Generate';
+$lang['en'][219]='great grandparents';
+$lang['en'][220]='great great grandparents';
+$lang['en'][221]='great great great grandparents) - 2 pages';
+$lang['en'][222]='with pictures';
 
 ?>

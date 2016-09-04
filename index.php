@@ -1693,11 +1693,11 @@ switch($id){
 					echo('<p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">
 					<p>'.$lang[$lng][203].':</p>
 					<label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
-					<label><input type="radio" class="formfld" name="pok" value="3"> 3 (do pradziadków)</label><br>
-					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 (do prapradziadków)</label><br>');
-					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 (do pra pra pra dziadków) - 2 strony</label><br>');
-					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> Ze zdjęciami</label><br>');
-					echo('<input type="submit" name="submit" value="Generuj" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
+					<label><input type="radio" class="formfld" name="pok" value="3"> 3 ('.$lang[$lng][219].')</label><br>
+					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 ('.$lang[$lng][220].')</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 ('.$lang[$lng][221].'</label><br>');
+					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> '.$lang[$lng][222].'</label><br>');
+					echo('<input type="submit" name="submit" value="'.$lang[$lng][218].'" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 						echo('<br><br><p>Drzewo w górę</p>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
@@ -1723,7 +1723,7 @@ switch($id){
 			echo('<h2><a href="'.$thisfile.'?rocznik,'.($id2-1).'">◄ '.($id2-1).'</a> '.$id2.' <a href="'.$thisfile.'?rocznik,'.($id2+1).'">'.($id2+1).' ►</a></h2>');
 			echo('<form name="rocznik" action="'.$thisfile.'?rocznik" method="POST"><input class="formfld" type="text" id="rok" name="rok"><button class="formbtn" id="przejdz" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);" type="button" name="b1" value="Pokaż">'.$lang[$lng][111].'</button></form><br>');
 			if(strlen($id2)==4){
-				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;');
+				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;'); //born in year $id2
 				else $res=mysql_query('select id from ludzie where visible=1 and ur='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
 					echo('<h3>'.$lang[$lng][109].' '.$id2.'</h3>');
@@ -1732,7 +1732,7 @@ switch($id){
 						echo('<p>'.linkujludzia($row['id'],2).'</p>');
 					}
 				}
-				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where zm='.htmlspecialchars($id2).' order by imie,nazwisko;');
+				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where zm='.htmlspecialchars($id2).' order by imie,nazwisko;'); //dead in year $id2
 				else $res=mysql_query('select id from ludzie where visible=1 and zm='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
 					echo('<h3>'.$lang[$lng][108].' '.$id2.'</h3>');
@@ -2062,7 +2062,7 @@ switch($id){
 			if(preg_match('#,picadd,#',$currentuser['flags'])){
 				if(isset($_POST['stage1'])){
 					if(is_uploaded_file($_FILES['zdj']['tmp_name'])){
-						$newname='gru'.date('U');
+						$newname='gru'.date('U'); //miliseconds for unique name
 						if($_FILES['zdj']['size']<=$_POST['MAX_FILE_SIZE']){ 
 							move_uploaded_file($_FILES['zdj']['tmp_name'], 'gfx/'.$newname.'.jpg');
 							$im=imagecreatefromjpeg('gfx/'.$newname.'.jpg');
@@ -2114,9 +2114,9 @@ switch($id){
 							}
 							else echo('<p class="alert">'.$lang[$lng][175].'</p>');
 						}
-						else echo('<p class="alert">Plik nie istnieje</p>');
+						else echo('<p class="alert">'.$lang[$lng][216].'</p>');
 					}
-					else echo('<p class="alert">Brak nazwy pliku</p>');
+					else echo('<p class="alert">'.$lang[$lng][217].'</p>');
 				}
 				else{ //form
 					echo('<form enctype="multipart/form-data" action="'.$thisfile.'?zdjgru-add" method="POST">
