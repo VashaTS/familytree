@@ -3,8 +3,8 @@
 $lng='pl';
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.4e';
-// 2016-09-03
+$ver='1.4f';
+// 2016-09-04
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','128M');
 error_reporting( E_ALL );
@@ -1720,7 +1720,7 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(isset($_POST['rok'])&(!isset($id2))) $id2=$_POST['rok'];
 			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie rocznika '.$id2.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-			echo('<h2><a href="'.$thisfile.'?rocznik,'.($id2-1).'">◄ '.($id2-1).'</a> '.$id2.' <a href="'.$thisfile.'?rocznik,'.($id2+1).'">'.($id2+1).' ►</a></h2>');
+			echo('<h2><a href="'.$thisfile.'?rocznik,'.($id2-1).'">◄ '.($id2-1).'</a> <big>'.$id2.'</big> <a href="'.$thisfile.'?rocznik,'.($id2+1).'">'.($id2+1).' ►</a></h2>');
 			echo('<form name="rocznik" action="'.$thisfile.'?rocznik" method="POST"><input class="formfld" type="text" id="rok" name="rok"><button class="formbtn" id="przejdz" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);" type="button" name="b1" value="Pokaż">'.$lang[$lng][111].'</button></form><br>');
 			if(strlen($id2)==4){
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;'); //born in year $id2
@@ -1820,7 +1820,7 @@ switch($id){
 				if($cat==$k) echo('</b>');
 			}
 			echo('</p>');
-			$res=mysql_query('select * from zdjecia where osoby like "0,%" and cat="'.$cat.'" order by rok;');
+			$res=mysql_query('select * from zdjecia where osoby like "0,%" and cat="'.$cat.'" order by rok desc;');
 			echo('<center><table border="0">');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -2077,7 +2077,7 @@ switch($id){
 							imagejpeg($min,'gfx/'.$newname.'m.jpg');
 							echo('<form name="stg2" action="'.$thisfile.'?zdjgru-add" method="POST"><table border="0"><tr><td><div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\'gfx/'.$newname.'.jpg\');width:'.$width_duz.'px;height:'.$nih.'px;"></td></tr>');
 							echo('<input type="hidden" name="zdjname" value="'.$newname.'"><input type="hidden" name="rok" value="'.$_POST['rok'].'"><input type="hidden" name="opis" value="'.$_POST['opis'].'">');
-							echo('<tr><td><select class="formfld" id="z1" name="kto"><option value="0">'.$lang[$lng][113].'</option>');
+							echo('<tr><td><select class="selectspecial" id="kto1" name="kto1"><option value="0">'.$lang[$lng][113].'</option>');
 							$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie');
 							for($i=0;$i<mysql_num_rows($res);$i+=1){
 								$row=mysql_fetch_assoc($res);
@@ -2085,7 +2085,7 @@ switch($id){
 								for($j=0;$j<$row['pok'];$j+=1) echo('-');
 								echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 							}
-							echo('</select><br>');
+							echo('</select><script type=\'text/javascript\'>$(\'#kto1\').select2();</script><br>');
 							for($i=0;$i<8;$i+=1){
 								echo('<input type="text" name="posx'.$i.'" size="4" class="formfld" value="0"><input type="text" name="posy'.$i.'" size="4" class="formfld" value="0"><br>');
 							}
@@ -2122,7 +2122,7 @@ switch($id){
 					echo('<form enctype="multipart/form-data" action="'.$thisfile.'?zdjgru-add" method="POST">
 						<input type="hidden" name="MAX_FILE_SIZE" value="100000000" />
 						<table border="0"><tr><td>'.$lang[$lng][212].':</td><td>Rok</td><td>&nbsp;</td></tr><tr><td><input class="formfld" name="zdj" type="file" /></td><td><input type="text" name="rok" class="formfld" size="4" maxlength="4"></td>
-						<td><input class="formbtn" id="grudod" name="stage1" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" value="'.$lnag[$lng][142].'" /></td></tr><tr><td colspan="2"><textarea rows="5" cols="60" name="opis" class="formfld"></textarea></td></tr></table></form>');
+						<td><input class="formbtn" id="grudod" name="stage1" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" value="'.$lang[$lng][142].'" /></td></tr><tr><td colspan="2"><textarea rows="5" cols="60" name="opis" class="formfld"></textarea></td></tr></table></form>');
 				}
 			}
 			else{
