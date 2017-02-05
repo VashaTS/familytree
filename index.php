@@ -763,17 +763,17 @@ switch($id){
 													echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' zmienione!</p>');
 													mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'";');
 												}
-												else echo('<p class="alert">Nieudane zapytanie do SQL. Skontaktuj się z Administratorem</p>');
+												else echo('<p class="alert">'.$lang[$lng][223].'</p>');
 											}
 											else echo('<p class="alert">'.$lang[$lng][176].'</p>');
 										}
-										else echo('<p class="alert">Chrzestni muszą być różnej płci, muszą być starsi</p>');
+										else echo('<p class="alert">'.$lang[$lng][224].'</p>');
 									}
 									else echo('<p class="alert">'.$lang[$lng][177].'</p>');
 								}
 								else echo('<p class="alert">'.$lang[$lng][178].'</p>');
 							}
-							else echo('<p class="alert">Rok urodzenia musi zawierać 4 cyfry, oraz nie może być większy niż '.date("Y").'</p>');
+							else echo('<p class="alert">'.$lang[$lng][121].' '.date("Y").'</p>');
 						}
 						else echo('<p class="alert">Nazwisko musi mieć conajmniej 3 znaki</p>');
 					}
@@ -895,7 +895,7 @@ switch($id){
 		}
 		else{
 			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dostępu do edycji '.$logs_in['imie'].' '.$logs_in['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
-			echo('<p class"alert">Nie masz dostępu do tej strony</a></p>');
+			echo('<p class"alert">'.$lang[$lng][89].'</a></p>');
 		}
 		html_end();
 		break;
@@ -988,7 +988,7 @@ switch($id){
 				}
 			}
 			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' '.strtolower($lang[$lng][77]));
-			echo('<h3>'.$lang[$lng][96].':</h3>'); //most frequient name
+			echo('<h3>'.$lang[$lng][96].':</h3>'); //most frequent name
 			$imm=mysql_query('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
 			$imk=mysql_query('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
 			for($i=0;$i<mysql_num_rows($imm);$i+=1){
@@ -1847,7 +1847,7 @@ switch($id){
 							unlink($min);
 							if(mysql_query('delete from zdjecia where id='.htmlspecialchars($id2).';')){
 								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie grupowe: '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
-								echo('<p class="ok">Poprawnie usunięto zdjęcie "'.$row['opis'].'"</p><a href="'.$thisfile.'?zdjgru">Wróć do listy zdjęć</a>');
+								echo('<p class="ok">Poprawnie usunięto zdjęcie "'.$row['opis'].'"</p><a href="'.$thisfile.'?zdjgru">'.$lang[$lng][90].'</a>');
 							}
 							else echo('<p class="alert">Nie udało sie usunąć zdjęcia nr '.$id2.'. Zgłoś ten błąd do adminsitratora.</p>');
 						}
