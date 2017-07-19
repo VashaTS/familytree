@@ -229,26 +229,30 @@ function ilupot($person_id,$pokolen_wstecz){ // MASSIVE MEMORY USAGE! <- maybe n
 		$pot=mysql_num_rows($res1);
 		mysql_free_result($res1);
 	}
-	else if($pokolen_wstecz==2){
+	else if($pokolen_wstecz>=2){
 		$wn=0;
 		$res1=mysql_query('select id from ludzie where rodzic1='.$person_id.' or rodzic2='.$person_id.';');
 		for($i=0;$i<mysql_num_rows($res1);$i+=1){
 			$row=mysql_fetch_assoc($res1);
-			$res2=mysql_query('select id from ludzie where rodzic1='.$row['id'].' or rodzic2='.$row['id'].';');
-			$numqq=mysql_num_rows($res2);
-				if($numqq>0){
+			$numqq=ilupot($row['id'],$pokolen_wstecz-1);
+			//$res2=mysql_query('select id from ludzie where rodzic1='.$row['id'].' or rodzic2='.$row['id'].';');
+			//$numqq=mysql_num_rows($res2);
+				//if($numqq>0){
 					//echo($numqq);
 					$wn+=$numqq;
 					//for($j=0;$j<$numqq;$j+=1){
 					//	$row2=mysql_fetch_assoc($res2);
 					//	$wn+=ilupot($row2['id'],($pokolen_wstecz-1));
 					//}
-				}
+				//}
 				
 			}
 		mysql_free_result($res1);
 		$pot=$wn;
 	}
+	//else{
+		
+	//}
 	return $pot;
 }
 function pokrewienstwo($a,$b){
@@ -814,6 +818,58 @@ function pokrewienstwo($a,$b){
 		}
 		if($jestans==0) return 'NIE ZNALEZIONO';
 	
+}
+
+function szukajZony($inp_id){
+	$res=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$inp_id.';'));
+					if($res['sex']=='m'){
+						if($res['zona3']!='0') $zid=$res['zona3'];
+						else if($res['zona2']!='0') $zid=$res['zona2'];
+						else if($res['zona1']!='0') $zid=$res['zona1'];
+						else $zid='0';
+						//mysql_free_result($res);
+					}
+					else{
+						$res1z=mysql_query('select * from ludzie where zona3='.$inp_id.';');
+						if(mysql_num_rows($res1z)>0){
+							$rowz=mysql_fetch_assoc($res1z);
+							$zid=$rowz['id'];
+							mysql_free_result($res1z);
+						}
+						else{
+							$res1z=mysql_query('select * from ludzie where zona2='.$inp_id.';');
+							if(mysql_num_rows($res1z)>0){
+								$rowz=mysql_fetch_assoc($res1z);
+								$zid=$rowz['id'];
+								mysql_free_result($res1z);
+							}
+							else{
+								$res1z=mysql_query('select * from ludzie where zona1='.$inp_id.';');
+								if(mysql_num_rows($res1z)>0){
+									$rowz=mysql_fetch_assoc($res1z);
+									$zid=$rowz['id'];
+									mysql_free_result($res1z);
+								}
+								else $zid='0';
+							}
+						}
+					}
+	return $zid;
+}
+
+function jejjego($sex,$lang){
+	switch($lang){
+		case 'pl':{
+			if($sex=='m') return 'jego';
+			else return 'jej';
+			break;
+		}
+		case 'en':{
+			if($sex=='m') return 'his';
+			else return 'her';
+			break;
+		}
+	}
 }
 
 ?>

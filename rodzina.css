@@ -10,6 +10,8 @@ a.dlink:hover{color:#9900cc;}
 a.nvperson{color: yellow; text-shadow: 0 0 4px white,0 0 7px black;}
 a.nvperson:hover{color: red; text-shadow: 0 0 4px white,0 0 7px white;}
 
+td{padding-left:20px; padding-right:20px; padding-top:5px;}
+
 img.lud{margin:10px;}
 
 div{border:solid 2px black; margin: auto;}
@@ -45,3 +47,6 @@ p.menusel{color:#ffcc99;}
 .formfld{background-color:#ffcc99; border: solid 2px black; color:#660000;}
 .formfld:focus{background-color:#660000; border: solid 2px black; color: #ffcc99;}
 .selectspecial{width:50%;}
+
+#treegen{padding:10px;}
+#treegen2{padding:10px;}

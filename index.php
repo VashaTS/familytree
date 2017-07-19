@@ -6,7 +6,7 @@ include('lang.php');
 $ver='1.4f';
 // 2016-09-04
 ini_set( 'display_errors', 'Off' );
-ini_set('memory_limit','128M');
+ini_set('memory_limit','256M');
 error_reporting( E_ALL );
 include('db_connection.php');
 mysql_query('SET NAMES utf-8');
@@ -120,6 +120,7 @@ function html_start(){
 	}
 	echo('<p><a href="index.php?kontakt">'.$lang[$lng][112].'</a></p><hr>');
 	if(isset($_COOKIE['pokr'])&($_COOKIE['pokr']!=0)) echo('<p class="ok">'.$lang[$lng][19].' <a href="'.$thisfile.'?pokr,del">'.$lang[$lng][20].'</a></p>');
+	unset($menus,$menus2,$menus3);
 }
 function html_end(){ //+google ad & analytics
 	global $ver,$lang,$lng;
@@ -1622,92 +1623,200 @@ switch($id){
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else if(isset($_POST['submit2'])){ //obrazek w górę
-					echo('post pok: '.$_POST['pok2'].'<br>');
-					switch(($_POST['pok2']-1)){ // = # of rows
-						case 1:{
-							$l=ilupot($id2,1);
-							break;
-						}
-						case 2:{
-							$l0=ilupot($id2,1);
-							$d0=mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
-							$maxp=1;
-							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
-								$d=mysql_fetch_assoc($d0);
-								$d1=ilupot($d['id'],1);
-								if($d1>$maxp) $maxp=$d1;
-							}
-							$l=$maxp*$l0;
-							break;
-						}
-						case 3:{
-							$l0=ilupot($id2,1);
-							$d0=mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
-							$maxp=1;
-							$maxp2=1;
-							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
-								$d=mysql_fetch_assoc($d0);
-								$d1=mysql_query('select id from ludzie where rodzic1='.$d['id'].' or rodzic2='.$d['id'].';');
-								for($iiii=0;$iiii<mysql_num_rows($d1);$iiii+=1){
-									$dd=mysql_fetch_assoc($d1);
-									$d2=ilupot($dd['id'],1);
-									if($d2>$maxp2) $maxp2=$d2;
-								}
-								if(mysql_num_rows($d1)>$maxp) $maxp=mysql_num_rows($d1);
-							}
-							//echo('<br>l0: '.$l0.', maxp: '.$maxp.', maxp2: '.$maxp2.'<br>'); //debug
-							$l=$maxp*$maxp2*$l0;
-							break;
-						}
-						case 4:{
-							$l0=ilupot($id2,1);
-							$d0=mysql_query('select id from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
-							$maxp=1;
-							$maxp2=1;
-							$maxp3=1;
-							for($iii=0;$iii<mysql_num_rows($d0);$iii+=1){
-								$d=mysql_fetch_assoc($d0);
-								$d1=mysql_query('select id from ludzie where rodzic1='.$d['id'].' or rodzic2='.$d['id'].';');
-								for($iiii=0;$iiii<mysql_num_rows($d1);$iiii+=1){
-									$dd=mysql_fetch_assoc($d1);
-									$d2=mysql_query('select id from ludzie where rodzic1='.$dd['id'].' or rodzic2='.$dd['id'].';');
-									for($i5;$i5<mysql_num_rows($d2);$i5+=1){
-										$ddd=mysql_fetch_assoc($d2);
-										$d3=ilupot($ddd['id'],1);
-										if($d3>$maxp3) $maxp3=$d3;
-									}
-									if(mysql_num_rows($d2)>$maxp2) $maxp2=mysql_num_rows($d2);
-								}
-								if(mysql_num_rows($d1)>$maxp) $maxp=mysql_num_rows($d1);
-							}
-							//echo('<br>l0: '.$l0.', maxp: '.$maxp.', maxp2: '.$maxp2.', maxp3: '.$maxp3.'<br>'); //debug
-							$l=$maxp*$maxp2*$maxp3*$l0;
-							break;
+					//echo('post pok: '.$_POST['pok2'].'<br>');
+					$lwp[1]=1;
+					for($i=2;$i<=$_POST['pok2'];$i+=1){
+						$lwp[$i]=ilupot($id2,$i-1);
+					}
+					$filename='pdfgen/gtree'.$id2.'.png';
+					$filename2='pdfgen/gtree'.$id2.'_2.png';
+					$res1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+					$zid=szukajZony(htmlspecialchars($id2));
+					$ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.';'));
+					$w_pp=190;
+					$h_pp=300;
+					if($_POST['pok2']<=4) $imgh=$_POST['pok2']*$h_pp;
+					else $imgh=4*$h_pp;
+					$imgw=max($lwp)*$w_pp;
+					putenv('GDFONTPATH=' . realpath('.'));
+					$font='calibri';
+					$fsiz=14;
+					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
+					$img=@imagecreatetruecolor($imgw,$imgh);
+					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
+					$black=imagecolorallocate($img,0,0,0);
+					$white=imagecolorallocate($img,255,255,255);
+					imagefilledrectangle($img,0,0,$imgw,$imgh,$white); // whole image white
+					$bbox=imagettfbbox(32,0,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
+					imagerectangle($img,($imgw/2)-($bbox[2]/2)+$bbox[0]-10,50+$bbox[1]+10,($imgw/2)-($bbox[2]/2)+$bbox[4]+10,50+$bbox[5]-10,$black);
+					imagettftext($img,32,0,($imgw/2)-($bbox[2]/2),50,$black,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
+					//dzieci
+					$res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
+					$pok3=Array(); // of grand children and x positions of their parents
+					for($i=0;$i<mysql_num_rows($res2);$i+=1){
+						$row2=mysql_fetch_assoc($res2);
+						$bbox1=imagettfbbox($fsiz,0,$font,$row2['imie'].' '.$row2['nazwisko']);
+						imageline($img,$imgw/2,70,((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5),1.4*$h_pp,$black);
+						imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1[2]/2),$h_pp*1.5,$black,$font,$row2['imie'].' '.$row2['nazwisko']);
+						$ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).';'));
+						$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
+						if($ziid2) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1z[2]/2),$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
+						//imagerectangle($img,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[0]-10,$h_pp*1.5+$bbox[1]+10,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[4]+10,$h_pp*1.5+$bbox[5]-10,$black);
+						
+						$p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].';');
+						for($j=0;$j<mysql_num_rows($p3prep);$j+=1){
+							$p3r=mysql_fetch_assoc($p3prep);
+							$pok3[($p3r['id'])]=((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5); //save x for line drawing
 						}
 					}
-					echo('Ludzi: '.$l.' x '.$_POST['pok2'].'<br>Stron: '.round(($l/16),0));
+					unset($row2,$bbox,$ziid2,$res1,$zid,$ziin);
+					mysql_free_result($res2);
+					mysql_free_result($p3prep);
+					//wnuki
+					if($_POST['pok2']>=3){
+						$i=0;
+						$pok4=Array();
+						foreach($pok3 as $k3=>$v3){
+							$row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.';'));
+							$bbox1=imagettfbbox($fsiz,0,$font,$row3['imie'].' '.$row3['nazwisko']);
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1[2]/2),$h_pp*2.5,$black,$font,$row3['imie'].' '.$row3['nazwisko']);
+							imageline($img,$v3,$h_pp*1.7,((max($lwp)*$w_pp)/count($pok3))*($i+0.5),2.4*$h_pp,$black);
+							$ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).';'));
+							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
+							if($ziid3) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1z[2]/2),$h_pp*2.5-$bbox1[7],$black,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
+							$p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].';');
+							for($j=0;$j<mysql_num_rows($p4prep);$j+=1){
+								$p4r=mysql_fetch_assoc($p4prep);
+								$pok4[($p4r['id'])]=((max($lwp)*$w_pp)/count($pok3))*($i+0.5); //save x for line drawing
+							}
+							$i++;
+						}
+					}
+					unset($row3);
+					unset($ziid3);
+					unset($pok3);
+					mysql_free_result($p4prep);
+					//prawnuki
+					if($_POST['pok2']>=4){
+						$i=0;
+						$pok5=Array();
+						foreach($pok4 as $k4=>$v4){
+							$row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.';'));
+							$bbox1=imagettfbbox($fsiz,0,$font,$row4['imie'].' '.$row4['nazwisko']);
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1[2]/2),$h_pp*3.5,$black,$font,$row4['imie'].' '.$row4['nazwisko']);
+							imageline($img,$v4,$h_pp*2.7,((max($lwp)*$w_pp)/count($pok4))*($i+0.5),3.4*$h_pp,$black);
+							$ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).';'));
+							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
+							if($ziid4) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1z[2]/2),$h_pp*3.5-$bbox1[7],$black,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
+							$p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].';');
+							for($j=0;$j<mysql_num_rows($p5prep);$j+=1){
+								$p5r=mysql_fetch_assoc($p5prep);
+								$pok5[($p5r['id'])]=((max($lwp)*$w_pp)/count($pok4))*($i+0.5); //save x for line drawing
+							}
+							$i++;
+						}
+					}
+					unset($row4,$ziid4,$pok4);
+					mysql_free_result($p5prep);
+					
+					//lines only for next gen
+					if($_POST['pok2']>=5){
+						$i=0;
+						foreach($pok5 as $k5=>$v5){
+							imageline($img,$v5,$h_pp*3.7,((max($lwp)*$w_pp)/count($pok5))*($i+0.5),4.4*$h_pp,$black);
+							$i++;
+						}
+					}
+					
+					imagepng($img,$filename);
+					unset($img);
+					$imgh=($_POST['pok2']-4)*$h_pp;
+					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
+					$img=@imagecreatetruecolor($imgw,$imgh);
+					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
+					imagefilledrectangle($img,0,0,$imgw,$imgh,$white);
+					
+					//pra pra wnuki
+					if($_POST['pok2']>=5){
+						$i=0;
+						$pok6=Array();
+						foreach($pok5 as $k5=>$v5){
+							$row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.';'));
+							$bbox1=imagettfbbox($fsiz,0,$font,$row5['imie'].' '.$row5['nazwisko']);
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1[2]/2),$h_pp*0.5,$black,$font,$row5['imie'].' '.$row5['nazwisko']);
+							imageline($img,$v5,$h_pp*(-0.3),((max($lwp)*$w_pp)/count($pok5))*($i+0.5),0.4*$h_pp,$black);
+							$ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).';'));
+							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
+							if($ziid5) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1z[2]/2),$h_pp*0.5-$bbox1[7],$black,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
+							$p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
+							for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
+								$p6r=mysql_fetch_assoc($p6prep);
+								$pok6[($p6r['id'])]=((max($lwp)*$w_pp)/count($pok5))*($i+0.5); //save x for line drawing
+							}
+							$i++;
+						}
+					}
+					unset($row5,$ziid5,$pok5);
+					mysql_free_result($p6prep);
+					// 3x pra
+					if($_POST['pok2']>=6){
+						$i=0;
+						//$pok6=Array();
+						foreach($pok6 as $k6=>$v6){
+							$row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.';'));
+							$bbox1=imagettfbbox($fsiz,0,$font,$row6['imie'].' '.$row6['nazwisko']);
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1[2]/2),$h_pp*1.5,$black,$font,$row6['imie'].' '.$row6['nazwisko']);
+							imageline($img,$v6,$h_pp*0.7,((max($lwp)*$w_pp)/count($pok6))*($i+0.5),1.4*$h_pp,$black);
+							$ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).';'));
+							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
+							if($ziid6) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1z[2]/2),$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
+							//$p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
+							//for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
+							//	$p6r=mysql_fetch_assoc($p6prep);
+							//	$pok6[($p6r['id'])]=((max($lwp)*$w_pp)/count($pok5))*($i+0.5); //save x for line drawing
+							//}
+							$i++;
+						}
+					}
+					//echo('<br>'.memory_get_usage().'<br>');
+					unset($row6,$bbox1,$bbox1z,$zzid6,$pok6,$imgh,$imgw,$black,$white,$w_pp,$h_pp,$font,$fsize);
+					
+					echo('<b><a href="'.$filename.'" target="blank">');
+					if($_POST['pok2']>4){
+						echo('część 1</a><br>');
+						imagepng($img,$filename2);
+						echo('<a href="'.$filename2.'" target="blank"><b>część 2</b></a>');
+					
+					}
+					else echo('Pokaż</b></a>');
+					echo('<p>'.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB</p>');
+					echo('<p><a href='.$thisfile.'?druk>Instrukcja jak wydrukować na wielu stronach</a></p>');
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else{
-					echo('<p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">
-					<p>'.$lang[$lng][203].':</p>
-					<label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
+					$theone=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+					echo('<center><table berder="0"><tr><th colspan="2"><p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p></th></tr><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">');
+					//<p>'.$lang[$lng][203].':</p>
+					echo('<tr><td>'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][203].'</td>
+					<td>'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][225].'</td></tr><tr><td><label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
 					<label><input type="radio" class="formfld" name="pok" value="3"> 3 ('.$lang[$lng][219].')</label><br>
 					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 ('.$lang[$lng][220].')</label><br>');
 					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 ('.$lang[$lng][221].'</label><br>');
 					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> '.$lang[$lng][222].'</label><br>');
 					echo('<input type="submit" name="submit" value="'.$lang[$lng][218].'" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-						echo('<br><br><p>Drzewo w górę</p>');
+					//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
+						echo('</td><td>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
+						echo('<p>Ze względu na duże zużycie pamięci,<br>
+						         poniższe opcje zostaną podzielone na 2 części</p>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
 						echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
-						echo('<input type="submit" name="submit2" value="Generuj w górę" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					}
-					echo('</form>');
+						echo('<input type="submit" name="submit2" value="Generuj" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
+					//}
+					echo('</form></td></tr></table></center>');
 				}
 			}
 			else echo('<p class="alert">'.$lang[$lng][196].'?</p>');
@@ -2399,6 +2508,16 @@ switch($id){
 	case 'cookies':{
 		html_start();
 		echo('<p>'.$lang[$lng][194].'</p>');
+		html_end();
+		break;
+	}
+	case 'druk':{
+		html_start();
+		echo('<h2>Jak wydrukować drzewo genealogiczne na wielu stronach?</h2>
+		<p>1. Otwieramy plik w programie Paint</p>
+		<p>2. Wybieramy z menu Plik -> Drukuj -> Ustawienia strony<br><img src="druk1.png"></p>
+		<p>3. W pulu Dopasuj do wpisujemy na ilu stronach ma być wydrukowane, n.p. 9<br><img src="druk2.png"></p>
+		<p>4. Po kliknięciu OK, normalnie drukujemy.</p>');
 		html_end();
 		break;
 	}
