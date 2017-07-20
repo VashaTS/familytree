@@ -3,10 +3,10 @@
 $lng='pl';
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.4f';
-// 2016-09-04
+$ver='1.5';
+// 2017-07-20
 ini_set( 'display_errors', 'Off' );
-ini_set('memory_limit','256M');
+ini_set('memory_limit','300M'); //mostly used by treegen2
 error_reporting( E_ALL );
 include('db_connection.php');
 mysql_query('SET NAMES utf-8');
@@ -1629,41 +1629,43 @@ switch($id){
 						$lwp[$i]=ilupot($id2,$i-1);
 					}
 					$filename='pdfgen/gtree'.$id2.'.png';
-					$filename2='pdfgen/gtree'.$id2.'_2.png';
+					//$filename2='pdfgen/gtree'.$id2.'_2.png';
 					$res1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
 					$zid=szukajZony(htmlspecialchars($id2));
-					$ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.';'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.';'));
+					else $ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.' and visible=1;'));
 					$w_pp=190;
 					$h_pp=300;
-					if($_POST['pok2']<=4) $imgh=$_POST['pok2']*$h_pp;
-					else $imgh=4*$h_pp;
-					$imgw=max($lwp)*$w_pp;
+					$imgh=$_POST['pok2']*$h_pp;
 					putenv('GDFONTPATH=' . realpath('.'));
 					$font='calibri';
 					$fsiz=14;
-					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
+					$bbox=imagettfbbox(32,0,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
+					$imgw=max($lwp)*$w_pp;
+					if($bbox[2]>$imgw) $imgw=$bbox[2];
 					$img=@imagecreatetruecolor($imgw,$imgh);
-					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
 					$black=imagecolorallocate($img,0,0,0);
 					$white=imagecolorallocate($img,255,255,255);
 					imagefilledrectangle($img,0,0,$imgw,$imgh,$white); // whole image white
-					$bbox=imagettfbbox(32,0,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
 					imagerectangle($img,($imgw/2)-($bbox[2]/2)+$bbox[0]-10,50+$bbox[1]+10,($imgw/2)-($bbox[2]/2)+$bbox[4]+10,50+$bbox[5]-10,$black);
 					imagettftext($img,32,0,($imgw/2)-($bbox[2]/2),50,$black,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
 					//dzieci
-					$res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
+					else $res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).' and visible=1;');
 					$pok3=Array(); // of grand children and x positions of their parents
 					for($i=0;$i<mysql_num_rows($res2);$i+=1){
 						$row2=mysql_fetch_assoc($res2);
 						$bbox1=imagettfbbox($fsiz,0,$font,$row2['imie'].' '.$row2['nazwisko']);
 						imageline($img,$imgw/2,70,((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5),1.4*$h_pp,$black);
 						imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1[2]/2),$h_pp*1.5,$black,$font,$row2['imie'].' '.$row2['nazwisko']);
-						$ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).';'));
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).';'));
+						else $ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).' and visible=1;'));
 						$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
 						if($ziid2) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1z[2]/2),$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
 						//imagerectangle($img,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[0]-10,$h_pp*1.5+$bbox[1]+10,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[4]+10,$h_pp*1.5+$bbox[5]-10,$black);
 						
-						$p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].';');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].';');
+						else $p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].' and visible=1;');
 						for($j=0;$j<mysql_num_rows($p3prep);$j+=1){
 							$p3r=mysql_fetch_assoc($p3prep);
 							$pok3[($p3r['id'])]=((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5); //save x for line drawing
@@ -1677,14 +1679,17 @@ switch($id){
 						$i=0;
 						$pok4=Array();
 						foreach($pok3 as $k3=>$v3){
-							$row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.';'));
+							else $row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.' and visible=1;'));
 							$bbox1=imagettfbbox($fsiz,0,$font,$row3['imie'].' '.$row3['nazwisko']);
 							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1[2]/2),$h_pp*2.5,$black,$font,$row3['imie'].' '.$row3['nazwisko']);
 							imageline($img,$v3,$h_pp*1.7,((max($lwp)*$w_pp)/count($pok3))*($i+0.5),2.4*$h_pp,$black);
-							$ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).';'));
+							else $ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).' and visible=1;'));
 							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
 							if($ziid3) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1z[2]/2),$h_pp*2.5-$bbox1[7],$black,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
-							$p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].';');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].';');
+							else $p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].' and visible=1;');
 							for($j=0;$j<mysql_num_rows($p4prep);$j+=1){
 								$p4r=mysql_fetch_assoc($p4prep);
 								$pok4[($p4r['id'])]=((max($lwp)*$w_pp)/count($pok3))*($i+0.5); //save x for line drawing
@@ -1701,14 +1706,17 @@ switch($id){
 						$i=0;
 						$pok5=Array();
 						foreach($pok4 as $k4=>$v4){
-							$row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.';'));
+							else $row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.' abd visible=1;'));
 							$bbox1=imagettfbbox($fsiz,0,$font,$row4['imie'].' '.$row4['nazwisko']);
 							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1[2]/2),$h_pp*3.5,$black,$font,$row4['imie'].' '.$row4['nazwisko']);
 							imageline($img,$v4,$h_pp*2.7,((max($lwp)*$w_pp)/count($pok4))*($i+0.5),3.4*$h_pp,$black);
-							$ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).';'));
+							else $ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).' and visible=1;'));
 							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
 							if($ziid4) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1z[2]/2),$h_pp*3.5-$bbox1[7],$black,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
-							$p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].';');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].';');
+							else $p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].' and visible=1;');
 							for($j=0;$j<mysql_num_rows($p5prep);$j+=1){
 								$p5r=mysql_fetch_assoc($p5prep);
 								$pok5[($p5r['id'])]=((max($lwp)*$w_pp)/count($pok4))*($i+0.5); //save x for line drawing
@@ -1720,6 +1728,7 @@ switch($id){
 					mysql_free_result($p5prep);
 					
 					//lines only for next gen
+					/*
 					if($_POST['pok2']>=5){
 						$i=0;
 						foreach($pok5 as $k5=>$v5){
@@ -1728,6 +1737,7 @@ switch($id){
 						}
 					}
 					
+					imagefilter($img,IMG_FILTER_GRAYSCALE);
 					imagepng($img,$filename);
 					unset($img);
 					$imgh=($_POST['pok2']-4)*$h_pp;
@@ -1735,20 +1745,23 @@ switch($id){
 					$img=@imagecreatetruecolor($imgw,$imgh);
 					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
 					imagefilledrectangle($img,0,0,$imgw,$imgh,$white);
-					
+					*/
 					//pra pra wnuki
 					if($_POST['pok2']>=5){
 						$i=0;
 						$pok6=Array();
 						foreach($pok5 as $k5=>$v5){
-							$row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.';'));
+							else $row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.' and visible=1;'));
 							$bbox1=imagettfbbox($fsiz,0,$font,$row5['imie'].' '.$row5['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1[2]/2),$h_pp*0.5,$black,$font,$row5['imie'].' '.$row5['nazwisko']);
-							imageline($img,$v5,$h_pp*(-0.3),((max($lwp)*$w_pp)/count($pok5))*($i+0.5),0.4*$h_pp,$black);
-							$ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).';'));
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1[2]/2),$h_pp*4.5,$black,$font,$row5['imie'].' '.$row5['nazwisko']);
+							imageline($img,$v5,$h_pp*3.7,((max($lwp)*$w_pp)/count($pok5))*($i+0.5),4.4*$h_pp,$black);
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).';'));
+							else $ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).' and visible=1;'));
 							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
-							if($ziid5) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1z[2]/2),$h_pp*0.5-$bbox1[7],$black,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
-							$p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
+							if($ziid5) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1z[2]/2),$h_pp*4.5-$bbox1[7],$black,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
+							else $p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].' and visible=1;');
 							for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
 								$p6r=mysql_fetch_assoc($p6prep);
 								$pok6[($p6r['id'])]=((max($lwp)*$w_pp)/count($pok5))*($i+0.5); //save x for line drawing
@@ -1763,13 +1776,15 @@ switch($id){
 						$i=0;
 						//$pok6=Array();
 						foreach($pok6 as $k6=>$v6){
-							$row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.';'));
+							else $row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.' and visible=1;'));
 							$bbox1=imagettfbbox($fsiz,0,$font,$row6['imie'].' '.$row6['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1[2]/2),$h_pp*1.5,$black,$font,$row6['imie'].' '.$row6['nazwisko']);
-							imageline($img,$v6,$h_pp*0.7,((max($lwp)*$w_pp)/count($pok6))*($i+0.5),1.4*$h_pp,$black);
-							$ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).';'));
+							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1[2]/2),$h_pp*5.5,$black,$font,$row6['imie'].' '.$row6['nazwisko']);
+							imageline($img,$v6,$h_pp*4.7,((max($lwp)*$w_pp)/count($pok6))*($i+0.5),5.4*$h_pp,$black);
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).';'));
+							else $ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).' and visible=1;'));
 							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
-							if($ziid6) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1z[2]/2),$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
+							if($ziid6) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1z[2]/2),$h_pp*5.5-$bbox1[7],$black,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
 							//$p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
 							//for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
 							//	$p6r=mysql_fetch_assoc($p6prep);
@@ -1778,17 +1793,11 @@ switch($id){
 							$i++;
 						}
 					}
-					//echo('<br>'.memory_get_usage().'<br>');
 					unset($row6,$bbox1,$bbox1z,$zzid6,$pok6,$imgh,$imgw,$black,$white,$w_pp,$h_pp,$font,$fsize);
-					
 					echo('<b><a href="'.$filename.'" target="blank">');
-					if($_POST['pok2']>4){
-						echo('część 1</a><br>');
-						imagepng($img,$filename2);
-						echo('<a href="'.$filename2.'" target="blank"><b>część 2</b></a>');
-					
-					}
-					else echo('Pokaż</b></a>');
+					imagefilter($img,IMG_FILTER_GRAYSCALE);
+					imagepng($img,$filename);
+					echo('Pokaż</a></b><br>');
 					echo('<p>'.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB</p>');
 					echo('<p><a href='.$thisfile.'?druk>Instrukcja jak wydrukować na wielu stronach</a></p>');
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
@@ -1805,17 +1814,15 @@ switch($id){
 					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 ('.$lang[$lng][221].'</label><br>');
 					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> '.$lang[$lng][222].'</label><br>');
 					echo('<input type="submit" name="submit" value="'.$lang[$lng][218].'" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-						echo('</td><td>');
-						echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
-						echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
-						echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
-						echo('<p>Ze względu na duże zużycie pamięci,<br>
-						         poniższe opcje zostaną podzielone na 2 części</p>');
-						echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
-						echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
-						echo('<input type="submit" name="submit2" value="Generuj" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					//}
+					echo('</td><td>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
+					//echo('<p>Ze względu na duże zużycie pamięci,<br>
+					//         poniższe opcje zostaną podzielone na 2 części</p>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
+					echo('<input type="submit" name="submit2" value="Generuj" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
 					echo('</form></td></tr></table></center>');
 				}
 			}

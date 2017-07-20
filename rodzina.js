@@ -57,4 +57,30 @@ function point_it(event){
 	else if(document.stg2.posy5.value==0) document.stg2.posy5.value=pos_y;
 	else if(document.stg2.posy6.value==0) document.stg2.posy6.value=pos_y;
 	else if(document.stg2.posy7.value==0) document.stg2.posy7.value=pos_y;
+	
+//	var img = document.getElementById("pointer_div");
+//	var cnvs = document.getElementById("theCanvas");
+  
+//  cnvs.style.position = "absolute";
+ // cnvs.style.left = img.offsetLeft + "px";
+ // cnvs.style.top = (img.offsetTop+354) + "px";
+  
+//  var ctx = cnvs.getContext("2d");
+//  ctx.beginPath();
+//  ctx.arc(pos_x, pos_y, 3, 0, 2 * Math.PI, false);
+//  ctx.lineWidth = 3;
+//  ctx.strokeStyle = '#00ff00';
+//  ctx.stroke();
+}
+
+function ajaxsubmit() {
+	$.ajax({
+		type: "POST",
+		url: "index.php?process=yes",
+		dataType: "html",
+		data: $('#things').serialize(), 
+		success: function(response){
+			$("#resultdiv").html(response);
+		}
+	});
 }
