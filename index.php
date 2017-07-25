@@ -47,7 +47,9 @@ $id3=$vars[2];
 $id4=$vars[3];
 $id5=$vars[4];
 if($id=='pokr') for($k=0;$k<2000;$k+=1) $byl[$k]=0;
-$banned=mysql_query('select * from banip;');
+$qc=0;
+include('functions.php');
+$banned=mysqlquerryc('select * from banip;');
 for($i=0;$i<mysql_num_rows($banned);$i+=1){
 	$rbn=mysql_fetch_assoc($banned);
 	if(strstr($_SERVER['REMOTE_ADDR'],$rbn['ip'])!=FALSE) $id='404';
@@ -55,10 +57,10 @@ for($i=0;$i<mysql_num_rows($banned);$i+=1){
 $width_duz=1200; //only for new pics
 $width_min=200;	
 $jestans=0; // global var for pokr function
-include('functions.php');
+
 
 function html_start(){
-	global $ver,$settings,$currentuser,$lang,$lng,$id,$id2,$id3;
+	global $ver,$settings,$currentuser,$lang,$lng,$id,$id2,$id3,$qc;
 	header("Content-Type: text/html; charset=UTF-8");
 	echo('<html><head><title>'.$lang[$lng][1]);
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' v'.$ver);
@@ -123,8 +125,8 @@ function html_start(){
 	unset($menus,$menus2,$menus3);
 }
 function html_end(){ //+google ad & analytics
-	global $ver,$lang,$lng;
-	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a> | <a href="'.$thisfile.'?cookies">'.$lang[$lng][195].'</a></font><br></div><p>');
+	global $ver,$lang,$lng,$qc;
+	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a> | <a href="'.$thisfile.'?cookies">'.$lang[$lng][195].'</a> | '.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB | Zapytań SQL: '.$qc.'</font><br></div><p>');
 	if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
 google_ad_client = "ca-pub-5875141216022917";
 /* famula_dol */
@@ -159,18 +161,18 @@ if((!(isset($_COOKIE['zal'])&checkname()))&($id!='login-do')&($id!='main')&($id!
 switch($id){
 	case 'main':{
 		html_start();
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $odroku=mysql_fetch_assoc(mysql_query('select min(ur) as minur from ludzie where ur!=0;'));
-		else $odroku=mysql_fetch_assoc(mysql_query('select min(ur) as minur from ludzie where visible=1 and ur!=0;'));
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $odroku=mysql_fetch_assoc(mysqlquerryc('select min(ur) as minur from ludzie where ur!=0;'));
+		else $odroku=mysql_fetch_assoc(mysqlquerryc('select min(ur) as minur from ludzie where visible=1 and ur!=0;'));
 		echo('<h2>'.$settings['main_opis'].', '.$lang[$lng][21].' '.$odroku['minur'].'</h2>');
-		$ile_l=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie;'));
-		$ile_lnv=mysql_fetch_assoc(mysql_query('select count(*) as li from ludzie where visible=0;'));
-		$ile_z=mysql_fetch_assoc(mysql_query('select count(*) as li from zdjecia;'));
+		$ile_l=mysql_fetch_assoc(mysqlquerryc('select count(*) as li from ludzie;'));
+		$ile_lnv=mysql_fetch_assoc(mysqlquerryc('select count(*) as li from ludzie where visible=0;'));
+		$ile_z=mysql_fetch_assoc(mysqlquerryc('select count(*) as li from zdjecia;'));
 		echo('<h3>'.$lang[$lng][22].' '.$ile_l['li'].' '.$lang[$lng][23]); //people in db
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' ('.$lang[$lng][24].' '.$ile_lnv['li'].' '.$lang[$lng][25].')'); // # of hidden
 		echo(' '.$lang[$lng][26].' '.$ile_z['li'].' '.$lang[$lng][27].'</h3>');
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-			$rw=mysql_fetch_assoc(mysql_query('select count(*) as cnt from ludzie where lastedit="'.$_COOKIE['zal'].'";'));
-			$lt=mysql_fetch_assoc(mysql_query('select time from logs where user="'.$_COOKIE['zal'].'" order by time desc limit 1,1;'));
+			$rw=mysql_fetch_assoc(mysqlquerryc('select count(*) as cnt from ludzie where lastedit="'.$_COOKIE['zal'].'";'));
+			$lt=mysql_fetch_assoc(mysqlquerryc('select time from logs where user="'.$_COOKIE['zal'].'" order by time desc limit 1,1;'));
 			$lt0=explode(' ',$lt['time']);
 			$lt1=explode('-',$lt0[0]);
 			$lastvis=mktime(12,0,0,$lt1[1],$lt1[2],$lt1[0]);
@@ -203,8 +205,8 @@ switch($id){
 			if(preg_match('#,menu3view,#',$currentuser['flags'])) echo('<h4>&#10004; '.$lang[$lng][52].'</h4>');
 			else echo('<h4>&#10008; '.$lang[$lng][53].'</h4>');
 		}
-		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie strony głównej", time="'.date("Y-m-d H:i:s").'"');
-		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie strony głównej, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie strony głównej", time="'.date("Y-m-d H:i:s").'"');
+		else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie strony głównej, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 		html_end();
 		break;
 	}
@@ -233,15 +235,15 @@ switch($id){
 	}
 	case 'login-do':{ // ALL CAN SEE
 		if(isset($_POST['login'])&isset($_POST['pass'])){
-			$res=mysql_query('select * from users where name="'.htmlspecialchars($_POST['login']).'";');
+			$res=mysqlquerryc('select * from users where name="'.htmlspecialchars($_POST['login']).'";');
 			if(mysql_num_rows($res)==1){
 				$row=mysql_fetch_assoc($res);
 				if(md5($_POST['pass'].'dupa')==$row['pass']){
 					$randval=md5(md5(rand(100,99999999)));
-					if(mysql_query('update users set ssid="'.$randval.'" where id='.$row['id'].';')){
+					if(mysqlquerryc('update users set ssid="'.$randval.'" where id='.$row['id'].';')){
 						setcookie('zal',$row['name'],(time()+60*5));
 						setcookie('ssid',$randval);
-						mysql_query('insert into logs set user="'.$row['name'].'", action="Zalogował się", time="'.date("Y-m-d H:i:s").'"');
+						mysqlquerryc('insert into logs set user="'.$row['name'].'", action="Zalogował się", time="'.date("Y-m-d H:i:s").'"');
 					}
 					html_start();
 					echo('<p class="ok">Login OK</p><script type="text/javascript">
@@ -252,27 +254,27 @@ switch($id){
 				else{
 					html_start();
 					echo('<p class="alert">'.$lang[$lng][55].'</p>');
-					mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - hasło, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+					mysqlquerryc('insert into logs set user="niezalogowany", action="Nieudane logowanie - hasło, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 					html_end();
 				}
 			}
 			else{
 				html_start();
 				echo('<p class="alert">'.$lang[$lng][55].'</p>');
-				mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - login, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+				mysqlquerryc('insert into logs set user="niezalogowany", action="Nieudane logowanie - login, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 				html_end();
 			}
 		}
 		else{
 			html_start();
 			echo('<p class="alert">'.$lang[$lng][55].'</p>');
-			mysql_query('insert into logs set user="niezalogowany", action="Nieudane logowanie - puste pole, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Nieudane logowanie - puste pole, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			html_end();
 		}
 		break;
 	}
 	case 'logout':{
-		mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wylogował się", time="'.date("Y-m-d H:i:s").'"');
+		mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wylogował się", time="'.date("Y-m-d H:i:s").'"');
 		setcookie("zal","null",date('U')-500);
 		unset($_COOKIE['zal']);
 		unset($_COOKIE['ssid']);
@@ -290,16 +292,16 @@ switch($id){
 						if(strlen($_POST['nazwisko'])>=2){
 							if(is_numeric($_POST['ur'])&((($_POST['ur']>999)&($_POST['ur']<=date("Y")))|($_POST['ur']==0))){
 								if(is_numeric($_POST['zm'])&(($_POST['zm']==0)|(($_POST['zm']>=$_POST['ur'])&($_POST['zm']<=date("Y"))))){
-									$r1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic1']));
-									$r2=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic2']));
+									$r1=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic1']));
+									$r2=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic2']));
 									if(((($r1['sex']!=$r2['sex'])&($r1['ur']<$_POST['ur'])&($r2['ur']<$_POST['ur']))&($_POST['rodzic1']!=0)&($_POST['rodzic2']!=0))|(($_POST['rodzic1']==0)&($_POST['rodzic2']!=0)&($r2['ur']<$_POST['ur']))|($_POST['rodzic2']==0)|($_POST['ur']==0)){
 										if(($_POST['visible']==1)|($_POST['visible']==0)){
 											$q='insert into ludzie set imie="'.trim(htmlspecialchars($_POST['imie'])).'", nazwisko="'.htmlspecialchars($_POST['nazwisko']).'", ur='.$_POST['ur'].', zm='.$_POST['zm'].', sex="'.$_POST['sex'].'", pok='.$_POST['pok'].', rodzic1='.$_POST['rodzic1'].', rodzic2='.$_POST['rodzic2'];
 											if($_POST['sex']=='m') $q.=', zona1='.$_POST['zona'];
 											$q.=', uwagi="'.htmlspecialchars($_POST['uwagi']).'", lastedit="'.$_COOKIE['zal'].'", adres="'.htmlspecialchars($_POST['adres']).'", visible='.htmlspecialchars($_POST['visible']).';';
-											if(mysql_query($q)){
+											if(mysqlquerryc($q)){
 												echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' '.$lang[$lng][174].'!</p>');
-												mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
+												mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
 											}
 											else echo('<p class="alert">'.$lang[$lng][175].'</p>');
 										}
@@ -320,20 +322,20 @@ switch($id){
 				var ludzie=new Array();
 				var zonaindex=new Array();
 				');
-			$res=mysql_query('select id,pok from ludzie;');
+			$res=mysqlquerryc('select id,pok from ludzie;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('ludzie['.$row['id'].']="'.($row['pok']+1).'";');
 			}
-			$res=mysql_query('select id from ludzie where sex="k" order by id;');
+			$res=mysqlquerryc('select id from ludzie where sex="k" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
-				$row2=mysql_fetch_assoc(mysql_query('select id,zona1 from ludzie where zona1='.$row['id'].' limit 1;'));
+				$row2=mysql_fetch_assoc(mysqlquerryc('select id,zona1 from ludzie where zona1='.$row['id'].' limit 1;'));
 				if($row2['zona1']!=0) echo('zonaindex['.$row2['id'].']="'.($i+1).'";');
 			}
 			$nsurn='';
 			if(isset($id2)){
-				$tbr1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+				$tbr1=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.htmlspecialchars($id2).';'));
 				$tbr2=$tbr1['zona1'];
 				if($tbr1['zona2']!=0) $tbr2=$tbr1['zona2'];
 				if($tbr1['zona3']!=0) $tbr2=$tbr1['zona3'];
@@ -345,7 +347,7 @@ switch($id){
 				}</script><form name="dodaj" method="POST" action="'.$thisfile.'?add"><label>'.$lang[$lng][59].':<input class="formfld" type="text" name="imie" maxlength="20" size="20"></label> <label>'.$lang[$lng][60].':<input class="formfld" type="text" name="nazwisko" size="30" maxlength="40" value="'.$nsurn.'"></label><br>
 				<label>'.$lang[$lng][116].':<input class="formfld" type="text" name="ur" size="4" value="0" maxlength="4"></label> <label>'.$lang[$lng][117].':<input class="formfld" type="text" name="zm" value="0" size="4" maxlength="4"></label> <label>'.$lang[$lng][118].':</label><label><input class="formfld" type="radio" name="sex" value="m" checked="checked">'.$lang[$lng][214].'</label><label><input class="formfld" type="radio" name="sex" value="k">'.$lang[$lng][215].'</label> <label>'.$lang[$lng][198].':<input type="text" name="adres" class="formfld" size="12"></label><br>
 				<label>'.$lang[$lng][79].':<select class="formfld" id="r1" name="rodzic1" onchange="pokolenie(this.options[this.selectedIndex].value)"><option value="0">'.$lang[$lng][113].'</option>');
-			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
+			$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<option value="'.$row['id'].'"');
@@ -358,7 +360,7 @@ switch($id){
 			}
 			echo('</select><script type=\'text/javascript\'>$(\'#r1\').select2();</script>
 			<select class="formfld" id="r2" name="rodzic2"><option value="0">'.$lang[$lng][113].'</option>');
-			$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by id;');
+			$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by id;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<option value="'.$row['id'].'"');
@@ -374,8 +376,8 @@ switch($id){
 			if(isset($id2)) echo($npok);
 			else echo('0');
 			echo('" size="3" title="W papierowych zapiskach:'."\n".'0 - Czarni'."\n".'1 - Fioletowi'."\n".'2 - Niebiescy'."\n".'3 - Zieloni'."\n".'4 - Czerwoni'."\n".'5 - Pomarańczowi"></label> <label>'.$lang[$lng][75].': <select class="formfld" name="zona" id="zona"><option value="0">'.$lang[$lng][115].'</option>');
-			if(strlen($id2)>2) $res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" and imie="'.htmlspecialchars($id2).'" order by id;');
-			else $res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by imie,nazwisko;');
+			if(strlen($id2)>2) $res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" and imie="'.htmlspecialchars($id2).'" order by id;');
+			else $res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by imie,nazwisko;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<option value="'.$row['id'].'">');
@@ -388,11 +390,11 @@ switch($id){
 		}
 		else{
 			echo('<p class="alert">'.$lang[$lng][35].'</p>');
-			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania nowego ludzia, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
+			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania nowego ludzia, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 		}
 	}
 	else{
-		mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodaj, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+		mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Dodaj, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		echo('<p class="alert">'.$lang[$lng][179].'<a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 	}
 		html_end();
@@ -407,7 +409,7 @@ switch($id){
 			$actp_e='</font>';
 			if((isset($id2))&($id2>0)&(strlen($id2)>0)) $str=$id2;
 			else $str=1;
-			$pcount=mysql_fetch_array(mysql_query('select count(*) from ludzie;'));
+			$pcount=mysql_fetch_array(mysqlquerryc('select count(*) from ludzie;'));
 			$nop=floor($pcount[0]/$edit_ipp)+1;
 			if(isset($_POST['edit'])){
 				if(preg_match('#,personedit,#',$currentuser['flags'])){
@@ -415,15 +417,15 @@ switch($id){
 						if(strlen($_POST['nazwisko'])>=2){
 							if(is_numeric($_POST['ur'])&((($_POST['ur']>999)&($_POST['ur']<=date("Y")))|($_POST['ur']==0))){
 								if(is_numeric($_POST['zm'])&(($_POST['zm']==0)|(($_POST['zm']>=$_POST['ur'])&($_POST['zm']<=date("Y"))))){
-									$r1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic1']));
-									$r2=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic2']));
+									$r1=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic1']));
+									$r2=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic2']));
 									if(((($r1['sex']!=$r2['sex'])&($r1['ur']<$_POST['ur'])&($r2['ur']<$_POST['ur']))&($_POST['rodzic1']!=0)&($_POST['rodzic2']!=0))|(($_POST['rodzic1']==0)&($_POST['rodzic2']!=0)&($r2['ur']<$_POST['ur']))|($_POST['rodzic2']==0)|($_POST['ur']==0)){
 										$q='update ludzie set imie="'.htmlspecialchars($_POST['imie']).'", nazwisko="'.htmlspecialchars($_POST['nazwisko']).'", ur='.$_POST['ur'].', zm='.$_POST['zm'].', sex="'.$_POST['sex'].'", pok='.$_POST['pok'].', rodzic1='.$_POST['rodzic1'].', rodzic2='.$_POST['rodzic2'].', adres="'.htmlspecialchars($_POST['adres']).'", uwagi="'.htmlspecialchars($_POST['uwagi']).'"';
 										if($_POST['sex']=='m') $q.=', zona1='.$_POST['zona1'].', zona2='.$_POST['zona2'].', zona3='.$_POST['zona3'];
 										$q.=' where id='.$_POST['id'].';';
-										mysql_query($q);
+										mysqlquerryc($q);
 										echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' '.$lang[$lng][120].'!</p>');
-										mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmieniono '.htmlspecialchars($_POST['imie']).' '.htmls($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
+										mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmieniono '.htmlspecialchars($_POST['imie']).' '.htmls($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'"');
 									}
 									else echo('<p class="alert">'.$lang[$lng][177].'</p>');
 								}
@@ -437,16 +439,16 @@ switch($id){
 				}
 				else{
 					echo('<p class="alert">'.$lang[$lng][39].'</p>');
-					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
+					mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 				}
 			}
 			if(isset($_POST['del'])){
 				if(preg_match('#,persondel,#',$currentuser['flags'])){
-					$res=mysql_query('select * from ludzie where id='.htmlspecialchars($_POST['id']).';');
+					$res=mysqlquerryc('select * from ludzie where id='.htmlspecialchars($_POST['id']).';');
 					if(mysql_num_rows($res)==1){
 						$row=mysql_fetch_assoc($res);
-						if(mysql_query('delete from ludzie where id='.htmlspecialchars($_POST['id']).';')){
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto '.$row['imie'].' '.$row['nazwisko'].'", time="'.date("Y-m-d H:i:s").'"');
+						if(mysqlquerryc('delete from ludzie where id='.htmlspecialchars($_POST['id']).';')){
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto '.$row['imie'].' '.$row['nazwisko'].'", time="'.date("Y-m-d H:i:s").'"');
 							echo('<p class="ok">'.$row['imie'].' '.$row['nazwisko'].' '.$lang[$lng][200].'</p>');
 						}
 						else echo('<p class="alert">'.$lang[$lng][189].'</p>');
@@ -455,7 +457,7 @@ switch($id){
 				}
 				else{
 					echo('<p class="alert">'.$lang[$lng][37].'</p>');
-					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia '.$row['imie'].' '.$row['nazwisko'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
+					mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia '.$row['imie'].' '.$row['nazwisko'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'"');
 				}
 			}
 			echo('<table border="1"><tr><th colspan="'.$colspan.'">'.$lang[$lng][199].'</th></tr><tr><th colspan="'.$colspan.'">');
@@ -540,7 +542,7 @@ switch($id){
 			}
 			if($str<$nop) echo(' | <a href="'.$thisfile.'?edit,'.($str+1).'">'.$lang[$lng][165].'&gt;&gt;</a>');
 			echo('</th></tr><tr><td>id</td><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>ur</td><td>zm</td><td>rodzice</td><td>zony</td><td>pł</td><td>pok</td><td>adres</td><td>uwagi</td><td>akcje</td></tr>');
-			$res=mysql_query('select * from ludzie order by id limit '.(($str-1)*$edit_ipp).','.$edit_ipp.';');
+			$res=mysqlquerryc('select * from ludzie order by id limit '.(($str-1)*$edit_ipp).','.$edit_ipp.';');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<form name="f'.$row['id'].'" method="POST" action="'.$thisfile.'?edit,'.$str.'#n'.$row['id'].'"><input type="hidden" name="id" value="'.$row['id'].'"><tr');
@@ -550,7 +552,7 @@ switch($id){
 				<td><input class="formfld" type="text" name="ur" size="4" maxlength="4" value="'.$row['ur'].'"></td>
 				<td><input class="formfld" type="text" name="zm" size="4" maxlength="4" value="'.$row['zm'].'"></td>
 				<td><select class="formfld" name="rodzic1"><option value="0">'.$lang[$lng][113].'</option>');
-			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m";');
+			$res2=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="m";');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
 				echo('<option value="'.$row2['id'].'"');
@@ -560,7 +562,7 @@ switch($id){
 				echo($row2['imie'].' '.$row2['nazwisko'].' ('.$row2['ur'].')</option>');
 			}
 			echo('</select><select class="formfld" name="rodzic2"><option value="0">'.$lang[$lng][113].'</option>');
-			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k";');
+			$res2=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k";');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
 				echo('<option value="'.$row2['id'].'"');
@@ -570,7 +572,7 @@ switch($id){
 				echo($row2['imie'].' '.$row2['nazwisko'].' ('.$row2['ur'].')</option>');
 			}
 			echo('</select></td><td><select class="formfld" name="zona1"><option value="0">Brak</option>');
-			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k";');
+			$res2=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k";');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
 				echo('<option value="'.$row2['id'].'"');
@@ -580,7 +582,7 @@ switch($id){
 				echo($row2['imie'].' '.$row2['nazwisko'].' ('.$row2['ur'].')</option>');
 			}
 			echo('</select><select class="formfld" name="zona2"><option value="0">Brak</option>');
-			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie;');
+			$res2=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie;');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
 				echo('<option value="'.$row2['id'].'"');
@@ -590,7 +592,7 @@ switch($id){
 				echo($row2['imie'].' '.$row2['nazwisko'].' ('.$row2['ur'].')</option>');
 			}
 			echo('</select><select class="formfld" name="zona3"><option value="0">Brak</option>');
-			$res2=mysql_query('select id,imie,nazwisko,ur,pok from ludzie;');
+			$res2=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie;');
 			for($j=0;$j<mysql_num_rows($res2);$j+=1){
 				$row2=mysql_fetch_assoc($res2);
 				echo('<option value="'.$row2['id'].'"');
@@ -689,7 +691,7 @@ switch($id){
 			echo('</th></tr></table>');
 		}
 		else{
-			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dostępu do Edytuj, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dostępu do Edytuj, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">Nie masz dostępu do tej strony</a></p>');
 		}
 		html_end();
@@ -698,7 +700,7 @@ switch($id){
 	case 'edit1':{
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-		$logs_in=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.htmlspecialchars($id2).' limit 1;'));
+		$logs_in=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.htmlspecialchars($id2).' limit 1;'));
 			echo('<a href="'.$thisfile.'?pokaz,one,'.$id2.'">'.$lang[$lng][190].'</a>');
 			if(isset($_POST['zdjdod'])){
 				if(preg_match('#,picadd,#',$currentuser['flags'])){
@@ -706,7 +708,7 @@ switch($id){
 						$newname='zdj'.date('U');
 						if($_FILES['zdj']['size']<=$_POST['MAX_FILE_SIZE']){	 
 							move_uploaded_file($_FILES['zdj']['tmp_name'], 'gfx/'.$newname.'.jpg');
-							mysql_query('insert into zdjecia set path="gfx/'.$newname.'.jpg", osoby="'.htmlspecialchars($id2).'", rok='.htmlspecialchars($_POST['rok']).';');
+							mysqlquerryc('insert into zdjecia set path="gfx/'.$newname.'.jpg", osoby="'.htmlspecialchars($id2).'", rok='.htmlspecialchars($_POST['rok']).';');
 							$im=imagecreatefromjpeg('gfx/'.$newname.'.jpg');
 							$imsize=getimagesize('gfx/'.$newname.'.jpg');
 							$nih=($imsize[1]*200)/$imsize[0];
@@ -714,17 +716,17 @@ switch($id){
 							imagecopyresampled($nim,$im,0,0,0,0,200,$nih,$imsize[0],$imsize[1]);
 							imagejpeg($nim,'gfx/'.$newname.'.jpg');
 							echo('<p class="ok">'.$lang[$lng][191].' '.$_FILES['zdj']['name'].' '.$lang[$lng][192].'</p>');
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcie '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcie '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						}
 						else{
 							echo($lang[$lng][191].': <strong>'.$_FILES['zdj']['name'].'</strong> '.$lang[$lng][193].' '.($_POST['MAX_FILE_SIZE']/1024/1024).' MB<br>');
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zbyt dużego zdjęcia  '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zbyt dużego zdjęcia  '.$logs_in['imie'].' '.$logs_in['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
 						}	
 					}
 					else echo('<p class="alert">'.$lang[$lng][201].'</p>');
 				}
 				else{
-					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia '.$logs_in['imie'].' '.$logs_in['nazwisko'].' mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+					mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia '.$logs_in['imie'].' '.$logs_in['nazwisko'].' mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 					echo('<p class="alert">'.$lang[$lng][41].'</p>');
 				}
 			}
@@ -738,9 +740,9 @@ switch($id){
 			}
 			if(isset($_POST['del_really_yes'])){
 				if(preg_match('#,persondel,#',$currentuser['flags'])){
-					if(mysql_query('delete from ludzie where id='.htmlspecialchars($_POST['del_id']).';')){
+					if(mysqlquerryc('delete from ludzie where id='.htmlspecialchars($_POST['del_id']).';')){
 						echo('<p class="ok">Poprawnie usunięto!</p>');
-						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięcie '.htmlspecialchars($_POST['del_id']).'", time="'.date('Y-m-d H:i:s').'";');
+						mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięcie '.htmlspecialchars($_POST['del_id']).'", time="'.date('Y-m-d H:i:s').'";');
 					}
 				}
 			}
@@ -750,19 +752,19 @@ switch($id){
 						if(strlen($_POST['nazwisko'])>=2){
 							if(is_numeric($_POST['ur'])&((($_POST['ur']>999)&($_POST['ur']<=date("Y")))|($_POST['ur']==0))){
 								if(is_numeric($_POST['zm'])&(($_POST['zm']==0)|(($_POST['zm']>=$_POST['ur'])&($_POST['zm']<=date("Y"))))){
-									$r1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic1']));
-									$r2=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzic2']));
+									$r1=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic1']));
+									$r2=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzic2']));
 									if(((($r1['sex']!=$r2['sex'])&($r1['ur']<$_POST['ur'])&($r2['ur']<$_POST['ur']))&($_POST['rodzic1']!=0)&($_POST['rodzic2']!=0))|(($_POST['rodzic1']==0)&($_POST['rodzic2']!=0)&($r2['ur']<$_POST['ur']))|($_POST['rodzic2']==0)|($_POST['ur']==0)){
-										$rc1=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzicch1']));
-										$rc2=mysql_fetch_assoc(mysql_query('select ur,sex from ludzie where id='.$_POST['rodzicch2']));
+										$rc1=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzicch1']));
+										$rc2=mysql_fetch_assoc(mysqlquerryc('select ur,sex from ludzie where id='.$_POST['rodzicch2']));
 										if(((($rc1['sex']!=$rc2['sex'])&($rc1['ur']<$_POST['ur'])&($rc2['ur']<$_POST['ur']))&($_POST['rodzic1']!=0)&($_POST['rodzicch2']!=0))|(($_POST['rodzicch1']==0)&($_POST['rodzicch2']!=0)&($rc2['ur']<$_POST['ur']))|($_POST['rodzicch2']==0)|($_POST['ur']==0)){
 											if(($_POST['visible']==0)|($_POST['visible']==1)){
 												$q='update ludzie set imie="'.htmlspecialchars($_POST['imie']).'", nazwisko="'.htmlspecialchars($_POST['nazwisko']).'", ur='.$_POST['ur'].', zm='.$_POST['zm'].', sex="'.$_POST['sex'].'", pok='.$_POST['pok'].', rodzic1='.$_POST['rodzic1'].', rodzic2='.$_POST['rodzic2'].', rch1='.$_POST['rodzicch1'].', rch2='.$_POST['rodzicch2'].', adres="'.htmlspecialchars($_POST['adres']).'", uwagi="'.htmlspecialchars($_POST['uwagi']).'", lastedit="'.$_COOKIE['zal'].'", rnazw="'.$_POST['rnazw'].'", z1s="'.$_POST['z1s'].'", z2s="'.$_POST['z2s'].'", z3s="'.$_POST['z3s'].'", visible='.$_POST['visible'];
 												if($_POST['sex']=='m') $q.=', zona1='.$_POST['zona1'].', zona2='.$_POST['zona2'].', zona3='.$_POST['zona3'];
 												$q.=' where id='.htmlspecialchars($id2).';';
-												if(mysql_query($q)){
+												if(mysqlquerryc($q)){
 													echo('<p class="ok">OK, '.$_POST['imie'].' '.$_POST['nazwisko'].' zmienione!</p>');
-													mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'";');
+													mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja '.htmlspecialchars($_POST['imie']).' '.htmlspecialchars($_POST['nazwisko']).'", time="'.date("Y-m-d H:i:s").'";');
 												}
 												else echo('<p class="alert">'.$lang[$lng][223].'</p>');
 											}
@@ -781,14 +783,14 @@ switch($id){
 					else echo('<p class="alert">Imię musi mieć conajmniej 3 znaki</p>');	
 				}
 				else{
-					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji '.$logs_in['imie'].' '.$logs_in['nazwisko'].' mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+					mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji '.$logs_in['imie'].' '.$logs_in['nazwisko'].' mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 					echo('Nie masz uprawnień do edytowania ludzi');
 				}
 			}
-			$theone=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+			$theone=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.htmlspecialchars($id2).';'));
 			if($theone){
 				echo('<table width="100%" border="0"><tr><td width="50%" align="right">');
-				$zdjecia=mysql_query('select * from zdjecia where osoby="'.$theone['id'].'";');
+				$zdjecia=mysqlquerryc('select * from zdjecia where osoby="'.$theone['id'].'";');
 				for($z=0;$z<mysql_num_rows($zdjecia);$z+=1){
 					$zdjeciar=mysql_fetch_assoc($zdjecia);
 					echo('<p>'.$zdjeciar['path'].'</p>');
@@ -803,7 +805,7 @@ switch($id){
 				echo('<label>ur:<input type="text" name="ur" value="'.$theone['ur'].'" size="4" maxlength="4" class="formfld"></label> <label>zm:<input type="text" name="zm" value="'.$theone['zm'].'" size="4" maxlength="4" class="formfld"</label> <label>płeć:<input type="text" name="sex" value="'.$theone['sex'].'" class="formfld" size="1" maxlength="1"></label> <label>pokolenie: <input type="text" class="formfld" name="pok" value="'.$theone['pok'].'" size="2" maxlength="2"></label><label>widoczniść:<input type="text" class="formfld" size="2" maxlength="2" name="visible" value="'.$theone['visible'].'"></label><br>');
 				echo('<label>adres:<input type="text" name="adres" value="'.$theone['adres'].'" class="formfld"></label>');
 				echo('</td></tr><tr><td>');
-				$res=mysql_query('select * from ludzie where rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].' order by ur;');
+				$res=mysqlquerryc('select * from ludzie where rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].' order by ur;');
 				if(mysql_num_rows($res)>0){
 					echo('<h3>Dzieci ('.mysql_num_rows($res).'):</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -814,7 +816,7 @@ switch($id){
 				echo('</td><td>');
 				echo('<h3>'.$lang[$lng][75].':</h3>');
 				echo('<select class="formfld" id="z1" name="zona1"><option value="0">'.$lang[$lng][113].'</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -824,7 +826,7 @@ switch($id){
 					echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 				}
 				echo('</select><input type="text" name="z1s" size="10" maxlength="10" class="formfld" value="'.$theone['z1s'].'"><br><select class="formfld" id="z2" name="zona2"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -834,7 +836,7 @@ switch($id){
 					echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 				}
 				echo('</select><input type="text" name="z2s" size="10" maxlength="10" class="formfld" value="'.$theone['z2s'].'"><br><select class="formfld" id="z3" name="zona3"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -845,7 +847,7 @@ switch($id){
 				}
 				echo('</select><input type="text" name="z3s" size="10" maxlength="10" class="formfld" value="'.$theone['z3s'].'"><br><h3>Rodzice:</h3>');
 				echo('<select class="formfld" id="r1" name="rodzic1"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by nazwisko,imie;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -855,7 +857,7 @@ switch($id){
 					echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 				}
 				echo('</select><br><select class="formfld" id="r2" name="rodzic2"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by nazwisko,imie;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -868,7 +870,7 @@ switch($id){
 				
 				echo('<h3>Chrzestni:</h3>');
 				echo('<select class="formfld" id="rch1" name="rodzicch1"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="m" order by id;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -878,7 +880,7 @@ switch($id){
 					echo($row['imie'].' '.$row['nazwisko'].' ('.$row['ur'].')</option>');
 				}
 				echo('</select><br><select class="formfld" id="rch2" name="rodzicch2"><option value="0">Nieznany</option>');
-				$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by id;');
+				$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie where sex="k" order by id;');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
 					echo('<option value="'.$row['id'].'"');
@@ -895,7 +897,7 @@ switch($id){
 			}
 		}
 		else{
-			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dostępu do edycji '.$logs_in['imie'].' '.$logs_in['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dostępu do edycji '.$logs_in['imie'].' '.$logs_in['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class"alert">'.$lang[$lng][89].'</a></p>');
 		}
 		html_end();
@@ -912,25 +914,25 @@ switch($id){
 			if(isset($_POST['q1'])|isset($_POST['q2'])){
 				if(isset($_POST['exact'])){
 					if((strlen($_POST['q1'])>0)&(strlen($_POST['q2'])>0)){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');			
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
+						else $res=mysqlquerryc('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');			
 					}
 					else if(strlen($_POST['q1'])>0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
+						else $res=mysqlquerryc('select id from ludzie where visible=1 and imie="'.htmlspecialchars(plfirstup($_POST['q1'])).'" order by imie,nazwisko;');
 					}
 					else if(strlen($_POST['q2'])>0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
-						else $res=mysql_query('select id from ludzie where visible=1 and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
+						else $res=mysqlquerryc('select id from ludzie where visible=1 and nazwisko="'.htmlspecialchars(plfirstup($_POST['q2'])).'" order by imie,nazwisko;');
 					}
 				}
 				else{
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%" order by imie,nazwisko;');
-					else $res=mysql_query('select id from ludzie where visible=1 and (imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%") order by imie,nazwisko;');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%" order by imie,nazwisko;');
+					else $res=mysqlquerryc('select id from ludzie where visible=1 and (imie like "%'.htmlspecialchars(plfirstup($_POST['q1'])).'%" and nazwisko like "%'.htmlspecialchars(plfirstup($_POST['q2'])).'%") order by imie,nazwisko;');
 				}
 				echo('<h2>'.$lang[$lng][61].' '.mysql_num_rows($res).' '.$lang[$lng][62]);
-				if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Szukanie '.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'", time="'.date("Y-m-d H:i:s").'";');
-				else mysql_query('insert into logs set user="niezalogowany", action="Szukanie <a href="'.$thisfile.'?search,'.$_POST['q1'].','.$_POST['q2'].'">'.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'</a>, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+				if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Szukanie '.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'", time="'.date("Y-m-d H:i:s").'";');
+				else mysqlquerryc('insert into logs set user="niezalogowany", action="Szukanie <a href="'.$thisfile.'?search,'.$_POST['q1'].','.$_POST['q2'].'">'.htmlspecialchars($_POST['q1']).' '.htmlspecialchars($_POST['q2']).'</a>, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				if($lng=='pl'){
 					if(mysql_num_rows($res)==1) echo('obę');
 					else if(((substr(mysql_num_rows($res),-1,1)=='2')|(substr(mysql_num_rows($res),-1,1)=='3')|(substr(mysql_num_rows($res),-1,1)=='4'))&(substr(mysql_num_rows($res),-2,1)!='1')) echo ('oby');
@@ -952,34 +954,34 @@ switch($id){
 	case 'stats':{
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
-			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie ciekowostek, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie ciekowostek, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			echo('<h3>'.$lang[$lng][92].':</h3>'); //length of life
-			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
-			else $maxl=mysql_query('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where visible=1 and ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
+			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $maxl=mysqlquerryc('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
+			else $maxl=mysqlquerryc('select id,imie,nazwisko,zm,ur,(zm-ur) as wiek from ludzie where visible=1 and ur>0 and zm>0 order by wiek desc,ur asc limit 5;');
 			for($i=0;$i<mysql_num_rows($maxl);$i+=1){
 				$maxlength=mysql_fetch_assoc($maxl);
 				echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maxlength['id'].'">'.$maxlength['imie'].' '.$maxlength['nazwisko'].'</a> ('.$maxlength['ur'].'-'.$maxlength['zm'].') - '.$maxlength['wiek'].' '.$lang[$lng][94].'</p>');
 			}
 			echo('<h3>'.$lang[$lng][93].':</h3>'); //most children
-			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where rodzic1!=0;');
-			else $res=mysql_query('select distinct(rodzic1) as ro1 from ludzie where visible=1 and rodzic1!=0;');
+			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select distinct(rodzic1) as ro1 from ludzie where rodzic1!=0;');
+			else $res=mysqlquerryc('select distinct(rodzic1) as ro1 from ludzie where visible=1 and rodzic1!=0;');
 			$max=0;
 			$mid=0;
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
-				$ldzieci=mysql_fetch_assoc(mysql_query('select count(*) as ile from ludzie where rodzic1='.$row['ro1'].';'));
+				$ldzieci=mysql_fetch_assoc(mysqlquerryc('select count(*) as ile from ludzie where rodzic1='.$row['ro1'].';'));
 				if($ldzieci['ile']>$max){
 					$max=$ldzieci['ile'];
 					$mid=$row['ro1'];
 				}
 			}
-			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where id='.$mid.';'));
-			else $zona=mysql_fetch_assoc(mysql_query('select zona1 from ludzie where visible=1 and id='.$mid.';'));
+			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zona=mysql_fetch_assoc(mysqlquerryc('select zona1 from ludzie where id='.$mid.';'));
+			else $zona=mysql_fetch_assoc(mysqlquerryc('select zona1 from ludzie where visible=1 and id='.$mid.';'));
 			echo('<p>'.linkujludzia($mid,2).' i '.linkujludzia($zona['zona1'],2).' - '.$max.' '.strtolower($lang[$lng][76]).'</p>');
 			echo('<h3>'.$lang[$lng][95].':</h3>'); //most grand children
 			$maxwn=0;
 			$maxwn_id=0;
-			$chi1=mysql_query('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
+			$chi1=mysqlquerryc('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
 			for($i=0;$i<mysql_num_rows($chi1);$i+=1){
 				$r1=mysql_fetch_assoc($chi1);
 				$actwn=ilupot($r1['id'],2);
@@ -990,16 +992,16 @@ switch($id){
 			}
 			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' '.strtolower($lang[$lng][77]));
 			echo('<h3>'.$lang[$lng][96].':</h3>'); //most frequent name
-			$imm=mysql_query('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
-			$imk=mysql_query('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
+			$imm=mysqlquerryc('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
+			$imk=mysqlquerryc('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
 			for($i=0;$i<mysql_num_rows($imm);$i+=1){
 				$row=mysql_fetch_assoc($imm);
-				$li=mysql_fetch_assoc(mysql_query('select count(*) as lim from ludzie where imie="'.$row['im'].'";'));
+				$li=mysql_fetch_assoc(mysqlquerryc('select count(*) as lim from ludzie where imie="'.$row['im'].'";'));
 				$imiona[$row['im']]=$li['lim'];
 			}
 			for($i=0;$i<mysql_num_rows($imk);$i+=1){
 				$row=mysql_fetch_assoc($imk);
-				$li=mysql_fetch_assoc(mysql_query('select count(*) as lim from ludzie where imie="'.$row['im'].'";'));
+				$li=mysql_fetch_assoc(mysqlquerryc('select count(*) as lim from ludzie where imie="'.$row['im'].'";'));
 				$imionak[$row['im']]=$li['lim'];
 			}
 			$immax='';
@@ -1023,7 +1025,7 @@ switch($id){
 		}
 		//life expectancy normal distribution
 		echo('<h3>'.$lang[$lng][99].'</h3>');
-		$q1=mysql_query('select ur,zm from ludzie where ur>0 and zm>0;'); //known date of birth and death
+		$q1=mysqlquerryc('select ur,zm from ludzie where ur>0 and zm>0;'); //known date of birth and death
 		$fnam='norm/normaldist'.mysql_num_rows($q1).'.png';
 		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
 		if(!file_exists($fnam)){  //use existing file if number of people didnt change
@@ -1062,7 +1064,7 @@ switch($id){
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			print_r($currentuser);
 			echo('<h3>'.$lang[$lng][102].'</h3>');
-			$res=mysql_query('select id from ludzie where imie="???" or nazwisko="???";');
+			$res=mysqlquerryc('select id from ludzie where imie="???" or nazwisko="???";');
 			echo('<table border="0"><tr><td>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				if($i%(floor(mysql_num_rows($res)/7)+1)==0){
@@ -1075,45 +1077,45 @@ switch($id){
 			}
 			echo('</td></tr></table>');
 			echo('<h3>'.$lang[$lng][103].'</h3>');
-			$res=mysql_query('select id,ur from ludzie where ur<'.(date('Y')-95).' and ur!=0 and zm=0 order by ur asc;');
+			$res=mysqlquerryc('select id,ur from ludzie where ur<'.(date('Y')-95).' and ur!=0 and zm=0 order by ur asc;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				echo('<p>'.linkujludzia($row['id'],1).' (ma '.(date('Y')-$row['ur']).' lat)</p>');
 			}
-			$res=mysql_query('select id,pok,zona1,zona2,zona3 from ludzie where sex="m";');
+			$res=mysqlquerryc('select id,pok,zona1,zona2,zona3 from ludzie where sex="m";');
 			if(mysql_num_rows($res)>0) echo('<h3>'.$lang[$lng][104].'</h3>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				if($row['zona1']!=0){
-					$z1=mysql_fetch_assoc(mysql_query('select pok from ludzie where id='.$row['zona1'].' limit 1;'));
+					$z1=mysql_fetch_assoc(mysqlquerryc('select pok from ludzie where id='.$row['zona1'].' limit 1;'));
 					if($row['pok']!=$z1['pok']) echo('<p>'.linkujludzia($row['id'],2).' jest z pokolenia '.$row['pok'].', a jego żona '.linkujludzia($row['zona1'],2).' jest z pokolenia '.$z1['pok'].'</p>');
 				}
 				if($row['zona2']!=0){
-					$z2=mysql_fetch_assoc(mysql_query('select pok from ludzie where id='.$row['zona2'].' limit 1;'));
+					$z2=mysql_fetch_assoc(mysqlquerryc('select pok from ludzie where id='.$row['zona2'].' limit 1;'));
 					if($row['pok']!=$z2['pok']) echo('<p>'.linkujludzia($row['id'],2).' jest z pokolenia '.$row['pok'].', a jego żona '.linkujludzia($row['zona1'],2).' jest z pokolenia '.$z2['pok'].'</p>');
 				}
 				if($row['zona3']!=0){
-					$z3=mysql_fetch_assoc(mysql_query('select pok from ludzie where id='.$row['zona3'].' limit 1;'));
+					$z3=mysql_fetch_assoc(mysqlquerryc('select pok from ludzie where id='.$row['zona3'].' limit 1;'));
 					if($row['pok']!=$z3['pok']) echo('<p>'.linkujludzia($row['id'],2).' jest z pokolenia '.$row['pok'].', a jego żona '.linkujludzia($row['zona1'],2).' jest z pokolenia '.$z3['pok'].'</p>');
 				}
 			}
 			echo('<h3>'.$lang[$lng][105].'</h3>');
-			$res=mysql_query('select id,rodzic1,rodzic2,ur from ludzie;');
+			$res=mysqlquerryc('select id,rodzic1,rodzic2,ur from ludzie;');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$one=mysql_fetch_assoc($res);
 				if($one['ur']!=0){
 					if($one['rodzic1']!=0){
-						$r1=mysql_fetch_assoc(mysql_query('select ur from ludzie where id='.$one['rodzic1'].';'));
+						$r1=mysql_fetch_assoc(mysqlquerryc('select ur from ludzie where id='.$one['rodzic1'].';'));
 						if(($r1['ur']!=0)&($one['ur']-$r1['ur'])<18) echo('<p>'.linkujludzia($one['rodzic1'],2).' był ojcem '.linkujludzia($one['id'],2).' w wieku '.($one['ur']-$r1['ur']).' lat</p>');
 					}
 					if($one['rodzic2']!=0){
-						$r2=mysql_fetch_assoc(mysql_query('select ur from ludzie where id='.$one['rodzic2'].';')); 
+						$r2=mysql_fetch_assoc(mysqlquerryc('select ur from ludzie where id='.$one['rodzic2'].';')); 
 						if(($r2['ur']!=0)&($one['ur']-$r2['ur'])<18) echo('<p>'.linkujludzia($one['rodzic2'],2).' urodziła '.linkujludzia($one['id'],2).' w wieku '.($one['ur']-$r2['ur']).' lat</p>');
 					}
 				}
 			}
 			echo('<h3>'.$lang[$lng][106].':</h3>'); //invisible for non-admins
-			$res6=mysql_query('select id from ludzie where visible=0;');
+			$res6=mysqlquerryc('select id from ludzie where visible=0;');
 			for($i=0;$i<mysql_num_rows($res6);$i+=1){
 				$one=mysql_fetch_assoc($res6);
 				echo(linkujludzia($one['id'],2));
@@ -1124,9 +1126,26 @@ switch($id){
 				if(count($vv)==count($lang['pl'])) echo(count($vv).' '.$kk.' OK, ');
 				else echo($kk.' Bad, ');
 			}
+			
+			echo('<h3>max length of bounding box of people names:</h3>');
+			$res=mysqlquerryc('select imie,nazwisko from ludzie');
+			$maxbb=0;
+			putenv('GDFONTPATH=' . realpath('.'));
+			$font='calibri';
+			$fsiz=14;
+			for($i=0;$i<mysql_num_rows($res);$i+=1){
+				$row=mysql_fetch_assoc($res);
+				$bbox=imagettfbbox($fsiz,0,$font,'+ '+$row['imie'].' '.$row['nazwisko']);
+				if($bbox[2]>$maxbb){
+					$maxbb=$bbox[2];
+					$maxin=$row['imie'].' '.$row['nazwisko'];
+				}
+			}
+			echo('<p>'.$maxbb.' ('.$maxin.')</p>');
+			
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Do zrobienia, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Do zrobienia, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -1139,14 +1158,14 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			switch($co){
 				case 'all':{ //famuła menu item
-					$ipk=mysql_fetch_assoc(mysql_query('select min(pok) as s,max(pok) as e from ludzie'));
-					mysql_query('update ludzie set byl=0;');
+					$ipk=mysql_fetch_assoc(mysqlquerryc('select min(pok) as s,max(pok) as e from ludzie'));
+					mysqlquerryc('update ludzie set byl=0;');
 					$li=0;
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Famuły", time="'.date("Y-m-d H:i:s").'";');
-					else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie Famuły, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');	
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Famuły", time="'.date("Y-m-d H:i:s").'";');
+					else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie Famuły, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');	
 					for($j=$ipk['s'];$j<$ipk['e'];$j+=1){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id,byl from ludzie where pok='.$j.' and sex="m" order by nazwisko;');
-						else $res=mysql_query('select id,byl from ludzie where visible=1 and pok='.$j.' and sex="m" order by nazwisko;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id,byl from ludzie where pok='.$j.' and sex="m" order by nazwisko;');
+						else $res=mysqlquerryc('select id,byl from ludzie where visible=1 and pok='.$j.' and sex="m" order by nazwisko;');
 						for($i=0;$i<mysql_num_rows($res);$i+=1){
 							$row=mysql_fetch_assoc($res);
 							if($row['byl']==0){
@@ -1159,24 +1178,24 @@ switch($id){
 					break;
 				}
 				case 'one':{
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $theone=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$id3.';'));
-					else $theone=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$id3.';'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $theone=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$id3.';'));
+					else $theone=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$id3.';'));
 					if($theone){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
-						else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
+						else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 						echo('<center><b><a href="'.$thisfile.'?tree,'.$id3.'">'.$lang[$lng][67].'</a> | <a href="'.$thisfile.'?pokr,'.$id3.'">'.$lang[$lng][68].'</a></b>');
 						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' | <a href="'.$thisfile.'?edit1,'.$id3.'">'.$lang[$lng][69].'</a> | <a href="'.$thisfile.'?add,'.$theone['id'].'">'.$lang[$lng][70].'</a>');
 						echo('<table width="80%" border="0"><tr><td width="50%" align="right" colspan="2">');
-						$zdjnum=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby="'.$id3.'";'));
-						$zdjnumall=mysql_fetch_assoc(mysql_query('select count(*) as num from zdjecia where osoby like "%'.$id3.'%";'));
-						$slu=mysql_fetch_assoc(mysql_query('select * from zdjecia where osoby="'.$id3.'" and slub=1 limit 1;'));
+						$zdjnum=mysql_fetch_assoc(mysqlquerryc('select count(*) as num from zdjecia where osoby="'.$id3.'";'));
+						$zdjnumall=mysql_fetch_assoc(mysqlquerryc('select count(*) as num from zdjecia where osoby like "%'.$id3.'%";'));
+						$slu=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where osoby="'.$id3.'" and slub=1 limit 1;'));
 						if($zdjnum['num']==0) echo('<img src="brakzdj_'.$lng.'.png" class="lud" border="4" title="'.$lang[$lng][71].'">');
 						if($slu){
 							echo('<img src="'.$slu['path'].'" class="lud" border="4" title="'.$lang[$lng][72].' '.$slu['rok'].'">');
-							$zdj=mysql_query('select * from zdjecia where osoby="'.$id3.'" and slub=0 order by rok desc,id desc limit 1;');
+							$zdj=mysqlquerryc('select * from zdjecia where osoby="'.$id3.'" and slub=0 order by rok desc,id desc limit 1;');
 						}
 						else{
-							$zdj=mysql_query('select * from zdjecia where osoby="'.$id3.'" order by rok desc,id desc limit 2;');
+							$zdj=mysqlquerryc('select * from zdjecia where osoby="'.$id3.'" order by rok desc,id desc limit 2;');
 						}
 						for($iz=0;$iz<mysql_num_rows($zdj);$iz+=1){
 							$zdjrow=mysql_fetch_assoc($zdj);
@@ -1186,8 +1205,8 @@ switch($id){
 						echo('</td><td width="50%">');
 						echo('<h1>'.$theone['imie'].' ');
 						if($theone['sex']=='k'){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zony=mysql_query('select * from ludzie where zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].';');
-							else $zony=mysql_query('select * from ludzie where visible=1 and (zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].');');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zony=mysqlquerryc('select * from ludzie where zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].';');
+							else $zony=mysqlquerryc('select * from ludzie where visible=1 and (zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].');');
 							if($theone['rnazw']!='no'){
 								echo($theone['rnazw']);
 							}
@@ -1210,8 +1229,8 @@ switch($id){
 						if($theone['sex']=='k'){
 							if(mysql_num_rows($zony)>0){
 								echo('<h3>'.$lang[$lng][74].':</h3>');
-								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zony=mysql_query('select * from ludzie where zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].';');
-								else $zony=mysql_query('select * from ludzie where visible=1 and (zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].');');
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zony=mysqlquerryc('select * from ludzie where zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].';');
+								else $zony=mysqlquerryc('select * from ludzie where visible=1 and (zona1='.$theone['id'].' or zona2='.$theone['id'].' or zona3='.$theone['id'].');');
 								for($i=0;$i<mysql_num_rows($zony);$i+=1){
 									$maz=mysql_fetch_assoc($zony);
 									echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maz['id'].'">'.$maz['imie'].' '.$maz['nazwisko'].'</a> ('.$maz['ur'].')</p>');
@@ -1221,24 +1240,24 @@ switch($id){
 						else{
 							if($theone['zona1']!=0){
 								echo('<h3>'.$lang[$lng][75].':</h3>');
-								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$theone['zona1'].';'));
-								else $zon1=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$theone['zona1'].';'));
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon1=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$theone['zona1'].';'));
+								else $zon1=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$theone['zona1'].';'));
 								echo('<p><a href="'.$thisfile.'?pokaz,one,'.$zon1['id'].'">'.$zon1['imie'].' '.$zon1['nazwisko'].'</a> ('.$zon1['ur'].')</p>');
 								if($theone['zona2']!=0){
-									if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon2=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$theone['zona2'].';'));
-									else $zon2=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$theone['zona2'].';'));
+									if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon2=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$theone['zona2'].';'));
+									else $zon2=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$theone['zona2'].';'));
 									echo('<p><a href="'.$thisfile.'?pokaz,one,'.$zon2['id'].'">'.$zon2['imie'].' '.$zon2['nazwisko'].'</a> ('.$zon2['ur'].')</p>');
 									if($theone['zona3']!=0){
-										if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$theone['zona3'].';'));
-										else $zon3=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$theone['zona3'].';'));
+										if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zon3=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$theone['zona3'].';'));
+										else $zon3=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$theone['zona3'].';'));
 										echo('<p><a href="'.$thisfile.'?pokaz,one,'.$zon3['id'].'">'.$zon3['imie'].' '.$zon3['nazwisko'].'</a> ('.$zon3['ur'].')</p>');
 									}
 								}
 							}
 						}
 						echo('</td></tr><tr><td>');
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select * from ludzie where rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].' order by ur,imie;');
-						else $res=mysql_query('select * from ludzie where visible=1 and (rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].') order by ur,imie;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select * from ludzie where rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].' order by ur,imie;');
+						else $res=mysqlquerryc('select * from ludzie where visible=1 and (rodzic1='.$theone['id'].' or rodzic2='.$theone['id'].') order by ur,imie;');
 						$praw_number=0;
 						if(mysql_num_rows($res)>0){
 							echo('<h3>'.$lang[$lng][76].' ('.mysql_num_rows($res).'):</h3>');
@@ -1248,8 +1267,8 @@ switch($id){
 								echo('<p><a href="'.$thisfile.'?pokaz,one,'.$row['id'].'">'.$row['imie'].' '.$row['nazwisko'].'</a> ('.$row['ur'].')</p>');
 							}
 						}
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select * from ludzie where rch1='.$theone['id'].' or rch2='.$theone['id'].' order by ur,imie;');
-						else $res=mysql_query('select * from ludzie where visible=1 and (rch1='.$theone['id'].' or rch2='.$theone['id'].') order by ur,imie;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select * from ludzie where rch1='.$theone['id'].' or rch2='.$theone['id'].' order by ur,imie;');
+						else $res=mysqlquerryc('select * from ludzie where visible=1 and (rch1='.$theone['id'].' or rch2='.$theone['id'].') order by ur,imie;');
 						if(mysql_num_rows($res)>0){
 							echo('<br><h3>'.$lang[$lng][128].' ('.mysql_num_rows($res).'):</h3>');
 							for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -1281,8 +1300,8 @@ switch($id){
 					}
 					else{
 						echo('<p class="alert">'.$lang[$lng][82].'</p>');
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba wyświetlenia nieistniejącej osoby (id '.$theone['id'].')", time="'.date("Y-m-d H:i:s").'";');
-						else mysql_query('insert into logs set user="niezalogowany", action="Próba wyświetlenia nieistniejącej osoby (id '.$theone['id'].'), z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba wyświetlenia nieistniejącej osoby (id '.$theone['id'].')", time="'.date("Y-m-d H:i:s").'";');
+						else mysqlquerryc('insert into logs set user="niezalogowany", action="Próba wyświetlenia nieistniejącej osoby (id '.$theone['id'].'), z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 					}
 					break;
 				}
@@ -1294,7 +1313,7 @@ switch($id){
 	case 'pokr':{
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(isset($id2)){
-				mysql_query('update ludzie set byl=0;'); //temp column
+				mysqlquerryc('update ludzie set byl=0;'); //temp column
 				if($id2=='del'){
 					setcookie('pokr',0,date("U")-500);
 					unset($_COOKIE['pokr']);
@@ -1360,35 +1379,35 @@ switch($id){
 							$p=str_replace(' prawnuka.end',' prawnuk',$p);
 							$p=str_replace(' prawnuczki.end',' prawnuczka',$p);
 							
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $oa=mysql_fetch_assoc(mysql_query('select imie,nazwisko,sex from ludzie where id='.$a.';'));
-							else $oa=mysql_fetch_assoc(mysql_query('select imie,nazwisko,sex from ludzie where visible=1 and id='.$a.';'));
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $za=mysql_fetch_assoc(mysql_query('select path from zdjecia where osoby="'.$a.'" order by rok desc;'));
-							else $za=mysql_fetch_assoc(mysql_query('select path from zdjecia where osoby="'.$a.'" order by rok desc;'));
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ob=mysql_fetch_assoc(mysql_query('select imie,nazwisko,sex from ludzie where id='.$b.';'));
-							else $ob=mysql_fetch_assoc(mysql_query('select imie,nazwisko,sex from ludzie where visible=1 and id='.$b.';'));
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zb=mysql_fetch_assoc(mysql_query('select path from zdjecia where osoby="'.$b.'" order by rok desc;'));
-							else $zb=mysql_fetch_assoc(mysql_query('select path from zdjecia where osoby="'.$b.'" order by rok desc;'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $oa=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko,sex from ludzie where id='.$a.';'));
+							else $oa=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko,sex from ludzie where visible=1 and id='.$a.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $za=mysql_fetch_assoc(mysqlquerryc('select path from zdjecia where osoby="'.$a.'" order by rok desc;'));
+							else $za=mysql_fetch_assoc(mysqlquerryc('select path from zdjecia where osoby="'.$a.'" order by rok desc;'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ob=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko,sex from ludzie where id='.$b.';'));
+							else $ob=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko,sex from ludzie where visible=1 and id='.$b.';'));
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zb=mysql_fetch_assoc(mysqlquerryc('select path from zdjecia where osoby="'.$b.'" order by rok desc;'));
+							else $zb=mysql_fetch_assoc(mysqlquerryc('select path from zdjecia where osoby="'.$b.'" order by rok desc;'));
 							echo('<table border="0" width="100%"><tr><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$a.'"><img class="lud" border="4" src="');
 							if(strlen($za['path'])>4) echo($za['path']);
 							else echo('brakzdj_'.$lng.'.png');
-							echo('"><br><p class="inspokr">'.$oa['imie'].' '.$oa['nazwisko'].'</p></a></td><td width="60%"><p class="inspokr">');
+							echo('"><br><p class="inspokr">'.$oa['imie'].' '.$oa['nazwisko'].'</p></a></td><td width="60%"><h2>');
 							if($p=='NIE ZNALEZIONO') echo($lang[$lng][130]);
 							else{
 								if($oa['sex']=='k') echo(odmiana_k($oa['imie']));
 								else echo(odmiana_m($oa['imie']));
 								echo(' '.str_replace('_',' ',$p).' to jest '.$ob['imie']);
 							}
-							echo('</p></td><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$b.'"><img class="lud" border="4" src="');
+							echo('</h2></td><td align="center"><a href="'.$thisfile.'?pokaz,one,'.$b.'"><img class="lud" border="4" src="');
 							if(strlen($zb['path'])>4) echo($zb['path']);
 							else echo('brakzdj_'.$lng.'.png');
 							echo('"><br><p class="inspokr">'.$ob['imie'].' '.$ob['nazwisko'].'</p></a></td></tr></table>');
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.'", time="'.date("Y-m-d H:i:s").'";');
-							else mysql_query('insert into logs set user="niezalogowany", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.'", time="'.date("Y-m-d H:i:s").'";');
+							else mysqlquerryc('insert into logs set user="niezalogowany", action="Sprawdzenie pokrewieństwa pomiędzy '.$a.' a '.$b.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 						}
 						else{
-							echo('<p class="alert">Wybierz 2 różne osoby</p>');
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="próba porównania tej samej osoby ze sobą", time="'.date("Y-m-d H:i:s").'";');
-							else mysql_query('insert into logs set user="niezalogowany", action="próba porównania tej samej osoby ze sobą, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+							echo('<p class="alert">'.$lang[$lng][227].'</p>');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="próba porównania tej samej osoby ze sobą", time="'.date("Y-m-d H:i:s").'";');
+							else mysqlquerryc('insert into logs set user="niezalogowany", action="próba porównania tej samej osoby ze sobą, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 						}
 						html_end();
 					}
@@ -1417,8 +1436,8 @@ switch($id){
 			if(isset($id2)){
 				if(isset($_POST['submit'])){ //pdf w dół
 					system('rm pdfgen/*.pdf');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $theone=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$id2.';'));
-					else $theone=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$id2.';'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $theone=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$id2.';'));
+					else $theone=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$id2.';'));
 					$filename='pdfgen/tree'.$theone['id'].'.pdf';
 					$pdf=new PDF();
 					$pdf->Open();
@@ -1429,7 +1448,7 @@ switch($id){
 					$h=174; // [mm] - for A4 page
 					$pdf->AddFont('arialpl','','arialpl.php');
 					$pdf->SetFont('arialpl','', 40);
-					$onezdj=mysql_query('select path from zdjecia where osoby='.$theone['id'].' order by rok desc,id desc limit 1;');
+					$onezdj=mysqlquerryc('select path from zdjecia where osoby='.$theone['id'].' order by rok desc,id desc limit 1;');
 					if($_POST['pok']<5) $cellh=floor($h/($_POST['pok']+1));
 					else $cellh=floor($h/5);
 					if(isset($_POST['zdjecia'])&(mysql_num_rows($onezdj)==1)){
@@ -1451,14 +1470,14 @@ switch($id){
 					$pdf->SetFont('arialpl','', 24);
 					$ro=Array();
 					if($theone['rodzic1']!=0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ro[0]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$theone['rodzic1'].';'));
-						else $ro[0]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$theone['rodzic1'].';'));
-						$rozdj[0]=mysql_query('select path from zdjecia where osoby='.$theone['rodzic1'].' order by rok desc,id desc limit 1;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ro[0]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$theone['rodzic1'].';'));
+						else $ro[0]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$theone['rodzic1'].';'));
+						$rozdj[0]=mysqlquerryc('select path from zdjecia where osoby='.$theone['rodzic1'].' order by rok desc,id desc limit 1;');
 					}
 					if($theone['rodzic2']!=0){
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ro[1]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$theone['rodzic2'].';'));
-						else $ro[1]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$theone['rodzic2'].';'));
-						$rozdj[1]=mysql_query('select path from zdjecia where osoby='.$theone['rodzic2'].' order by rok desc,id desc limit 1;');
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ro[1]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$theone['rodzic2'].';'));
+						else $ro[1]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$theone['rodzic2'].';'));
+						$rozdj[1]=mysqlquerryc('select path from zdjecia where osoby='.$theone['rodzic2'].' order by rok desc,id desc limit 1;');
 					}
 					for($ii=0;$ii<count($ro);$ii+=1){
 						if(isset($_POST['zdjecia'])&(mysql_num_rows($rozdj[$ii])==1)){
@@ -1481,9 +1500,9 @@ switch($id){
 					//dziadkowie 2 
 					for($i4=0;$i4<4;$i4+=1){
 						if($ro[floor($i4/2)]['rodzic'.(($i4%2)+1)]!=0){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $dzia[$i4]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].';'));
-							else $dzia[$i4]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].';'));
-							$dzzdj[$i4]=mysql_query('select path from zdjecia where osoby='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].' order by rok desc limit 1;');
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $dzia[$i4]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].';'));
+							else $dzia[$i4]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].';'));
+							$dzzdj[$i4]=mysqlquerryc('select path from zdjecia where osoby='.$ro[floor($i4/2)]['rodzic'.(($i4%2)+1)].' order by rok desc limit 1;');
 						}
 					}
 					foreach($dzia as $key=>$val){
@@ -1515,9 +1534,9 @@ switch($id){
 						$pdf->SetFont('arialpl','', 12);
 						for($i5=0;$i5<8;$i5+=1){
 							if($dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)]!=0){
-								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $pra[$i5]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].';'));
-								else $pra[$i5]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].';'));
-								$przdj[$i5]=mysql_query('select path from zdjecia where osoby='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].' order by rok desc limit 1;');
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $pra[$i5]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].';'));
+								else $pra[$i5]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].';'));
+								$przdj[$i5]=mysqlquerryc('select path from zdjecia where osoby='.$dzia[floor($i5/2)]['rodzic'.(($i5%2)+1)].' order by rok desc limit 1;');
 							}
 						}
 						foreach($pra as $key=>$val){
@@ -1551,9 +1570,9 @@ switch($id){
 							$pdf->SetFont('arialpl','', 9);
 							for($i6=0;$i6<16;$i6+=1){
 								if($pra[floor($i6/2)]['rodzic'.(($i6%2)+1)]!=0){
-									if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $prpr[$i6]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].';'));
-									else $prpr[$i6]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].';'));
-									$prprzdj[$i6]=mysql_query('select path from zdjecia where osoby='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].' order by rok desc limit 1;');
+									if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $prpr[$i6]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].';'));
+									else $prpr[$i6]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].';'));
+									$prprzdj[$i6]=mysqlquerryc('select path from zdjecia where osoby='.$pra[floor($i6/2)]['rodzic'.(($i6%2)+1)].' order by rok desc limit 1;');
 								}
 							}
 							foreach($prpr as $key=>$val){
@@ -1586,9 +1605,9 @@ switch($id){
 								$pdf->SetFont('arialpl','', 8);
 								for($i7=0;$i7<32;$i7+=1){
 									if($prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)]!=0){
-										if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $pr3[$i7]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].';'));
-										else $pr3[$i7]=mysql_fetch_assoc(mysql_query('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].';'));
-										$pr3zdj[$i7]=mysql_query('select path from zdjecia where osoby='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].' order by rok desc limit 1;');
+										if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $pr3[$i7]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where id='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].';'));
+										else $pr3[$i7]=mysql_fetch_assoc(mysqlquerryc('select id,imie,nazwisko,rodzic1,rodzic2 from ludzie where visible=1 and id='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].';'));
+										$pr3zdj[$i7]=mysqlquerryc('select path from zdjecia where osoby='.$prpr[floor($i7/2)]['rodzic'.(($i7%2)+1)].' order by rok desc limit 1;');
 									}
 								}
 								foreach($pr3 as $key=>$val){
@@ -1619,21 +1638,43 @@ switch($id){
 					$pdf->SetCreator(UTF8_2_ISO88592($settings['site_name']));
 					$pdf->Output($filename);
 					echo('<a href="'.$thisfile.'?pokaz,one,'.$theone['id'].'">'.$lang[$lng][202].' '.$theone['imie'].' '.$theone['nazwisko'].'</a><br><br>Plik PDF gotowy! <a href="'.$filename.'" target="blank"><b>Pokaż</b></a>');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
-					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
+					else mysqlquerryc('insert into logs set user="niezalogowany", action="Wygenerowano drzewo dla '.$theone['imie'].' '.$theone['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else if(isset($_POST['submit2'])){ //obrazek w górę
-					//echo('post pok: '.$_POST['pok2'].'<br>');
+					$kids_already_done=Array();
+					for($i=0;$i<2000;$i+=1){
+						$kids_already_done[$i]=0;
+					}
 					$lwp[1]=1;
 					for($i=2;$i<=$_POST['pok2'];$i+=1){
 						$lwp[$i]=ilupot($id2,$i-1);
 					}
-					$filename='pdfgen/gtree'.$id2.'.png';
-					//$filename2='pdfgen/gtree'.$id2.'_2.png';
-					$res1=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+					$mlwp[1]=1;
+					for($i=2;$i<=($_POST['pok2']+1);$i+=1){
+						$mlwp[$i]=ilupotmax($id2,$i-1);
+					}
+					//kolory
+					/*
+					 1szary 808080
+					 2czerwony ff0000
+					 3fioli 800080
+					 4ziel 008000
+					 5nieb 0000ff
+					 6turk 008080
+					 7róż ff00ff
+					 8burgung 800000
+					 9oliw 808000
+					 10granat 000080
+					 11czarny 000000
+					 12 pomara ff6600
+					 13 czloty cc9966
+					 */
+					$filename='pdfgen/gtree'.$id2;
+					$res1=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.htmlspecialchars($id2).';'));
 					$zid=szukajZony(htmlspecialchars($id2));
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.';'));
-					else $ziin=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.$zid.' and visible=1;'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziin=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.$zid.';'));
+					else $ziin=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.$zid.' and visible=1;'));
 					$w_pp=190;
 					$h_pp=300;
 					$imgh=$_POST['pok2']*$h_pp;
@@ -1641,180 +1682,227 @@ switch($id){
 					$font='calibri';
 					$fsiz=14;
 					$bbox=imagettfbbox(32,0,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
-					$imgw=max($lwp)*$w_pp;
+					if(isset($_POST['compact'])) $imgw=max($lwp)*$w_pp;
+					else{
+						$imgw=$w_pp;
+						for($i=2;$i<=$_POST['pok2'];$i+=1){
+							$imgw*=$mlwp[$i];
+						}
+					}
+					//echo(' imgw: '.$imgw);
+					$page_wid=round((300*$imgh)/175,0);
+					$pages=ceil($imgw/$page_wid);
+					if(($pages%2)==0) $pages+=1;
+					//echo(' pages: '.$pages.', page_dim: '.$page_wid.'x'.$imgh.'<br>');
+					//echo('new page dim:'.round($imgw/$pages,0).'x'.round($imgh*round($imgw/$pages,0)/$page_wid,0).' <br>');
+					$offset=round($imgw/$pages,0);
 					if($bbox[2]>$imgw) $imgw=$bbox[2];
-					$img=@imagecreatetruecolor($imgw,$imgh);
-					$black=imagecolorallocate($img,0,0,0);
-					$white=imagecolorallocate($img,255,255,255);
-					imagefilledrectangle($img,0,0,$imgw,$imgh,$white); // whole image white
-					imagerectangle($img,($imgw/2)-($bbox[2]/2)+$bbox[0]-10,50+$bbox[1]+10,($imgw/2)-($bbox[2]/2)+$bbox[4]+10,50+$bbox[5]-10,$black);
-					imagettftext($img,32,0,($imgw/2)-($bbox[2]/2),50,$black,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
-					//dzieci
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
-					else $res2=mysql_query('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).' and visible=1;');
-					$pok3=Array(); // of grand children and x positions of their parents
-					for($i=0;$i<mysql_num_rows($res2);$i+=1){
-						$row2=mysql_fetch_assoc($res2);
-						$bbox1=imagettfbbox($fsiz,0,$font,$row2['imie'].' '.$row2['nazwisko']);
-						imageline($img,$imgw/2,70,((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5),1.4*$h_pp,$black);
-						imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1[2]/2),$h_pp*1.5,$black,$font,$row2['imie'].' '.$row2['nazwisko']);
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).';'));
-						else $ziid2=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).' and visible=1;'));
-						$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
-						if($ziid2) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox1z[2]/2),$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
-						//imagerectangle($img,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[0]-10,$h_pp*1.5+$bbox[1]+10,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[4]+10,$h_pp*1.5+$bbox[5]-10,$black);
-						
-						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].';');
-						else $p3prep=mysql_query('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].' and visible=1;');
-						for($j=0;$j<mysql_num_rows($p3prep);$j+=1){
-							$p3r=mysql_fetch_assoc($p3prep);
-							$pok3[($p3r['id'])]=((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5); //save x for line drawing
-						}
+					$logo=imagecreatefrompng('logo.png');
+					imagefilter($logo,IMG_FILTER_GRAYSCALE);
+					imagefilter($logo,IMG_FILTER_CONTRAST,50);
+					imagefilter($logo,IMG_FILTER_BRIGHTNESS,128);
+					$logow=$h_pp*800/227;
+					$logoh=$h_pp;
+					if($logow>($imgw/4)){
+						$logow=$imgw/4;
+						$logoh=$logow*227/800;
 					}
-					unset($row2,$bbox,$ziid2,$res1,$zid,$ziin);
-					mysql_free_result($res2);
-					mysql_free_result($p3prep);
-					//wnuki
-					if($_POST['pok2']>=3){
-						$i=0;
-						$pok4=Array();
-						foreach($pok3 as $k3=>$v3){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.';'));
-							else $row3=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k3.' and visible=1;'));
-							$bbox1=imagettfbbox($fsiz,0,$font,$row3['imie'].' '.$row3['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1[2]/2),$h_pp*2.5,$black,$font,$row3['imie'].' '.$row3['nazwisko']);
-							imageline($img,$v3,$h_pp*1.7,((max($lwp)*$w_pp)/count($pok3))*($i+0.5),2.4*$h_pp,$black);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).';'));
-							else $ziid3=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).' and visible=1;'));
-							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
-							if($ziid3) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok3))*($i+0.5))-($bbox1z[2]/2),$h_pp*2.5-$bbox1[7],$black,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].';');
-							else $p4prep=mysql_query('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].' and visible=1;');
-							for($j=0;$j<mysql_num_rows($p4prep);$j+=1){
-								$p4r=mysql_fetch_assoc($p4prep);
-								$pok4[($p4r['id'])]=((max($lwp)*$w_pp)/count($pok3))*($i+0.5); //save x for line drawing
+					for($pag=0;$pag<$pages;$pag+=1){ //split for pages
+						//echo('<p>starting page '.$pag.'</p>');
+						unset($kids_already_done);
+						$img=imagecreatetruecolor($offset,$imgh);
+						$black=imagecolorallocate($img,0,0,0);
+						$white=imagecolorallocate($img,255,255,255);
+						imagefilledrectangle($img,0,0,$offset,$imgh,$white); // whole image white
+						if($pag==0) imagecopyresampled($img,$logo,0,0,0-$offset*$pag,0,$logow,$logoh,800,227);
+						imagerectangle($img,($imgw/2)-($bbox[2]/2)+$bbox[0]-10-$offset*$pag,50+$bbox[1]+10,($imgw/2)-($bbox[2]/2)+$bbox[4]+10-$offset*$pag,50+$bbox[5]-10,$black);
+						imagettftext($img,32,0,($imgw/2)-($bbox[2]/2)-$offset*$pag,50,$black,$font,$res1['imie'].' '.$res1['nazwisko'].' + '.$ziin['imie'].' '.$ziin['nazwisko']);
+						//imagefilter($img,IMG_FILTER_GRAYSCALE);
+						//dzieci
+						if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res2=mysqlquerryc('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).';');
+						else $res2=mysqlquerryc('select * from ludzie where rodzic1='.htmlspecialchars($id2).' or rodzic2='.htmlspecialchars($id2).' and visible=1;');
+						$pok3=Array(); // of grand children and x positions of their parents
+						$pok3r=Array();
+						$pok3nok=Array();
+						for($i=0;$i<mysql_num_rows($res2);$i+=1){
+							$row2=mysql_fetch_assoc($res2);
+							$bbox1=imagettfbbox($fsiz,0,$font,$row2['imie'].' '.$row2['nazwisko']);
+							if(isset($_POST['compact'])) $centerx=(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5));
+							else{
+								$centerx=(($imgw/$w_pp)/mysql_num_rows($res2))*($kids_already_done[$id2]+0.5)*$w_pp;
+								$kids_already_done[$id2]+=1;
 							}
-							$i++;
-						}
-					}
-					unset($row3);
-					unset($ziid3);
-					unset($pok3);
-					mysql_free_result($p4prep);
-					//prawnuki
-					if($_POST['pok2']>=4){
-						$i=0;
-						$pok5=Array();
-						foreach($pok4 as $k4=>$v4){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.';'));
-							else $row4=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k4.' abd visible=1;'));
-							$bbox1=imagettfbbox($fsiz,0,$font,$row4['imie'].' '.$row4['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1[2]/2),$h_pp*3.5,$black,$font,$row4['imie'].' '.$row4['nazwisko']);
-							imageline($img,$v4,$h_pp*2.7,((max($lwp)*$w_pp)/count($pok4))*($i+0.5),3.4*$h_pp,$black);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).';'));
-							else $ziid4=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).' and visible=1;'));
-							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
-							if($ziid4) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok4))*($i+0.5))-($bbox1z[2]/2),$h_pp*3.5-$bbox1[7],$black,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].';');
-							else $p5prep=mysql_query('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].' and visible=1;');
-							for($j=0;$j<mysql_num_rows($p5prep);$j+=1){
-								$p5r=mysql_fetch_assoc($p5prep);
-								$pok5[($p5r['id'])]=((max($lwp)*$w_pp)/count($pok4))*($i+0.5); //save x for line drawing
+							imageline($img,($imgw/2)-($offset*$pag),70,$centerx-($offset*$pag),1.4*$h_pp,$black);
+							imagettftext($img,$fsiz,0,$centerx-($bbox1[2]/2)-($offset*$pag),$h_pp*1.5,$black,$font,$row2['imie'].' '.$row2['nazwisko']);
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid2=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).';'));
+							else $ziid2=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row2['id']).' and visible=1;'));
+							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
+							if($ziid2) imagettftext($img,$fsiz,0,$centerx-($bbox1z[2]/2)-$offset*$pag,$h_pp*1.5-$bbox1[7],$black,$font,'+ '.$ziid2['imie'].' '.$ziid2['nazwisko']);
+							//imagerectangle($img,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[0]-10,$h_pp*1.5+$bbox[1]+10,(((max($lwp)*$w_pp)/mysql_num_rows($res2))*($i+0.5))-($bbox[2]/2)+$bbox[4]+10,$h_pp*1.5+$bbox[5]-10,$black);
+							
+							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p3prep=mysqlquerryc('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].';');
+							else $p3prep=mysqlquerryc('select id from ludzie where rodzic1='.$row2['id'].' or rodzic2='.$row2['id'].' and visible=1;');
+							$dzieci=mysql_num_rows($p3prep);
+							$firstchild=(((($imgw/$mlwp[2])/$dzieci)*($dzieci-1))/2);
+								for($j=0;$j<mysql_num_rows($p3prep);$j+=1){
+								$p3r=mysql_fetch_assoc($p3prep);
+								$pok3[($p3r['id'])]=$centerx; //save x for line drawing
+								//                   +parent    +order numeral                              -half of maxlwp          +half of wpp      
+								$pok3r[($p3r['id'])]=$centerx-$firstchild+($j*($firstchild/(($dzieci-1)/2)));
 							}
-							$i++;
 						}
+						//unset($row2,$ziid2,$res1,$zid,$ziin);
+						mysql_free_result($p3prep);
+						//wnuki
+						if($_POST['pok2']>=3){
+							$i=0;
+							$pok4=Array();
+							$pok4r=Array();
+							foreach($pok3 as $k3=>$v3){
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row3=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k3.';'));
+								else $row3=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k3.' and visible=1;'));
+								$bbox1=imagettfbbox($fsiz,0,$font,$row3['imie'].' '.$row3['nazwisko']);
+								if(isset($_POST['compact'])) $centerx=(((max($lwp)*$w_pp)/count($pok3))*($i+0.5));
+								else $centerx=$pok3r[$k3];
+								imagettftext($img,$fsiz,0,$centerx-($bbox1[2]/2)-$offset*$pag,$h_pp*2.5,$black,$font,$row3['imie'].' '.$row3['nazwisko']);
+								imageline($img,$v3-$offset*$pag,$h_pp*1.7,$centerx-$offset*$pag,2.4*$h_pp,$black);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid3=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).';'));
+								else $ziid3=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row3['id']).' and visible=1;'));
+								$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
+								if($ziid3) imagettftext($img,$fsiz,0,$centerx-($bbox1z[2]/2)-$offset*$pag,$h_pp*2.5-$bbox1[7],$black,$font,'+ '.$ziid3['imie'].' '.$ziid3['nazwisko']);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p4prep=mysqlquerryc('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].';');
+								else $p4prep=mysqlquerryc('select id from ludzie where rodzic1='.$row3['id'].' or rodzic2='.$row3['id'].' and visible=1;');
+								$dzieci=mysql_num_rows($p4prep);
+								$firstchild=((((($imgw/$mlwp[2])/$mlwp[3])/$dzieci)*($dzieci-1))/2);
+								for($j=0;$j<mysql_num_rows($p4prep);$j+=1){
+									$p4r=mysql_fetch_assoc($p4prep);
+									$pok4[($p4r['id'])]=$centerx; //save x for line drawing
+									$pok4r[($p4r['id'])]=$centerx-$firstchild+($j*($firstchild/(($dzieci-1)/2)));
+								}
+								$i++;
+							}
+						}
+						//prawnuki
+						if($_POST['pok2']>=4){
+							$i=0;
+							$pok5=Array();
+							$pok5r=Array();
+							foreach($pok4 as $k4=>$v4){
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row4=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k4.';'));
+								else $row4=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k4.' abd visible=1;'));
+								$bbox1=imagettfbbox($fsiz,0,$font,$row4['imie'].' '.$row4['nazwisko']);
+								if(isset($_POST['compact'])) $centerx=(((max($lwp)*$w_pp)/count($pok4))*($i+0.5));
+								else $centerx=$pok4r[$k4];
+								imagettftext($img,$fsiz,0,$centerx-($bbox1[2]/2)-$offset*$pag,$h_pp*3.5,$black,$font,$row4['imie'].' '.$row4['nazwisko']);
+								imageline($img,$v4-$offset*$pag,$h_pp*2.7,$centerx-$offset*$pag,3.4*$h_pp,$black);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid4=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).';'));
+								else $ziid4=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row4['id']).' and visible=1;'));
+								$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
+								if($ziid4) imagettftext($img,$fsiz,0,$centerx-($bbox1z[2]/2)-$offset*$pag,$h_pp*3.5-$bbox1[7],$black,$font,'+ '.$ziid4['imie'].' '.$ziid4['nazwisko']);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p5prep=mysqlquerryc('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].';');
+								else $p5prep=mysqlquerryc('select id from ludzie where rodzic1='.$row4['id'].' or rodzic2='.$row4['id'].' and visible=1;');
+								$dzieci=mysql_num_rows($p5prep);
+								$firstchild=(((((($imgw/$mlwp[2])/$mlwp[3])/$mlwp[4])/$dzieci)*($dzieci-1))/2);
+								for($j=0;$j<mysql_num_rows($p5prep);$j+=1){
+									$p5r=mysql_fetch_assoc($p5prep);
+									$pok5[($p5r['id'])]=$centerx; //save x for line drawing
+									$pok5r[($p5r['id'])]=$centerx-$firstchild+($j*($firstchild/(($dzieci-1)/2)));
+								}
+								$i++;
+							}
+						}
+						//unset($row4,$ziid4,$pok4);
+						//mysql_free_result($p5prep);
+						if($_POST['pok2']>=5){
+							$i=0;
+							$pok6=Array();
+							$pok6r=Array();
+							foreach($pok5 as $k5=>$v5){
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row5=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k5.';'));
+								else $row5=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k5.' and visible=1;'));
+								$bbox1=imagettfbbox($fsiz,0,$font,$row5['imie'].' '.$row5['nazwisko']);
+								if(isset($_POST['compact'])) $centerx=(((max($lwp)*$w_pp)/count($pok5))*($i+0.5));
+								else{
+									$centerx=$pok5r[$k5];
+								}
+								imagettftext($img,$fsiz,0,$centerx-($bbox1[2]/2)-$offset*$pag,$h_pp*4.5,$black,$font,$row5['imie'].' '.$row5['nazwisko']);
+								imageline($img,$v5-$offset*$pag,$h_pp*3.7,$centerx-$offset*$pag,4.4*$h_pp,$black);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid5=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).';'));
+								else $ziid5=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).' and visible=1;'));
+								$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
+								if($ziid5) imagettftext($img,$fsiz,0,$centerx-($bbox1z[2]/2)-$offset*$pag,$h_pp*4.5-$bbox1[7],$black,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p6prep=mysqlquerryc('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
+								else $p6prep=mysqlquerryc('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].' and visible=1;');
+								$dzieci=mysql_num_rows($p6prep);
+								$firstchild=((((((($imgw/$mlwp[2])/$mlwp[3])/$mlwp[4])/$mlwp[5])/$dzieci)*($dzieci-1))/2);
+								for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
+									$p6r=mysql_fetch_assoc($p6prep);
+									$pok6[($p6r['id'])]=$centerx; //save x for line drawing
+									$pok6r[($p6r['id'])]=$centerx-$firstchild+($j*($firstchild/(($dzieci-1)/2)));
+								}
+								$i++;
+							}
+						}
+						//unset($row5,$ziid5,$pok5);
+						//mysql_free_result($p6prep);
+						// 3x pra
+						if($_POST['pok2']>=6){
+							$i=0;
+							foreach($pok6 as $k6=>$v6){
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row6=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k6.';'));
+								else $row6=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$k6.' and visible=1;'));
+								$bbox1=imagettfbbox($fsiz,0,$font,$row6['imie'].' '.$row6['nazwisko']);
+								if(isset($_POST['compact'])) $centerx=(((max($lwp)*$w_pp)/count($pok6))*($i+0.5));
+								else{
+									$centerx=$pok6r[$k6];
+								}
+								imagettftext($img,$fsiz,0,$centerx-($bbox1[2]/2)-$offset*$pag,$h_pp*5.5,$black,$font,$row6['imie'].' '.$row6['nazwisko']);
+								imageline($img,$v6-$offset*$pag,$h_pp*4.7,$centerx-$offset*$pag,5.4*$h_pp,$black);
+								if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid6=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).';'));
+								else $ziid6=mysql_fetch_assoc(mysqlquerryc('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).' and visible=1;'));
+								$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
+								if($ziid6) imagettftext($img,$fsiz,0,$centerx-($bbox1z[2]/2)-$offset*$pag,$h_pp*5.5-$bbox1[7],$black,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
+								$i++;
+							}
+						}
+						//unset($row6,$bbox1,$bbox1z,$zzid6,$pok6);
+						imagepng($img,$filename.'_'.$pag.'.png');
+						unset($img);
 					}
-					unset($row4,$ziid4,$pok4);
-					mysql_free_result($p5prep);
 					
-					//lines only for next gen
-					/*
-					if($_POST['pok2']>=5){
-						$i=0;
-						foreach($pok5 as $k5=>$v5){
-							imageline($img,$v5,$h_pp*3.7,((max($lwp)*$w_pp)/count($pok5))*($i+0.5),4.4*$h_pp,$black);
-							$i++;
-						}
-					}
+					$filenamepdf='pdfgen/gtr'.$id2.'.pdf';
+					$pdf=new PDF();
+					$pdf->Open();
+					$w=280; // wiredly, 266 works - [mm] - for A4 page
+					$h=180; // [mm] - for A4 page
 					
-					imagefilter($img,IMG_FILTER_GRAYSCALE);
-					imagepng($img,$filename);
-					unset($img);
-					$imgh=($_POST['pok2']-4)*$h_pp;
-					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
-					$img=@imagecreatetruecolor($imgw,$imgh);
-					//echo('<br>'.round(memory_get_usage()/1024/1024,2).' MiB<br>');
-					imagefilledrectangle($img,0,0,$imgw,$imgh,$white);
-					*/
-					//pra pra wnuki
-					if($_POST['pok2']>=5){
-						$i=0;
-						$pok6=Array();
-						foreach($pok5 as $k5=>$v5){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.';'));
-							else $row5=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k5.' and visible=1;'));
-							$bbox1=imagettfbbox($fsiz,0,$font,$row5['imie'].' '.$row5['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1[2]/2),$h_pp*4.5,$black,$font,$row5['imie'].' '.$row5['nazwisko']);
-							imageline($img,$v5,$h_pp*3.7,((max($lwp)*$w_pp)/count($pok5))*($i+0.5),4.4*$h_pp,$black);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).';'));
-							else $ziid5=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row5['id']).' and visible=1;'));
-							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
-							if($ziid5) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok5))*($i+0.5))-($bbox1z[2]/2),$h_pp*4.5-$bbox1[7],$black,$font,'+ '.$ziid5['imie'].' '.$ziid5['nazwisko']);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
-							else $p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].' and visible=1;');
-							for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
-								$p6r=mysql_fetch_assoc($p6prep);
-								$pok6[($p6r['id'])]=((max($lwp)*$w_pp)/count($pok5))*($i+0.5); //save x for line drawing
-							}
-							$i++;
-						}
+					for($pag=0;$pag<$pages;$pag+=1){
+						$pdf->AddPage();
+						$x=$pdf->GetX();
+						$y=$pdf->GetY();
+						$pdf->Image($filename.'_'.$pag.'.png',$x,$y,$w,$h);
+						$pdf->Line($x,$y,$x,$y+$h);
+						$pdf->Line($x+$w,$y,$x+$w,$$y+$h);
 					}
-					unset($row5,$ziid5,$pok5);
-					mysql_free_result($p6prep);
-					// 3x pra
-					if($_POST['pok2']>=6){
-						$i=0;
-						//$pok6=Array();
-						foreach($pok6 as $k6=>$v6){
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.';'));
-							else $row6=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$k6.' and visible=1;'));
-							$bbox1=imagettfbbox($fsiz,0,$font,$row6['imie'].' '.$row6['nazwisko']);
-							imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1[2]/2),$h_pp*5.5,$black,$font,$row6['imie'].' '.$row6['nazwisko']);
-							imageline($img,$v6,$h_pp*4.7,((max($lwp)*$w_pp)/count($pok6))*($i+0.5),5.4*$h_pp,$black);
-							if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).';'));
-							else $ziid6=mysql_fetch_assoc(mysql_query('select imie,nazwisko from ludzie where id='.szukajZony($row6['id']).' and visible=1;'));
-							$bbox1z=imagettfbbox($fsiz,0,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
-							if($ziid6) imagettftext($img,$fsiz,0,(((max($lwp)*$w_pp)/count($pok6))*($i+0.5))-($bbox1z[2]/2),$h_pp*5.5-$bbox1[7],$black,$font,'+ '.$ziid6['imie'].' '.$ziid6['nazwisko']);
-							//$p6prep=mysql_query('select id from ludzie where rodzic1='.$row5['id'].' or rodzic2='.$row5['id'].';');
-							//for($j=0;$j<mysql_num_rows($p6prep);$j+=1){
-							//	$p6r=mysql_fetch_assoc($p6prep);
-							//	$pok6[($p6r['id'])]=((max($lwp)*$w_pp)/count($pok5))*($i+0.5); //save x for line drawing
-							//}
-							$i++;
-						}
-					}
-					unset($row6,$bbox1,$bbox1z,$zzid6,$pok6,$imgh,$imgw,$black,$white,$w_pp,$h_pp,$font,$fsize);
-					echo('<b><a href="'.$filename.'" target="blank">');
-					imagefilter($img,IMG_FILTER_GRAYSCALE);
-					imagepng($img,$filename);
-					echo('Pokaż</a></b><br>');
-					echo('<p>'.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB</p>');
-					echo('<p><a href='.$thisfile.'?druk>Instrukcja jak wydrukować na wielu stronach</a></p>');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
-					else mysql_query('insert into logs set user="niezalogowany", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+					$pdf->Output($filenamepdf);
+					echo('<b>Gotowe!<br><a href="'.$filenamepdf.'" target="blank">Pokaż</a></b><br>');
+					//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<p>'.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB</p>');
+					//echo('<p><a href='.$thisfile.'?druk>Instrukcja jak wydrukować na wielu stronach</a></p>');
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].'", time="'.date("Y-m-d H:i:s").'";');
+					else mysqlquerryc('insert into logs set user="niezalogowany", action="Wygenerowano drzewo w górę dla '.$th_info['imie'].' '.$th_info['nazwisko'].', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else{
-					$theone=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.htmlspecialchars($id2).';'));
+					$theone=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.htmlspecialchars($id2).';'));
 					echo('<center><table berder="0"><tr><th colspan="2"><p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p></th></tr><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">');
 					//<p>'.$lang[$lng][203].':</p>
-					echo('<tr><td>'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][203].'</td>
-					<td>'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][225].'</td></tr><tr><td><label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
+					echo('<tr><td class="treeui">'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][203].'</td>
+					<td class="treeui">'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][225].'</td></tr><tr><td class="treeui"><label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
 					<label><input type="radio" class="formfld" name="pok" value="3"> 3 ('.$lang[$lng][219].')</label><br>
 					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 ('.$lang[$lng][220].')</label><br>');
 					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 ('.$lang[$lng][221].'</label><br>');
 					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> '.$lang[$lng][222].'</label><br>');
 					echo('<input type="submit" name="submit" value="'.$lang[$lng][218].'" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
-					echo('</td><td>');
+					echo('</td><td class="treeui">');
 					echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
 					echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
 					echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
@@ -1822,6 +1910,7 @@ switch($id){
 					//         poniższe opcje zostaną podzielone na 2 części</p>');
 					echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
 					echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
+					echo('<label><input type="checkbox" class="formfld" name="compact" checked="checked"> zmniejszona szerokość</label><br>');
 					echo('<input type="submit" name="submit2" value="Generuj" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
 					echo('</form></td></tr></table></center>');
 				}
@@ -1835,12 +1924,12 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(isset($_POST['rok'])&(!isset($id2))) $id2=$_POST['rok'];
-			mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie rocznika '.$id2.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie rocznika '.$id2.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			echo('<h2><a href="'.$thisfile.'?rocznik,'.($id2-1).'">◄ '.($id2-1).'</a> <big>'.$id2.'</big> <a href="'.$thisfile.'?rocznik,'.($id2+1).'">'.($id2+1).' ►</a></h2>');
 			echo('<form name="rocznik" action="'.$thisfile.'?rocznik" method="POST"><input class="formfld" type="text" id="rok" name="rok"><button class="formbtn" id="przejdz" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);" type="button" name="b1" value="Pokaż">'.$lang[$lng][111].'</button></form><br>');
 			if(strlen($id2)==4){
-				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;'); //born in year $id2
-				else $res=mysql_query('select id from ludzie where visible=1 and ur='.htmlspecialchars($id2).' order by imie,nazwisko;');
+				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;'); //born in year $id2
+				else $res=mysqlquerryc('select id from ludzie where visible=1 and ur='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
 					echo('<h3>'.$lang[$lng][109].' '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -1848,8 +1937,8 @@ switch($id){
 						echo('<p>'.linkujludzia($row['id'],2).'</p>');
 					}
 				}
-				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysql_query('select id from ludzie where zm='.htmlspecialchars($id2).' order by imie,nazwisko;'); //dead in year $id2
-				else $res=mysql_query('select id from ludzie where visible=1 and zm='.htmlspecialchars($id2).' order by imie,nazwisko;');
+				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where zm='.htmlspecialchars($id2).' order by imie,nazwisko;'); //dead in year $id2
+				else $res=mysqlquerryc('select id from ludzie where visible=1 and zm='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
 					echo('<h3>'.$lang[$lng][108].' '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -1857,7 +1946,7 @@ switch($id){
 						echo('<p>'.linkujludzia($row['id'],2).'</p>');
 					}
 				}
-				$res=mysql_query('select * from zdjecia where rok='.htmlspecialchars($id2).' and path like "%gru%";'); //pictures taken in year $id2
+				$res=mysqlquerryc('select * from zdjecia where rok='.htmlspecialchars($id2).' and path like "%gru%";'); //pictures taken in year $id2
 				if(mysql_num_rows($res)>0){
 					echo('<h3>'.$lang[$lng][110].' '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -1873,8 +1962,8 @@ switch($id){
 	}
 	case 'info':{  /// ALL CAN SEE
 		html_start();
-		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie O strinie", time="'.date("Y-m-d H:i:s").'"');
-		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie O strinie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+		if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie O strinie", time="'.date("Y-m-d H:i:s").'"');
+		else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie O strinie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 		echo('<h3>'.$lang[$lng][144].':</h3><a href="index.php?pokaz,one,78">Szymon Marciniak</a> ('.$lang[$lng][21].' 2012)<h3><a href="index.php?kontakt">'.$lang[$lng][145].'</a></h3> <h3>'.$lang[$lng][146].':</h3><a href="index.php?pokaz,one,76">Jolanta Marciniak</a> ('.$lang[$lng][21].' 2004)<br><br>');
 		echo($settings['about']);  //change this in settings
 		html_end();
@@ -1883,7 +1972,7 @@ switch($id){
 	case 'messages':{
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-			$res=mysql_query('select * from opinie order by time desc;');
+			$res=mysqlquerryc('select * from opinie order by time desc;');
 			echo('<table border="1"><tr><td>time</td><td>ip</td><td>tresc</td></tr>');
 			for($o=0;$o<mysql_num_rows($res);$o+=1){
 				$row=mysql_fetch_assoc($res);
@@ -1892,7 +1981,7 @@ switch($id){
 			echo('</table>');
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do wiadomości, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do wiadomości, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -1900,10 +1989,10 @@ switch($id){
 	}
 	case 'kontakt':{ // ALL CAN SEE
 		html_start();
-		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Kontakt", time="'.date("Y-m-d H:i:s").'"');
-		else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie Kontakt, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+		if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Kontakt", time="'.date("Y-m-d H:i:s").'"');
+		else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie Kontakt, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 		if(isset($_POST['submit'])){
-			if(mysql_query('insert into opinie set tresc="Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']).'", time="'.date("Y-m-d H:i:s").'", ip="'.$_SERVER['REMOTE_ADDR'].'";')) echo('<p class="ok">'.$lang[$lng][147].'</p>');
+			if(mysqlquerryc('insert into opinie set tresc="Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']).'", time="'.date("Y-m-d H:i:s").'", ip="'.$_SERVER['REMOTE_ADDR'].'";')) echo('<p class="ok">'.$lang[$lng][147].'</p>');
 			else echo('<p class="alert">'.$lang[$lng][148].'</p>');
 			$headers ="MIME-Version: 1.0\n"; 
 			$headers.="Content-type: text/html; charset=UTF-8\n"; 
@@ -1919,8 +2008,8 @@ switch($id){
 	case 'zdjgru':{
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
-			if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Zdjęć grupowych", time="'.date("Y-m-d H:i:s").'"');
-			else mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie Zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+			if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie Zdjęć grupowych", time="'.date("Y-m-d H:i:s").'"');
+			else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie Zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			echo('<h3>'.$lang[$lng][83].':</h3>');
 			if(isset($_COOKIE['zal'])&checkname()) echo('<p><a href="'.$thisfile.'?zdjgru-add">'.$lang[$lng][84].'</a></p><hr>');
 			if(isset($id2)){
@@ -1936,7 +2025,7 @@ switch($id){
 				if($cat==$k) echo('</b>');
 			}
 			echo('</p>');
-			$res=mysql_query('select * from zdjecia where osoby like "0,%" and cat="'.$cat.'" order by rok desc;');
+			$res=mysqlquerryc('select * from zdjecia where osoby like "0,%" and cat="'.$cat.'" order by rok desc;');
 			echo('<center><table border="0">');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -1955,14 +2044,14 @@ switch($id){
 			if(preg_match('#,picdel,#',$currentuser['flags'])){
 				if(isset($id2)){
 					if(isset($id3)&($id3=='taknapewno')){
-						$row=mysql_fetch_assoc(mysql_query('select * from zdjecia where id='.htmlspecialchars($id2).' and osoby like "0,%" limit 1;'));
+						$row=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where id='.htmlspecialchars($id2).' and osoby like "0,%" limit 1;'));
 						if($row){
 							$pth=explode('.',$row['path']);
 							$min=$pth[0].'m.'.$pth[1];
 							unlink($row['path']);
 							unlink($min);
-							if(mysql_query('delete from zdjecia where id='.htmlspecialchars($id2).';')){
-								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie grupowe: '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
+							if(mysqlquerryc('delete from zdjecia where id='.htmlspecialchars($id2).';')){
+								mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie grupowe: '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
 								echo('<p class="ok">Poprawnie usunięto zdjęcie "'.$row['opis'].'"</p><a href="'.$thisfile.'?zdjgru">'.$lang[$lng][90].'</a>');
 							}
 							else echo('<p class="alert">Nie udało sie usunąć zdjęcia nr '.$id2.'. Zgłoś ten błąd do adminsitratora.</p>');
@@ -1976,12 +2065,12 @@ switch($id){
 				else echo('<p class="alert">'.$lang[$lng][208].'.</p>');
 			}
 			else{
-				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+				mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 				echo('<p class="alert">'.$lang[$lng][43].'</p>');
 			}
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][89].'</a></p>');
 		}
 		html_end();
@@ -1991,14 +2080,14 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(isset($id2)){
-				$row=mysql_fetch_assoc(mysql_query('select * from zdjecia where id='.htmlspecialchars($id2).';'));
+				$row=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where id='.htmlspecialchars($id2).';'));
 				echo('<a name="gr'.$row['id'].'"></a><h1>'.$row['rok'].': '.$row['opis'].'</h1><a href="'.$thisfile.'?zdjgru,'.$row['cat'].'#gr'.$row['id'].'">'.$lang[$lng][90].'</a><br>
 				<img src="'.$row['path'].'" usemap="#gru'.$row['id'].'"><br><p>'.$lang[$lng][91].': ');
 				$os=explode(',',$row['osoby']);
 				for($k=1;$k<(count($os)-1);$k+=1){
 					if($k!=1) echo(', ');
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $rowo=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$os[$k].';'));
-					else $rowo=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$os[$k].';'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $rowo=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$os[$k].';'));
+					else $rowo=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$os[$k].';'));
 					if($rowo['ur']==0) $rur='?';
 					else $rur=$rowo['ur'];
 					if($rowo['zm']==0) $rzm='?';
@@ -2017,12 +2106,12 @@ switch($id){
 				echo('</p><map id="gru'.$row['id'].'" name="gru'.$row['id'].'">');
 				$coo=explode(':',$row['coords']);
 				for($j=1;$j<(count($os)-1);$j+=1){
-					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $osoba=mysql_fetch_assoc(mysql_query('select * from ludzie where id='.$os[$j].' limit 1'));
-					else $osoba=mysql_fetch_assoc(mysql_query('select * from ludzie where visible=1 and id='.$os[$j].' limit 1'));
+					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $osoba=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$os[$j].' limit 1'));
+					else $osoba=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$os[$j].' limit 1'));
 					echo('<area shape="poly" coords="'.$coo[($j-1)].'" href="'.$thisfile.'?pokaz,one,'.$os[$j].'" title="'.$osoba['imie'].' '.$osoba['nazwisko'].'">');
 				}
 				echo('</map>');
-				if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie zdjęcia'.htmlspecialchars($id2).': '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
+				if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie zdjęcia'.htmlspecialchars($id2).': '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$row['path'].'">'.$lang[$lng][149].'</a> | <a href="'.$thisfile.'?zdjgru-del,'.$row['id'].'">'.$lang[$lng][150].'</a><br>');
 			}
 		}
@@ -2034,7 +2123,7 @@ switch($id){
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(preg_match('#,grupersondel,#',$currentuser['flags'])){
 				if(isset($id2)&isset($id3)){
-					$zdjecie=mysql_fetch_assoc(mysql_query('select id,osoby,coords from zdjecia where path like "%'.htmlspecialchars($id2).'%";'));
+					$zdjecie=mysql_fetch_assoc(mysqlquerryc('select id,osoby,coords from zdjecia where path like "%'.htmlspecialchars($id2).'%";'));
 					$oso=explode(',',$zdjecie['osoby']);
 					$crd=explode(':',$zdjecie['coords']);
 					$noso='';
@@ -2048,8 +2137,8 @@ switch($id){
 							}
 						}
 					}
-					if(mysql_query('update zdjecia set osoby="'.$noso.'", coords="'.$ncrd.'" where id='.$zdjecie['id'].';')){
-						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto ludzia ze zdjęcia grupowego nr '.$zdjecie['id'].'", time="'.date("Y-m-d H:i:s").'";');
+					if(mysqlquerryc('update zdjecia set osoby="'.$noso.'", coords="'.$ncrd.'" where id='.$zdjecie['id'].';')){
+						mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto ludzia ze zdjęcia grupowego nr '.$zdjecie['id'].'", time="'.date("Y-m-d H:i:s").'";');
 						echo('<p class="ok">'.$lang[$lng][151].'</p>');
 					}
 					else echo('<p class="ok">'.$lang[$lng][152].'</p>');
@@ -2058,12 +2147,12 @@ switch($id){
 				else echo('<p class="alert">'.$lang[$lng][154].'</p>');
 			}
 			else{
-				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usuwania ludzi ze zdjęć grupowych, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+				mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usuwania ludzi ze zdjęć grupowych, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 				echo('<p class="alert">'.$lang[$lng][49].'</p>');
 			}
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania ludzi ze zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Usuwania ludzi ze zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2074,8 +2163,8 @@ switch($id){
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(preg_match('#,picedit,#',$currentuser['flags'])){
 				if(isset($_POST['submit'])){
-					if(mysql_query('update zdjecia set rok='.htmlspecialchars($_POST['rok']).', opis="'.htmlspecialchars($_POST['opis']).'", cat="'.htmlspecialchars($_POST['cat']).'" where id='.htmlspecialchars($_POST['id']).';')){
-						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia '.htmlspecialchars($_POST['opis']).'", time="'.date("Y-m-d H:i:s").'";');
+					if(mysqlquerryc('update zdjecia set rok='.htmlspecialchars($_POST['rok']).', opis="'.htmlspecialchars($_POST['opis']).'", cat="'.htmlspecialchars($_POST['cat']).'" where id='.htmlspecialchars($_POST['id']).';')){
+						mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia '.htmlspecialchars($_POST['opis']).'", time="'.date("Y-m-d H:i:s").'";');
 						echo('<p class="ok">'.$lang[$lng][155].'</p>');
 					}
 					else echo('<p class="alert">'.$lang[$lng][157].'</p>');
@@ -2084,12 +2173,12 @@ switch($id){
 				else echo('<p class="alert">'.$lang[$lng][156].'</p>');
 			}
 			else{
-				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+				mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 				echo('<p class="alert">'.$lang[$lng][45].'</p>');
 			}
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Edycji zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Edycji zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2099,7 +2188,7 @@ switch($id){
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(isset($id2)){
-				$actzdj=mysql_fetch_assoc(mysql_query('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
+				$actzdj=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
 				echo('<a href="'.$thisfile.'?zdjgru1,'.$actzdj['id'].'">Zobacz jak będzie wyglądać to zdjęcie</a>');
 				$osob=explode(',',$actzdj['osoby']);
 				if(isset($_POST['submit'])){
@@ -2114,18 +2203,18 @@ switch($id){
 						$q.='", osoby="0';
 						for($i=1;$i<(count($osob)-1);$i+=1) $q.=','.$osob[$i];
 						$q.=','.$_POST['kto'].',0" where id='.$actzdj['id'].';';
-						if(mysql_query($q)){
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano ludzia do <a href=\"'.$thisfile.'?zdjgru1,'.$actzdj['id'].'\">zdjęcia nr '.$actzdj['id'].'</a>", time="'.date('Y-m-d H:i:s').'";');
+						if(mysqlquerryc($q)){
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano ludzia do <a href=\"'.$thisfile.'?zdjgru1,'.$actzdj['id'].'\">zdjęcia nr '.$actzdj['id'].'</a>", time="'.date('Y-m-d H:i:s').'";');
 							echo('<p class="ok">Poprawnie dodano</p>');
 						}
 						else echo('<p class="alert">Nie udało się dodać</p>');
 					}
 					else{
-						mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodawania ludzi do zdjęć grupowych, mimo braku uprawnień", time="'.date('Y-m-d H:i:s').'";');
+						mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodawania ludzi do zdjęć grupowych, mimo braku uprawnień", time="'.date('Y-m-d H:i:s').'";');
 						echo('<p class="alert">'.$lang[$lng][47].'</p>');
 					}
 				}
-				$actzdj=mysql_fetch_assoc(mysql_query('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
+				$actzdj=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
 				if($actzdj){
 					$imsize=getimagesize($actzdj['path']);
 					echo('<tr><td colspan="3"><form name=zdjgruedit" action="'.$thisfile.'?zdjgru-edit" method="POST"><label>rok:<input type="text" name="rok" size="4" class="formfld" maxlength="4" value="'.$actzdj['rok'].'"></label> <label>opis:<input type="text" name="opis" class="formfld" value="'.$actzdj['opis'].'" size="80"></label> <label title="s, l lub k">typ: <input type="tekst" name="cat" class="formfld" size="1" maxlength="1" value="'.$actzdj['cat'].'"></label><input type="hidden" name="id" value="'.$actzdj['id'].'"> <input type="submit" name="submit" value="Zapisz" class="formbtn" id="zdjeditgru" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form></td></tr>');
@@ -2134,7 +2223,7 @@ switch($id){
 					echo('<div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\''.$actzdj['path'].'\');width:'.$imsize[0].'px;height:'.$imsize[1].'px;"></td></tr>');
 					echo('<input type="hidden" name="zdjname" value="'.$actzdj['path'].'"><input type="hidden" name="rok" value="'.$actzdj['rok'].'">');
 					echo('<tr><td valign="top"><select class="selectspecial" id="kto" name="kto" width="50%"><option value="0">Nieznany</option>');
-					$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie,ur;');
+					$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie,ur;');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
 						$row=mysql_fetch_assoc($res);
 						echo('<option value="'.$row['id'].'">');
@@ -2146,7 +2235,7 @@ switch($id){
 						echo('<input type="text" name="posx'.$i.'" size="4" class="formfld" value="0"><input type="text" name="posy'.$i.'" size="4" class="formfld" value="0"><br>');
 					}
 					echo('<input type="submit" name="submit" class="formbtn" value="Dodaj" id="dodosdozdj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td><td>');
-					$dous=mysql_fetch_assoc(mysql_query('select osoby,coords from zdjecia where path like "%'.htmlspecialchars($id2).'%";'));
+					$dous=mysql_fetch_assoc(mysqlquerryc('select osoby,coords from zdjecia where path like "%'.htmlspecialchars($id2).'%";'));
 					$oso=explode(',',$dous['osoby']);
 					for($i=0;$i<(floor(count($oso))+1);$i+=1){
 						if($oso[$i]!=0){
@@ -2166,7 +2255,7 @@ switch($id){
 			else echo('<p class="alert">'.$lang[$lng][213].'</p>');
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania ludzi do zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania ludzi do zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2194,7 +2283,7 @@ switch($id){
 							echo('<form name="stg2" action="'.$thisfile.'?zdjgru-add" method="POST"><table border="0"><tr><td><div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\'gfx/'.$newname.'.jpg\');width:'.$width_duz.'px;height:'.$nih.'px;"></td></tr>');
 							echo('<input type="hidden" name="zdjname" value="'.$newname.'"><input type="hidden" name="rok" value="'.$_POST['rok'].'"><input type="hidden" name="opis" value="'.$_POST['opis'].'">');
 							echo('<tr><td><select class="selectspecial" id="kto1" name="kto1"><option value="0">'.$lang[$lng][113].'</option>');
-							$res=mysql_query('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie');
+							$res=mysqlquerryc('select id,imie,nazwisko,ur,pok from ludzie order by nazwisko,imie');
 							for($i=0;$i<mysql_num_rows($res);$i+=1){
 								$row=mysql_fetch_assoc($res);
 								echo('<option value="'.$row['id'].'">');
@@ -2224,8 +2313,8 @@ switch($id){
 								}
 							}
 							$q.='";';
-							if(mysql_query($q)){
-								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcia grupowe '.htmlspecialchars($_POST['zdjname']).'", time="'.date("Y-m-d H:i:s").'";');
+							if(mysqlquerryc($q)){
+								mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Dodano zdjęcia grupowe '.htmlspecialchars($_POST['zdjname']).'", time="'.date("Y-m-d H:i:s").'";');
 								echo('<p class="ok">Poprawnie dodano zdjęcie</p><a href="'.$thisfile.'?zdjgru-dodos,'.$_POST['zdjname'].'">Dodaj jeszcze jedną osobę do tego zdjęcia</a>');
 							}
 							else echo('<p class="alert">'.$lang[$lng][175].'</p>');
@@ -2242,12 +2331,12 @@ switch($id){
 				}
 			}
 			else{
-				mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+				mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba dodania zdjęcia grupowego, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 				echo('<p class="alert">'.$lang[$lng][41].'</p>');
 			}
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Dodawania zdjęć grupowych, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2260,16 +2349,16 @@ switch($id){
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 					if(isset($_POST['del'])){
 						if(preg_match('#,picdel,#',$currentuser['flags'])){
-							$zdjdel=mysql_fetch_assoc(mysql_query('select * from zdjecia where id='.$_POST['id'].';'));
-							if(mysql_query('delete from zdjecia where id='.$_POST['id'].';')){
+							$zdjdel=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where id='.$_POST['id'].';'));
+							if(mysqlquerryc('delete from zdjecia where id='.$_POST['id'].';')){
 								unlink($zdjdel['path']);
 								echo('<p class="ok">'.$lang[$lng][159].'</p>');
-								mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie", time="'.date("Y-m-d H:i:s").'";');
+								mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Usunięto zdjęcie", time="'.date("Y-m-d H:i:s").'";');
 							}
 							else echo('<p class="alert">'.$lang[$lng][160].'</p>');
 						}
 						else{
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia '.$zdjdel['path'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba usunięcia zdjęcia '.$zdjdel['path'].', mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 							echo('<p class="alert">'.$lang[$lng][43].'</p>');
 						}
 					}
@@ -2282,8 +2371,8 @@ switch($id){
 								if(isset($_POST['komunia'])) $q.=', komunia=1';
 								else $q.=', komunia=0';
 								$q.=' where id='.$_POST['id'].';';
-								if(mysql_query($q)){
-									mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia", time="'.date("Y-m-d H:i:s").'";');
+								if(mysqlquerryc($q)){
+									mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Edycja zdjęcia", time="'.date("Y-m-d H:i:s").'";');
 									echo('<p class="ok">'.$lang[$lng][162].'</p>');
 								}
 								else echo('<p class="alert">'.$lang[$lng][163].'</p>');
@@ -2291,14 +2380,14 @@ switch($id){
 							else echo('<p class="alert">'.$lang[$lng][161].'</p>');
 						}
 						else{
-							mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjecia, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
+							mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Próba edycji zdjecia, mimo braku uprawnień", time="'.date("Y-m-d H:i:s").'";');
 							echo('<p class="alert">'.$lang[$lng][45].'</p>');
 						}
 					}
 				}
-				mysql_query('insert into logs set user="niezalogowany", action="Wyświetlenie wszystkich zdjęć '.linkujludzia($id2,2).', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
+				mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie wszystkich zdjęć '.linkujludzia($id2,2).', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 				echo('<h3>'.linkujludzia($id2,2).' - '.$lang[$lng][166].'</h3>');
-				$res=mysql_query('select * from zdjecia where osoby="'.htmlspecialchars($id2).'" order by rok desc,id desc;');
+				$res=mysqlquerryc('select * from zdjecia where osoby="'.htmlspecialchars($id2).'" order by rok desc,id desc;');
 				echo('<table border="0">');
 				for($i=0;$i<mysql_num_rows($res);$i+=1){
 					$row=mysql_fetch_assoc($res);
@@ -2322,7 +2411,7 @@ switch($id){
 					echo('</td></tr>');
 				}
 				echo('</table>');
-				$zdjgru=mysql_query('select * from zdjecia where osoby like "%,'.htmlspecialchars($id2).',%" order by rok;');
+				$zdjgru=mysqlquerryc('select * from zdjecia where osoby like "%,'.htmlspecialchars($id2).',%" order by rok;');
 				if(mysql_num_rows($zdjgru)>0){
 					echo('<hr><h3>'.$lang[$lng][182].':</h3>');
 					for($l=0;$l<mysql_num_rows($zdjgru);$l+=1){
@@ -2343,20 +2432,20 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(($id2=='edit')&preg_match('#,useredit,#',$currentuser['flags'])){
 				if(isset($_POST['edit'])){
-					if(mysql_query('update users set name="'.$_POST['name'].'", pass="'.$_POST['pass'].'", flags="'.$_POST['flags'].'" where id='.$_POST['id'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
+					if(mysqlquerryc('update users set name="'.$_POST['name'].'", pass="'.$_POST['pass'].'", flags="'.$_POST['flags'].'" where id='.$_POST['id'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
 					else echo('<p class="alert">Nie udało się zmienić</p>');
 				}
 				if(isset($_POST['del'])){
 					if($_POST['id']==$currentuser['id']) echo('<p class="alert">Nie możesz usunąć siebie!</p>');
 					else{
-						if(mysql_query('delete from users where id='.htmlspecialchars($_POST['id']).';')) echo('<p class="ok">Poprawnie usunięto użytkownika</p>');
+						if(mysqlquerryc('delete from users where id='.htmlspecialchars($_POST['id']).';')) echo('<p class="ok">Poprawnie usunięto użytkownika</p>');
 						else echo('<p class="alert">Nie udało się usunąć uzytkownika</p>');
 					}
 				}
 			}
 			if(($id2=='add')&preg_match('#,useradd,#',$currentuser['flags'])){
 				if(isset($_POST['submit'])){
-					if(mysql_query('insert into users set name="'.htmlspecialchars($_POST['newname']).'", pass="'.md5(htmlspecialchars($_POST['newpass']).'dupa').'", flags="0,0";')) echo('<p class="ok">Poprawnie dodano użytkownika</p>');
+					if(mysqlquerryc('insert into users set name="'.htmlspecialchars($_POST['newname']).'", pass="'.md5(htmlspecialchars($_POST['newpass']).'dupa').'", flags="0,0";')) echo('<p class="ok">Poprawnie dodano użytkownika</p>');
 					else echo('<p class="alert">Nie udało się dodać użytkownika</p>');
 				}
 				else{
@@ -2364,7 +2453,7 @@ switch($id){
 				}
 			}
 			echo('<p><a href="'.$thisfile.'?users,add">Dodaj nowego użytkownika</a></p>');
-			$res=mysql_query('select * from users');
+			$res=mysqlquerryc('select * from users');
 			echo('<table border="1"><tr><td>name</td><td>hash</td><td>flags</td><td>actions</td></tr>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -2374,7 +2463,7 @@ switch($id){
 			echo('</table>');
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Użytkowników, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Użytkowników, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2384,11 +2473,11 @@ switch($id){
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(isset($_POST['submit'])){
-				if(mysql_query('update settings set edit_pp='.htmlspecialchars($_POST['edit_pp']).', site_name="'.htmlspecialchars($_POST['site_name']).'", main_opis="'.strip_tags($_POST['main_opis'],'<a><b><i><u>').'", all_podmenu="'.strip_tags($_POST['all_podmenu'],'<a><b><i><u>').'", about="'.strip_tags($_POST['about'],'<a><b><i><u><table><tr><td><img><li><center><p><h3><br>').'", admin_mail="'.$_POST['admin_mail'].'", stats_ll='.$_POST['stats_ll'].';')){
+				if(mysqlquerryc('update settings set edit_pp='.htmlspecialchars($_POST['edit_pp']).', site_name="'.htmlspecialchars($_POST['site_name']).'", main_opis="'.strip_tags($_POST['main_opis'],'<a><b><i><u>').'", all_podmenu="'.strip_tags($_POST['all_podmenu'],'<a><b><i><u>').'", about="'.strip_tags($_POST['about'],'<a><b><i><u><table><tr><td><img><li><center><p><h3><br>').'", admin_mail="'.$_POST['admin_mail'].'", stats_ll='.$_POST['stats_ll'].';')){
 					echo('<p class="ok">'.$lang[$lng][155].'</p><script type="text/javascript">
 					document.location="'.$thisfile.'?settings";
 					</script>');
-					mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmiana ustawień", time="'.date("Y-m-d H:i:s").'";');
+					mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Zmiana ustawień", time="'.date("Y-m-d H:i:s").'";');
 				}
 				else echo('<p class="alert">'.$lang[$lng][157].'</p>');
 			}
@@ -2401,7 +2490,7 @@ switch($id){
 			echo('<tr><td colspan="2" align="center"><input type="submit" name="submit" value="'.$lang[$lng][173].'" id="settzapisz" class="formbtn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></tr></table></form>');
 		}
 		else{
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Ustawień, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Ustawień, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
 		}
 		html_end();
@@ -2411,10 +2500,10 @@ switch($id){
 		html_start();
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
 			if(strlen($id3)<1) $id3=0;
-			$il=mysql_fetch_array(mysql_query('select count(*) from logs where user like "%'.$id2.'%" and action not like "%66.249.%" and action not like "%81.15.212.181%";'));
+			$il=mysql_fetch_array(mysqlquerryc('select count(*) from logs where user like "%'.$id2.'%" and action not like "%66.249.%" and action not like "%81.15.212.181%";'));
 			$ilstr=floor($il[0]/200)+1;
-			$res=mysql_query('select * from logs where user like "%'.$id2.'%" and action not like "%66.249.%" and action not like "%81.15.212.181%" order by time desc limit '.($id3*200).',200;');
-			$res2=mysql_query('select distinct(user) as users from logs;');
+			$res=mysqlquerryc('select * from logs where user like "%'.$id2.'%" and action not like "%66.249.%" and action not like "%81.15.212.181%" order by time desc limit '.($id3*200).',200;');
+			$res2=mysqlquerryc('select distinct(user) as users from logs;');
 			echo('<center><table border="1"><tr><td colspan="3">');
 			if($id3>=1) echo('<a href="'.$thisfile.'?logs,'.$id2.','.($id3-1).'">-◄'.$lang[$lng][164].'-</a>');
 			if($id3==0) echo('<b>');
@@ -2450,7 +2539,7 @@ switch($id){
 		}
 		else{
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Logów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Logów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		}
 		html_end();
 		break;
@@ -2460,17 +2549,17 @@ switch($id){
 		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu3view,#',$currentuser['flags']))){
 			if(($id2=='edit')&preg_match('#,banedit,#',$currentuser['flags'])){
 				if(isset($_POST['edit'])){
-					if(mysql_query('update banip set owner="'.$_POST['owner'].'", reason="'.$_POST['reason'].'" where ip='.$_POST['ip'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
+					if(mysqlquerryc('update banip set owner="'.$_POST['owner'].'", reason="'.$_POST['reason'].'" where ip='.$_POST['ip'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
 					else echo('<p class="alert">Nie udało się zmienić</p>');
 				}
 				if(isset($_POST['del'])){
-					if(mysql_query('delete from ipban where ip='.htmlspecialchars($_POST['ip']).';')) echo('<p class="ok">Poprawnie usunięto bana z ip</p>');
+					if(mysqlquerryc('delete from ipban where ip='.htmlspecialchars($_POST['ip']).';')) echo('<p class="ok">Poprawnie usunięto bana z ip</p>');
 					else echo('<p class="alert">Nie udało się usunąć uzytkownika</p>');
 				}
 			}
 			if(($id2=='add')&preg_match('#,banadd,#',$currentuser['flags'])){
 				if(isset($_POST['submit'])){
-					if(mysql_query('insert into banip set ip="'.htmlspecialchars($_POST['newip']).'", owner="'.htmlspecialchars($_POST['newowner']).'", reason="'.htmlspecialchars($_POST['newreason']).'", date="'.date('Y-m-d').'";')) echo('<p class="ok">Poprawnie dodano bana</p>');
+					if(mysqlquerryc('insert into banip set ip="'.htmlspecialchars($_POST['newip']).'", owner="'.htmlspecialchars($_POST['newowner']).'", reason="'.htmlspecialchars($_POST['newreason']).'", date="'.date('Y-m-d').'";')) echo('<p class="ok">Poprawnie dodano bana</p>');
 					else echo('<p class="alert">Nie udało się dodać bana</p>');
 				}
 				else{
@@ -2478,7 +2567,7 @@ switch($id){
 				}
 			}
 			echo('<p><a href="'.$thisfile.'?ipban,add">Dodaj nowego użytkownika</a></p>');
-			$res=mysql_query('select * from banip');
+			$res=mysqlquerryc('select * from banip');
 			echo('<table border="1"><tr><td>ip</td><td>owner</td><td>reason</td><td>date</td><td>actions</td></tr>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
@@ -2489,7 +2578,7 @@ switch($id){
 		}
 		else{
 			echo('<p class="alert">'.$lang[$lng][179].' <a href="'.$thisfile.'?login">'.$lang[$lng][180].'</a></p>');
-			mysql_query('insert into logs set user="niezalogowany", action="Próba dostępu do Listy Banów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+			mysqlquerryc('insert into logs set user="niezalogowany", action="Próba dostępu do Listy Banów, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		}
 		html_end();
 		break;
@@ -2530,8 +2619,8 @@ switch($id){
 	}
 	default:{
 		html_start();
-		if(isset($_COOKIE['zal'])&checkname()) mysql_query('insert into logs set user="'.$_COOKIE['zal'].'", action="Spowodował 404", time="'.date("Y-m-d H:i:s").'";');
-		else mysql_query('insert into logs set user="niezalogowany", action="Spowodował 404, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
+		if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Spowodował 404", time="'.date("Y-m-d H:i:s").'";');
+		else mysqlquerryc('insert into logs set user="niezalogowany", action="Spowodował 404, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'";');
 		echo('<p class="alert">404: '.$lang[$lng][89].'</p>');
 		html_end();
 	}

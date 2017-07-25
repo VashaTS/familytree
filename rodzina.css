@@ -10,7 +10,7 @@ a.dlink:hover{color:#9900cc;}
 a.nvperson{color: yellow; text-shadow: 0 0 4px white,0 0 7px black;}
 a.nvperson:hover{color: red; text-shadow: 0 0 4px white,0 0 7px white;}
 
-td{padding-left:20px; padding-right:20px; padding-top:5px;}
+td.treeui{padding-left:20px; padding-right:20px; padding-top:5px;}
 
 img.lud{margin:10px;}
 
