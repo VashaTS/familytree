@@ -1,10 +1,10 @@
 <?php
 // drzewo genealogiczne
-$lng='pl';
+$lng='pl'; //default language
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.5b';
-// 2017-07-26
+$ver='1.5c';
+// 2017-09-23
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','300M'); //mostly used by treegen2
 error_reporting( E_ALL );
@@ -906,11 +906,12 @@ switch($id){
 	case 'search':{
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()){
+			if(strlen($id2)>2) $_POST['q1']=$id2;
+			if(strlen($id3)>2) $_POST['q2']=$id3;
 			echo('<p><b>'.$lang[$lng][57].'</b><form name="search" method="POST" action="'.$thisfile.'?search"><center><table border="0"><tr><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>&nbsp;</td></tr><tr><td><input class="formfld" type="text" name="q1" value="'.$_POST['q1'].'"></td><td><input class="formfld" type="text" name="q2" value="'.$_POST['q2'].'"></td><td><input class="formbtn" id="szukaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="'.$lang[$lng][3].'"></td></tr><tr><td align="center" colspan="2"><label><input class="formfld" type="checkbox" name="exact" value="1"');
 			if(isset($_POST['exact'])) echo(' checked="checked"');
 			echo('>'.$lang[$lng][58].'</label></td><td>&nbsp;</td></tr></table></center></form></p><br>');
-			if(strlen($id2)>2) $_POST['q1']=$id2;
-			if(strlen($id3)>2) $_POST['q2']=$id3;
+			
 			if(isset($_POST['q1'])|isset($_POST['q2'])){
 				if(isset($_POST['exact'])){
 					if((strlen($_POST['q1'])>0)&(strlen($_POST['q2'])>0)){
@@ -1030,7 +1031,7 @@ switch($id){
 		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
 		if(!file_exists($fnam)){  //use existing file if number of people didnt change
 			$a1=Array();
-			for($dz=0;$dz<=110;$dz+=1) $a1[$dz]=0;
+			for($dz=0;$dz<=100;$dz+=1) $a1[$dz]=0;
 			for($i1=0;$i1<mysql_num_rows($q1);$i1+=1){
 				$r1=mysql_fetch_assoc($q1);
 				$latc=($r1['zm']-$r1['ur']);
@@ -1038,7 +1039,7 @@ switch($id){
 			}
 			ksort($a1);
 			$colwidth=15;
-			$imgw=50+(110*$colwidth);
+			$imgw=50+(100*$colwidth);
 			$imgh=250;
 			$img=imagecreatetruecolor($imgw,$imgh);
 			$black=imagecolorallocate($img,0,0,0);
@@ -1050,8 +1051,8 @@ switch($id){
 			imagestring($img,2,10,5,max($a1),$white); //max number on Y axis
 			imagestring($img,2,10,((($imgh-50)/2)+5),round(max($a1)/2,0),$white); //half number on Y axis
 			foreach($a1 as $k => $v){
-				imagestring($img,1,(50+($k*$colwidth)+($colwidth/2)),($imgh-19),$k,$white);
-				imagefilledrectangle($img,(51+($k*$colwidth)),($imgh-21),(49+(($k+1)*$colwidth)),(($imgh-20)-(($v/max($a1))*($imgh-20))-1),$blue);
+				imagestring($img,1,(50+($k*$colwidth)+($colwidth/2)),($imgh-19),$k,$white); //number on X axis
+				imagefilledrectangle($img,(51+($k*$colwidth)),($imgh-21),(49+(($k+1)*$colwidth)),(($imgh-20)-(($v/max($a1))*($imgh-20))-1),$blue); //actual number of people
 			}
 			imagepng($img,$fnam);
 		}
@@ -1927,7 +1928,7 @@ switch($id){
 			mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie rocznika '.$id2.', z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
 			echo('<h2><a href="'.$thisfile.'?rocznik,'.($id2-1).'">◄ '.($id2-1).'</a> <big>'.$id2.'</big> <a href="'.$thisfile.'?rocznik,'.($id2+1).'">'.($id2+1).' ►</a></h2>');
 			echo('<form name="rocznik" action="'.$thisfile.'?rocznik" method="POST"><input class="formfld" type="text" id="rok" name="rok"><button class="formbtn" id="przejdz" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);" type="button" name="b1" value="Pokaż">'.$lang[$lng][111].'</button></form><br>');
-			if(strlen($id2)==4){
+			if(is_numeric($id2)){
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where ur='.htmlspecialchars($id2).' order by imie,nazwisko;'); //born in year $id2
 				else $res=mysqlquerryc('select id from ludzie where visible=1 and ur='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
@@ -1955,6 +1956,16 @@ switch($id){
 						echo('<a href="'.$thisfile.'?zdjgru1,'.$row['id'].'" title="'.$row['opis'].'"><img border="2" src="'.$pth[0].'m.jpg" class="lud"></a>');
 					}
 				}
+			}
+			else{
+				$num_im=mysqlquerryc('select id from ludzie where imie like "%'.htmlspecialchars($id2).'%";');
+				$num_naz=mysqlquerryc('select id from ludzie where nazwisko like "%'.htmlspecialchars($id2).'%";');
+				//echo(mysql_num_rows($num_im).'_'.mysql_num_rows($num_naz));
+				echo('<script type="text/javascript">
+					document.location="'.$thisfile.'?search,');
+				if(mysql_num_rows($num_im)>mysql_num_rows($num_naz)) echo($id2.',');
+				else echo(','.$id2);	
+				echo('";</script>');
 			}
 		}
 		html_end();
