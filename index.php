@@ -3,8 +3,8 @@
 $lng='pl'; //default language
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='1.5c';
-// 2017-09-23
+$ver='1.5d';
+// 2017-11-11
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','300M'); //mostly used by treegen2
 error_reporting( E_ALL );
@@ -221,7 +221,7 @@ switch($id){
 		if(isset($lang[$id2])){
 			setcookie('lan',$id2,(time()+60*60*24*61));
 			html_start();
-			echo('<p class="ok">Login OK</p><script type="text/javascript">
+			echo('<p class="ok">Language change OK</p><script type="text/javascript">
 			document.location="'.$thisfile.'?'.$id3.','.$id4.','.$id5.'";
 			</script>');
 			html_end();
@@ -2443,7 +2443,7 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(($id2=='edit')&preg_match('#,useredit,#',$currentuser['flags'])){
 				if(isset($_POST['edit'])){
-					if(mysqlquerryc('update users set name="'.$_POST['name'].'", pass="'.$_POST['pass'].'", flags="'.$_POST['flags'].'" where id='.$_POST['id'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
+					if(mysqlquerryc('update users set name="'.$_POST['name'].'", pass="'.$_POST['pass'].'", flags="'.$_POST['flags'].'", description="'.$_POST['descr'].'" where id='.$_POST['id'].';')) echo('<p class="ok">Poprawnie zmieniono</p>');
 					else echo('<p class="alert">Nie udało się zmienić</p>');
 				}
 				if(isset($_POST['del'])){
@@ -2465,11 +2465,11 @@ switch($id){
 			}
 			echo('<p><a href="'.$thisfile.'?users,add">Dodaj nowego użytkownika</a></p>');
 			$res=mysqlquerryc('select * from users');
-			echo('<table border="1"><tr><td>name</td><td>hash</td><td>flags</td><td>actions</td></tr>');
+			echo('<table border="1"><tr><td>name</td><td>hash</td><td>flags</td><td>description</td><td>actions</td></tr>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
-				if(preg_match('#,useredit,#',$currentuser['flags'])) echo('<tr><form method="POST" name="user-'.$row['name'].'" action="'.$thisfile.'?users,edit"><input type="hidden" name="id" value="'.$row['id'].'"><td><input type="text" name="name" class="formfld" value="'.$row['name'].'" size="10"></td><td><input type="text" name="pass" value="'.$row['pass'].'" size="32" class="formfld"></td><td><input type="text" name="flags" value="'.$row['flags'].'" class="formfld" size="120"></td><td><input type="submit" name="edit" value="Edytuj" class="formbtn" id="user-'.$row['id'].'-edit" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"> <input type="submit" name="del" value="Usuń" class="formbtn" id="user-'.$row['id'].'-del" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></form></tr>');
-				else echo('<tr><td>'.$row['name'].'</td><td>'.$row['pass'].'</td><td>'.$row['flags'].'</td><td>brak</td></tr>');
+				if(preg_match('#,useredit,#',$currentuser['flags'])) echo('<tr><form method="POST" name="user-'.$row['name'].'" action="'.$thisfile.'?users,edit"><input type="hidden" name="id" value="'.$row['id'].'"><td><input type="text" name="name" class="formfld" value="'.$row['name'].'" size="10"></td><td><input type="text" name="pass" value="'.$row['pass'].'" size="32" class="formfld"></td><td><input type="text" name="flags" value="'.$row['flags'].'" class="formfld" size="120"></td><td><input type="text" name="descr" value="'.$row['description'].'" class="formfld" size="50"></td><td><input type="submit" name="edit" value="Edytuj" class="formbtn" id="user-'.$row['id'].'-edit" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"> <input type="submit" name="del" value="Usuń" class="formbtn" id="user-'.$row['id'].'-del" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></td></form></tr>');
+				else echo('<tr><td>'.$row['name'].'</td><td>'.$row['pass'].'</td><td>'.$row['flags'].'</td><td>'.$row['description'].'</td><td>brak</td></tr>');
 			}
 			echo('</table>');
 		}
