@@ -3,7 +3,7 @@
 $lng='pl'; //default language
 if(isset($_COOKIE['lan'])) $lng=$_COOKIE['lan']; 
 include('lang.php');
-$ver='2.0';
+$ver='1.5d';
 // 2017-11-11
 ini_set( 'display_errors', 'Off' );
 ini_set('memory_limit','300M'); //mostly used by treegen2
@@ -13,7 +13,7 @@ mysql_query('SET NAMES utf-8');
 $settings=mysql_fetch_assoc(mysql_query('select * from settings'));
 if(isset($_COOKIE['zal'])){
 	setcookie('zal',$_COOKIE['zal'],(time()+60*10));
-	$currentuser=mysql_fetch_assoc(mysql_query('select id,flags,name from users where name="'.$_COOKIE['zal'].'" limit 1;')); //this is a global varrible used by functions!
+	$currentuser=mysql_fetch_assoc(mysql_query('select id,flags from users where name="'.$_COOKIE['zal'].'" limit 1;')); //this is a global varrible used by functions!
 }
 require('fpdf/fpdf.php');
 class PDF extends FPDF { 
@@ -38,8 +38,7 @@ class PDF extends FPDF {
 }
 
 $request=explode('?',$_SERVER['REQUEST_URI']);
-$thisfile='index.php';
-$old_ver_filename='index_old.php';
+$thisfile='index_old.php';
 $vars=explode(',',$request[1]);
 if(strlen($vars[0])>2) $id=$vars[0];
 else $id='main';
@@ -63,44 +62,29 @@ $jestans=0; // global var for pokr function
 function html_start(){
 	global $ver,$settings,$currentuser,$lang,$lng,$id,$id2,$id3,$qc;
 	header("Content-Type: text/html; charset=UTF-8");
-	echo('<!DOCTYPE HTML>
-<!--
-	Dimension by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<title>'.$lang[$lng][1]);
+	echo('<html><head><title>'.$lang[$lng][1]);
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo(' v'.$ver);
-	echo('</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link href="select2.css" rel="stylesheet" />
-		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	echo('</title><link rel="stylesheet" type="text/css" href="rodzina.css" />
 		<script type="text/javascript" src="rodzina.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-	<script type="text/javascript" src="cvi_map_lib.js"></script>	
-		</script></head><body>');
-		//
-			
-		//echo('<p>');
-		//if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
-		//else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
-		//<map name="logomap" id="logomap"><area title="'.$settings['site_name'].'" shape="poly" href="'.$thisfile.'?main" coords="11,177,632,177,633,211,686,211,685,181,792,176,778,15,738,31,742,65,666,67,634,81,636,135,576,138,561,68,475,62,463,14,431,29,439,67,87,63,87,12,22,15,1,80"></map>');
-		echo('<!-- Wrapper -->
-			<div id="wrapper">');
-		
-		echo('		<!-- Header -->
-					<header id="header">
-						<div class="logo">
-						<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].'</a></h1>
-						</div>
-						<nav>
-							<ul>');
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<script type="text/javascript">
+		$(document).ready(function(){
+		$(\'img[usemap]\').maphilight();
+		});
+		');
+		echo('</script></head><body>');
+			echo('<div style="float:right; border:none; vertical-align:center;">');
+			foreach($lang as $k1 => $v1){
+				echo('<a href="'.$thisfile.'?set-lang,'.$k1.','.$id.','.$id2.','.$id3.'"><img border="1" src="flags/'.$k1.'.png"></a>');
+			}
+			echo('</div><br><br><br>');
+		echo('<p>');
+		if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<h1><a href="'.$thisfile.'?main">'.$settings['site_name'].': '.$lang[$lng][2].'</a></h1>'); 
+		else echo('<img usemap="#logomap" src="logo.png"><br></p><div class="all">
+		<map name="logomap" id="logomap"><area title="'.$settings['site_name'].'" shape="poly" href="'.$thisfile.'?main" coords="11,177,632,177,633,211,686,211,685,181,792,176,778,15,738,31,742,65,666,67,634,81,636,135,576,138,561,68,475,62,463,14,431,29,439,67,87,63,87,12,22,15,1,80"></map>');
 	$menus=Array();
 	$menus['search']=$lang[$lng][3]; //search
 	$menus['stats']=$lang[$lng][4]; //stats
@@ -121,65 +105,29 @@ function html_start(){
 	$menus3['md5']='MD5';
 	$menus3['404']='404';
 	$menus3['files']=$lang[$lng][16];  
-	$menus3['b1']='&nbsp;'; //for future use
-	$menus3['b2']='&nbsp;';
-	$menus3['b3']='&nbsp;';
-	if(isset($_COOKIE['zal'])&checkname()) $menus['profile']='&#x1F464; '.$currentuser['name'];
+	if(isset($_COOKIE['zal'])&checkname()) $menus['logout']=$lang[$lng][17];
 	else $menus['login']=$lang[$lng][18];
-	foreach($menus as $k => $v) echo('<li><a href="'.$thisfile.'?'.$k.'">'.$v.'</a></li>');
-	echo('</ul>');
+	echo('<div id="men1" class="menu" style="border:hidden; width:'.((count($menus)*110)+20).'px; background-color: #ffcc99; margin:auto; padding:0px; height: 30px; text-align:center; ">');
+	foreach($menus as $k => $v) echo('<div class="mbox" onmouseover="highl(this.id)" onmouseout="downl(this.id)" onclick="menuclick(this.id)" id="'.$k.'"><p id="'.$k.'_p" class="menu">'.$v.'</p></div>');
+	echo('</div>');
 	if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))){
-		echo('<ul>');
-		foreach($menus2 as $k => $v) echo('<li><a href="'.$thisfile.'?'.$k.'">'.$v.'</a></li>');
-		echo('</ul>');
+		echo('<div id="men2" class="menu" style="border:hidden; width:'.((count($menus2)*110)+20).'px; background-color: #ffcc99; margin:auto; padding:0px; height: 30px; text-align:center; ">');
+		foreach($menus2 as $k => $v) echo('<div class="mbox" onmouseover="highl(this.id)" onmouseout="downl(this.id)" onclick="menuclick(this.id)" id="'.$k.'"><p id="'.$k.'_p" class="menu">'.$v.'</p></div>');
+		echo('</div>');
 		if(preg_match('#,menu3view,#',$currentuser['flags'])){
-			echo('<ul>');
-			foreach($menus3 as $k => $v)echo('<li><a href="'.$thisfile.'?'.$k.'">'.$v.'</a></li>');
-			echo('</ul>');
+			echo('<div id="men3" class="menu" style="border:hidden; width:'.((count($menus3)*110)+20).'px; background-color: #ffcc99; margin:auto; padding:0px; height: 30px; text-align:center; ">');
+			foreach($menus3 as $k => $v) echo('<div class="mbox" onmouseover="highl(this.id)" onmouseout="downl(this.id)" onclick="menuclick(this.id)" id="'.$k.'"><p id="'.$k.'_p" class="menu">'.$v.'</p></div>');
+			echo('</div><br>');
 		}
 	}
-	echo('</nav>
-						<div class="content">
-							<div class="inner">');
+	echo('<p><a href="index.php?kontakt">'.$lang[$lng][112].'</a></p><hr>');
 	if(isset($_COOKIE['pokr'])&($_COOKIE['pokr']!=0)) echo('<p class="ok">'.$lang[$lng][19].' <a href="'.$thisfile.'?pokr,del">'.$lang[$lng][20].'</a></p>');
 	unset($menus,$menus2,$menus3);
 }
-function html_end($added_articles=' '){ //+google ad & analytics
+function html_end(){ //+google ad & analytics
 	global $ver,$lang,$lng,$qc;
-	echo('</div>
-						</div>
-					</header>
-					<!-- Main -->
-					<div id="main">
-
-							<article id="kontakt">');
-								echo('<h3>'.$lang[$lng][136].':</h3>
-		<p>'.$lang[$lng][137].':<center><table border="0"><tr><td><li>'.$lang[$lng][138].'</li><li>'.$lang[$lng][139].'</li> <li>'.$lang[$lng][140].'</li></td></tr></table> </center></p>
-		<p><form name="kont" action="'.$thisfile.'?kontakt" method="POST"><label>'.$lang[$lng][141].': <input type="text" name="imie" size="40"></label><br><textarea name="tresc" rows="6" cols="60" class="formfld"></textarea><br><label>email: <input type="text" name="email" class="formfld"></label><br>
-		<input type="submit" name="submit" value="'.$lang[$lng][142].'" class="formbtn" id="wyslijopinie"></form></p>');
-							echo('</article>
-							<article id="cookies">
-							<h3>'.$lang[$lng][195].'</h3>
-							<p>'.$lang[$lng][194].'</p>
-							</article>');
-							echo($added_articles);
-					echo('</div>
-					<!-- Footer -->
-					<footer id="footer">
-						<p class="copyright">'.$lang[$lng][1].' v'.$ver.' 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a> | <a href="#cookies">'.$lang[$lng][195].'</a> | '.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB | Zapytań SQL: '.$qc.' | Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
-					</footer>
-			</div>
-
-		<!-- BG -->
-			<div id="bg"></div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-');
-if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
+	echo('<hr><font size="1">'.$lang[$lng][1].' v'.$ver.' Copyleft 2012-'.date('Y').'. <a href="https://github.com/VashaTS/familytree">GitHub</a> | <a href="'.$thisfile.'?cookies">'.$lang[$lng][195].'</a> | '.$lang[$lng][226].': '.round(memory_get_peak_usage()/1024/1024,2).' MiB | Zapytań SQL: '.$qc.'</font><br></div><p>');
+	if(!isset($_COOKIE['zal'])) echo('<script type="text/javascript"><!--
 google_ad_client = "ca-pub-5875141216022917";
 /* famula_dol */
 google_ad_slot = "4849225326";
@@ -205,9 +153,7 @@ echo("
   })();
 
 </script>");
-echo('
-	</body>
-</html>');
+	echo('</p></body></html>');
 }
 
 //IF($_SERVER['REMOTE_ADDR']!='81.15.212.181') $id='404';  // UNCOMMENT TO MAKE LOCAL -- EMERGENCY USE ONLY
@@ -292,7 +238,7 @@ switch($id){
 			$res=mysqlquerryc('select * from users where name="'.htmlspecialchars($_POST['login']).'";');
 			if(mysql_num_rows($res)==1){
 				$row=mysql_fetch_assoc($res);
-				if((md5($_POST['pass'].'dupa')==$row['pass'])|(hash('sha256',$_POST['pass'].'dupa')==$row['pass'])){
+				if(md5($_POST['pass'].'dupa')==$row['pass']){
 					$randval=md5(md5(rand(100,99999999)));
 					if(mysqlquerryc('update users set ssid="'.$randval.'" where id='.$row['id'].';')){
 						setcookie('zal',$row['name'],(time()+60*5));
@@ -962,9 +908,9 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			if(strlen($id2)>2) $_POST['q1']=$id2;
 			if(strlen($id3)>2) $_POST['q2']=$id3;
-			echo('<p><b>'.$lang[$lng][57].'</b><form name="search" method="POST" action="'.$thisfile.'?search"><center><table border="0"><tr><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>&nbsp;</td></tr><tr><td><input type="text" name="q1" value="'.$_POST['q1'].'"></td><td><input type="text" name="q2" value="'.$_POST['q2'].'"></td><td><input id="szukaj" type="submit" name="submit" value="'.$lang[$lng][3].'"></td></tr><tr><td align="center" colspan="2"><div class="field half"><input type="checkbox" id="exactid" name="exact" value="1"');
+			echo('<p><b>'.$lang[$lng][57].'</b><form name="search" method="POST" action="'.$thisfile.'?search"><center><table border="0"><tr><td>'.$lang[$lng][59].'</td><td>'.$lang[$lng][60].'</td><td>&nbsp;</td></tr><tr><td><input class="formfld" type="text" name="q1" value="'.$_POST['q1'].'"></td><td><input class="formfld" type="text" name="q2" value="'.$_POST['q2'].'"></td><td><input class="formbtn" id="szukaj" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" type="submit" name="submit" value="'.$lang[$lng][3].'"></td></tr><tr><td align="center" colspan="2"><label><input class="formfld" type="checkbox" name="exact" value="1"');
 			if(isset($_POST['exact'])) echo(' checked="checked"');
-			echo('><label for="exactid">'.$lang[$lng][58].'</label></div></td><td>&nbsp;</td></tr></table></center></form></p><br>');
+			echo('>'.$lang[$lng][58].'</label></td><td>&nbsp;</td></tr></table></center></form></p><br>');
 			
 			if(isset($_POST['q1'])|isset($_POST['q2'])){
 				if(isset($_POST['exact'])){
@@ -1017,7 +963,7 @@ switch($id){
 				$maxlength=mysql_fetch_assoc($maxl);
 				echo('<p><a href="'.$thisfile.'?pokaz,one,'.$maxlength['id'].'">'.$maxlength['imie'].' '.$maxlength['nazwisko'].'</a> ('.$maxlength['ur'].'-'.$maxlength['zm'].') - '.$maxlength['wiek'].' '.$lang[$lng][94].'</p>');
 			}
-			echo('<br><h3>'.$lang[$lng][93].':</h3>'); //most children
+			echo('<h3>'.$lang[$lng][93].':</h3>'); //most children
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select distinct(rodzic1) as ro1 from ludzie where rodzic1!=0;');
 			else $res=mysqlquerryc('select distinct(rodzic1) as ro1 from ludzie where visible=1 and rodzic1!=0;');
 			$max=0;
@@ -1033,7 +979,7 @@ switch($id){
 			if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $zona=mysql_fetch_assoc(mysqlquerryc('select zona1 from ludzie where id='.$mid.';'));
 			else $zona=mysql_fetch_assoc(mysqlquerryc('select zona1 from ludzie where visible=1 and id='.$mid.';'));
 			echo('<p>'.linkujludzia($mid,2).' i '.linkujludzia($zona['zona1'],2).' - '.$max.' '.strtolower($lang[$lng][76]).'</p>');
-			echo('<br><h3>'.$lang[$lng][95].':</h3>'); //most grand children
+			echo('<h3>'.$lang[$lng][95].':</h3>'); //most grand children
 			$maxwn=0;
 			$maxwn_id=0;
 			$chi1=mysqlquerryc('select id from ludzie where ur<'.(date('Y')-15).';'); //older than 15
@@ -1045,8 +991,8 @@ switch($id){
 					$maxwn=$actwn;
 				}
 			}
-			echo('<p>'.linkujludzia($maxwn_id,2).' - '.$maxwn.' '.strtolower($lang[$lng][77]).'</p>');
-			echo('<br><h3>'.$lang[$lng][96].':</h3>'); //most frequent name
+			echo(linkujludzia($maxwn_id,2).' - '.$maxwn.' '.strtolower($lang[$lng][77]));
+			echo('<h3>'.$lang[$lng][96].':</h3>'); //most frequent name
 			$imm=mysqlquerryc('select distinct(imie) as im from ludzie where sex="m" and imie!="???";');
 			$imk=mysqlquerryc('select distinct(imie) as im from ludzie where sex="k" and imie!="???";');
 			for($i=0;$i<mysql_num_rows($imm);$i+=1){
@@ -1079,7 +1025,7 @@ switch($id){
 			echo('<p>'.$lang[$lng][98].': <a href="'.$thisfile.'?search,'.$kimmax.'">'.$kimmax.'</a> ('.$kimmaxc.')</p>');
 		}
 		//life expectancy normal distribution
-		echo('<br><h3>'.$lang[$lng][99].'</h3>');
+		echo('<h3>'.$lang[$lng][99].'</h3>');
 		$q1=mysqlquerryc('select ur,zm from ludzie where ur>0 and zm>0;'); //known date of birth and death
 		$fnam='norm/normaldist'.mysql_num_rows($q1).'.png';
 		echo('<p>'.$lang[$lng][100].' '.mysql_num_rows($q1).' '.$lang[$lng][101].'</p>');
@@ -1183,7 +1129,7 @@ switch($id){
 			}
 			
 			echo('<h3>max length of bounding box of people names:</h3>');
-			$res=mysqlquerryc('select id,imie,nazwisko from ludzie order by id;');
+			$res=mysqlquerryc('select imie,nazwisko from ludzie');
 			$maxbb=0;
 			putenv('GDFONTPATH=' . realpath('.'));
 			$font='calibri';
@@ -1191,8 +1137,7 @@ switch($id){
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
 				$row=mysql_fetch_assoc($res);
 				$bbox=imagettfbbox($fsiz,0,$font,'+ '+$row['imie'].' '.$row['nazwisko']);
-				//echo('<p>'.$bbox[2].' - '.$row['imie'].' '.$row['nazwisko'].'</p>'); //debug
-				if($bbox[2]>$maxbb){	
+				if($bbox[2]>$maxbb){
 					$maxbb=$bbox[2];
 					$maxin=$row['imie'].' '.$row['nazwisko'];
 				}
@@ -1214,8 +1159,6 @@ switch($id){
 		if(isset($_COOKIE['zal'])&checkname()){
 			switch($co){
 				case 'all':{ //famuła menu item
-					echo('<p>W celu wygenerowania tradycyjnego drzewa genealogicznego do wydrukowania, kliknij w link "Rysuj drzewo" obok osoby od której drzewo ma się zaczynać.</p>');
-					/*
 					$ipk=mysql_fetch_assoc(mysqlquerryc('select min(pok) as s,max(pok) as e from ludzie'));
 					mysqlquerryc('update ludzie set byl=0;');
 					$li=0;
@@ -1231,8 +1174,8 @@ switch($id){
 							}
 						}
 						echo('<br><br>');
-						$li+=1; 
-					}*/
+						$li+=1;
+					}
 					break;
 				}
 				case 'one':{
@@ -1954,22 +1897,21 @@ switch($id){
 					$theone=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.htmlspecialchars($id2).';'));
 					echo('<center><table berder="0"><tr><th colspan="2"><p>'.$lang[$lng][197].': '.linkujludzia($id2,2).'</p></th></tr><form action="'.$thisfile.'?tree,'.$id2.'" method="POST" name="treegen">');
 					echo('<tr><td class="treeui">'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][203].'</td>
-					<td class="treeui">'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][225].'</td></tr><tr><td class="treeui">
-						  <div class="field half"><input id="idpok2" type="radio" class="formfld" name="pok" value="2"><label for="idpok2"> 2 ('.$lang[$lng][204].')</label></div><br>
-						  <div class="field half"><input id="idpok3" type="radio" class="formfld" name="pok" value="3"><label for="idpok3"> 3 ('.$lang[$lng][219].')</label></div><br>
-					      <div class="field half"><input id="idpok4" type="radio" class="formfld" name="pok" value="4" checked="checked"><label for="idpok4"> 4 ('.$lang[$lng][220].')</label></div><br>
-					      <div class="field half"><input id="idpok5" type="radio" class="formfld" name="pok" value="5"><label for="idpok5"> 5 ('.$lang[$lng][221].'</label></div><br>');
-					echo('<div class="field half"><input id="idzdj" type="checkbox" class="formfld" name="zdjecia" checked="checked"><label for="idzdj"> '.$lang[$lng][222].'</label></div><br>');
+					<td class="treeui">'.$theone['imie'].', '.jejjego($theone['sex'],$lng).' '.$lang[$lng][225].'</td></tr><tr><td class="treeui"><label><input type="radio" class="formfld" name="pok" value="2"> 2 ('.$lang[$lng][204].')</label><br>
+					<label><input type="radio" class="formfld" name="pok" value="3"> 3 ('.$lang[$lng][219].')</label><br>
+					<label><input type="radio" class="formfld" name="pok" value="4" checked="checked"> 4 ('.$lang[$lng][220].')</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok" value="5"> 5 ('.$lang[$lng][221].'</label><br>');
+					echo('<label><input type="checkbox" class="formfld" name="zdjecia" checked="checked"> '.$lang[$lng][222].'</label><br>');
 					echo('<input type="submit" name="submit" value="'.$lang[$lng][218].'" class="formbtn" id="treegen" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
 					echo('</td><td class="treeui">');
-					echo('<div class="field half"><input id="ipok2" type="radio" class="formfld" name="pok2" value="2"><label for="ipok2">do dzieci</label></div><br>');
-					echo('<div class="field half"><input id="ipok3" type="radio" class="formfld" name="pok2" value="3"><label for="ipok3">do wnuków</label></div><br>');
-					echo('<div class="field half"><input id="ipok4" type="radio" class="formfld" name="pok2" value="4" checked="checked"><label for="ipok4">do pra wnuków</label></div><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="2">do dzieci</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="3">do wnuków</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="4" checked="checked">do pra wnuków</label><br>');
 					echo('<p>Ze względu na duże zużycie pamięci, poniższe opcje opcje mogą zająć <br>
 					         kilkanaście minut. Prosimy o cierpliwość.</p>');
-					echo('<div class="field half"><input id="ipok5" type="radio" class="formfld" name="pok2" value="5"><label for="ipok5">do pra pra wnuków</label></div><br>');
-					echo('<div class="field half"><input id="ipok6" type="radio" class="formfld" name="pok2" value="6"><label for="ipok6">do pra pra pra wnuków</label></div><br>');
-					echo('<div class="field half"><input id="idcomp" type="checkbox" class="formfld" name="compact" checked="checked"><label for="idcomp"> zmniejszona szerokość</label></div><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="5">do pra pra wnuków</label><br>');
+					echo('<label><input type="radio" class="formfld" name="pok2" value="6">do pra pra pra wnuków</label><br>');
+					echo('<label><input type="checkbox" class="formfld" name="compact" checked="checked"> zmniejszona szerokość</label><br>');
 					echo('<input type="submit" name="submit2" value="Generuj" class="formbtn" id="treegen2" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)">');
 					echo('</form></td></tr></table></center>');
 				}
@@ -2002,7 +1944,7 @@ switch($id){
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $res=mysqlquerryc('select id from ludzie where zm='.htmlspecialchars($id2).' order by imie,nazwisko;'); //dead in year $id2
 				else $res=mysqlquerryc('select id from ludzie where visible=1 and zm='.htmlspecialchars($id2).' order by imie,nazwisko;');
 				if(mysql_num_rows($res)>0){
-					echo('<br><h3>'.$lang[$lng][108].' '.$id2.'</h3>');
+					echo('<h3>'.$lang[$lng][108].' '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
 						$row=mysql_fetch_assoc($res);
 						echo('<p>'.linkujludzia($row['id'],2).'</p>');
@@ -2010,7 +1952,7 @@ switch($id){
 				}
 				$res=mysqlquerryc('select * from zdjecia where rok='.htmlspecialchars($id2).' and path like "%gru%";'); //pictures taken in year $id2
 				if(mysql_num_rows($res)>0){
-					echo('<br><h3>'.$lang[$lng][110].' '.$id2.'</h3>');
+					echo('<h3>'.$lang[$lng][110].' '.$id2.'</h3>');
 					for($i=0;$i<mysql_num_rows($res);$i+=1){
 						$row=mysql_fetch_assoc($res);
 						$pth=explode('.',$row['path']);
@@ -2036,7 +1978,7 @@ switch($id){
 		html_start();
 		if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie O strinie", time="'.date("Y-m-d H:i:s").'"');
 		else mysqlquerryc('insert into logs set user="niezalogowany", action="Wyświetlenie O strinie, z ip '.$_SERVER['REMOTE_ADDR'].'", time="'.date("Y-m-d H:i:s").'"');
-		echo('<h3>'.$lang[$lng][144].':</h3><a href="'.$thisfile.'?pokaz,one,78">Szymon Marciniak</a> ('.$lang[$lng][21].' 2012)<h3><a href="#kontakt">'.$lang[$lng][145].'</a></h3> <h3>'.$lang[$lng][146].':</h3><a href="'.$thisfile.'?pokaz,one,76">Jolanta Marciniak</a> ('.$lang[$lng][21].' 2004)<br><br>');
+		echo('<h3>'.$lang[$lng][144].':</h3><a href="index.php?pokaz,one,78">Szymon Marciniak</a> ('.$lang[$lng][21].' 2012)<h3><a href="index.php?kontakt">'.$lang[$lng][145].'</a></h3> <h3>'.$lang[$lng][146].':</h3><a href="index.php?pokaz,one,76">Jolanta Marciniak</a> ('.$lang[$lng][21].' 2004)<br><br>');
 		echo($settings['about']);  //change this in settings
 		html_end();
 		break;
@@ -2070,7 +2012,10 @@ switch($id){
 			$headers.="Content-type: text/html; charset=UTF-8\n"; 
 			mail($settings['admin_mail'],'Nowy wpis na famule','Imie: '.htmlspecialchars($_POST['imie']).', email: '.htmlspecialchars($_POST['email']).', Wiadomość: '.htmlspecialchars($_POST['tresc']),$headers);
 		}
-		
+		echo('<h3>'.$lang[$lng][136].':</h3>
+		<p>'.$lang[$lng][137].':<center><table border="0"><tr><td><li>'.$lang[$lng][138].'</li><li>'.$lang[$lng][139].'</li> <li>'.$lang[$lng][140].'</li></td></tr></table> </center></p>
+		<p><form name="kont" action="'.$thisfile.'?kontakt" method="POST"><label>'.$lang[$lng][141].': <input type="text" name="imie" size="40" class="formfld"></label><br><textarea name="tresc" rows="6" cols="60" class="formfld"></textarea><br><label>email: <input type="text" name="email" class="formfld"></label><br>
+		<input type="submit" name="submit" value="'.$lang[$lng][142].'" class="formbtn" id="wyslijopinie" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)" onclick="rokclick(document.rocznik.rok);"></form></p>');
 		html_end();
 		break;
 	}
@@ -2151,7 +2096,7 @@ switch($id){
 			if(isset($id2)){
 				$row=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where id='.htmlspecialchars($id2).';'));
 				echo('<a name="gr'.$row['id'].'"></a><h1>'.$row['rok'].': '.$row['opis'].'</h1><a href="'.$thisfile.'?zdjgru,'.$row['cat'].'#gr'.$row['id'].'">'.$lang[$lng][90].'</a><br>
-				<center><div><img id="mainzdjgru" src="'.$row['path'].'" usemap="#gru'.$row['id'].'"></div></center><br><p>'.$lang[$lng][91].': ');
+				<img src="'.$row['path'].'" usemap="#gru'.$row['id'].'"><br><p>'.$lang[$lng][91].': ');
 				$os=explode(',',$row['osoby']);
 				for($k=1;$k<(count($os)-1);$k+=1){
 					if($k!=1) echo(', ');
@@ -2163,7 +2108,7 @@ switch($id){
 					else $rzm=$rowo['zm'];
 					if($rowo['sex']=='k') $rse=$lang[$lng][65];
 					else $rse=$lang[$lng][66];
-					$wynik='<nobr><a onmouseover="extAreaOver(\'mainzdjgru\', \'ar'.$os[$k].'\');" onmouseout="extAreaOut(\'mainzdjgru\', \'ar'.$os[$k].'\');" href="'.$thisfile.'?pokaz,one,'.$rowo['id'].'">'.$rowo['imie'].' '.$rowo['nazwisko'].'</a>';
+					$wynik='<nobr><a href="'.$thisfile.'?pokaz,one,'.$rowo['id'].'">'.$rowo['imie'].' '.$rowo['nazwisko'].'</a>';
 					if($rzm=='?'){
 						if($rur!='?') $wynik.=' ('.$rur.')';
 					}
@@ -2177,23 +2122,9 @@ switch($id){
 				for($j=1;$j<(count($os)-1);$j+=1){
 					if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) $osoba=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where id='.$os[$j].' limit 1'));
 					else $osoba=mysql_fetch_assoc(mysqlquerryc('select * from ludzie where visible=1 and id='.$os[$j].' limit 1'));
-					echo('<area id="ar'.$os[$j].'" shape="poly" coords="'.$coo[($j-1)].'" href="'.$thisfile.'?pokaz,one,'.$os[$j].'" title="'.$osoba['imie'].' '.$osoba['nazwisko'].'">');
+					echo('<area shape="poly" coords="'.$coo[($j-1)].'" href="'.$thisfile.'?pokaz,one,'.$os[$j].'" title="'.$osoba['imie'].' '.$osoba['nazwisko'].'">');
 				}
-				echo('</map><script type="text/javascript">
-				window.onload = function(){
-				cvi_map.defaultRadius = 5;	//INT 0-100 (px radius)
-				cvi_map.defaultOpacity = 20; //INT 0-100 (% opacity)
-				cvi_map.defaultBordercolor = \'#ff0000\'; //STR \'#000000\'-\'#ffffff\'
-				cvi_map.defaultAreacolor = \'#ffffff\'; //STR \'#000000\'-\'#ffffff\'
-				cvi_map.defaultNoborder = false; //BOOLEAN
-				cvi_map.defaultNofade = false; //BOOLEAN
-				cvi_map.defaultShowcoords = false; //BOOLEAN
-				cvi_map.defaultDelayed	= false;	//BOOLEAN
-				cvi_map.defaultImgsrc	= \'\'; //STR (path&file)
-				cvi_map.defaultMapid	= \'\'; //STR (id)
-				cvi_map.add(document.getElementById("mainzdjgru"), { opacity: 20 });
-				}
-				</script>');
+				echo('</map>');
 				if(isset($_COOKIE['zal'])&checkname()) mysqlquerryc('insert into logs set user="'.$_COOKIE['zal'].'", action="Wyświetlenie zdjęcia'.htmlspecialchars($id2).': '.$row['opis'].'", time="'.date("Y-m-d H:i:s").'";');
 				if((isset($_COOKIE['zal'])&checkname())&(preg_match('#,menu2view,#',$currentuser['flags']))) echo('<a href="'.$thisfile.'?zdjgru-dodos,'.$row['path'].'">'.$lang[$lng][149].'</a> | <a href="'.$thisfile.'?zdjgru-del,'.$row['id'].'">'.$lang[$lng][150].'</a><br>');
 			}
@@ -2300,7 +2231,7 @@ switch($id){
 				$actzdj=mysql_fetch_assoc(mysqlquerryc('select * from zdjecia where path like "%'.htmlspecialchars($id2).'%" limit 1;'));
 				if($actzdj){
 					$imsize=getimagesize($actzdj['path']);
-					echo('<tr><td colspan="3"><form name=zdjgruedit" action="'.$thisfile.'?zdjgru-edit" method="POST"><label for="rokfield" class="label quarter">rok:</label><label class="label half" for="opfield">opis:</label><label class="label quarter" title="s, l lub k" for="tfield">typ: </label><input id="rokfield" type="text" name="rok" size="4" class="field quarter" maxlength="4" value="'.$actzdj['rok'].'"> <input id="opfield" type="text" name="opis" class="field half" value="'.$actzdj['opis'].'" size="80"> <input id="tfield" type="text" name="cat" class="field quarter" size="1" maxlength="1" value="'.$actzdj['cat'].'"><input type="hidden" name="id" value="'.$actzdj['id'].'"> <input type="submit" name="submit" value="Zapisz" class="formbtn" id="zdjeditgru" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form></td></tr>');
+					echo('<tr><td colspan="3"><form name=zdjgruedit" action="'.$thisfile.'?zdjgru-edit" method="POST"><label>rok:<input type="text" name="rok" size="4" class="formfld" maxlength="4" value="'.$actzdj['rok'].'"></label> <label>opis:<input type="text" name="opis" class="formfld" value="'.$actzdj['opis'].'" size="80"></label> <label title="s, l lub k">typ: <input type="tekst" name="cat" class="formfld" size="1" maxlength="1" value="'.$actzdj['cat'].'"></label><input type="hidden" name="id" value="'.$actzdj['id'].'"> <input type="submit" name="submit" value="Zapisz" class="formbtn" id="zdjeditgru" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form></td></tr>');
 					echo('<form name="stg2" action="'.$thisfile.'?zdjgru-dodos,'.$id2.'" method="POST"><table border="0" width="100%"><tr><td colspan="3" text-align="center">');
 					//echo('<canvas id="theCanvas" width="'.$imsize[0].'" height="'.$imsize[1].'"></canvas>');
 					echo('<div id="pointer_div" onclick="point_it(event)" style = "background-image:url(\''.$actzdj['path'].'\');width:'.$imsize[0].'px;height:'.$imsize[1].'px;"></td></tr>');
@@ -2535,7 +2466,7 @@ switch($id){
 					echo('<form name="adduser" action="'.$thisfile.'?users,add" method="post"><label>nazwa:<input type="text" class="formfld" name="newname" size="15"></label><label>hasło:<input type="text" name="newpass" class="formfld" size="15"></label><label>descr:<input type="text" name="descri" value="no" class="formfld" size="15"></label><input type="submit" name="submit" value="Zapisz" class="formbtn" id="useradd-btn" onmouseover="btnh(this.id)" onmouseout="btnd(this.id)"></form>');
 				}
 			}
-			echo('<p><a href="'.$thisfile.'?users,add">'.$lang[$lng][236].'</a></p>');
+			echo('<p><a href="'.$thisfile.'?users,add">Dodaj nowego użytkownika</a></p>');
 			$res=mysqlquerryc('select * from users');
 			echo('<table border="1"><tr><td>name</td><td>hash</td><td>flags</td><td>description</td><td>actions</td></tr>');
 			for($i=0;$i<mysql_num_rows($res);$i+=1){
@@ -2684,6 +2615,12 @@ switch($id){
 		html_end();
 		break;
 	}
+	case 'cookies':{
+		html_start();
+		echo('<p>'.$lang[$lng][194].'</p>');
+		html_end();
+		break;
+	}
 	case 'druk':{
 		html_start();
 		echo('<h2>Jak wydrukować drzewo genealogiczne na wielu stronach?</h2>
@@ -2691,42 +2628,6 @@ switch($id){
 		<p>2. Wybieramy z menu Plik -> Drukuj -> Ustawienia strony<br><img src="druk1.png"></p>
 		<p>3. W pulu Dopasuj do wpisujemy na ilu stronach ma być wydrukowane, n.p. 9<br><img src="druk2.png"></p>
 		<p>4. Po kliknięciu OK, normalnie drukujemy.</p>');
-		html_end();
-		break;
-	}
-	case 'profile':{
-		html_start();
-		if(isset($_POST['submit'])){
-			$res=mysqlquerryc('select * from users where name="'.$currentuser['name'].'";');
-			if($_POST['newpass']==$_POST['newpass2']){
-				if(mysql_num_rows($res)==1){
-					$row=mysql_fetch_assoc($res);
-					if((md5($_POST['oldpass'].'dupa')==$row['pass'])|(hash('sha256',$_POST['oldpass'].'dupa')==$row['pass'])){
-						if(strlen($_POST['newpass'])>=6){
-							$q='update users set pass="'.hash('sha256',htmlspecialchars($_POST['newpass']).'dupa').'" where name="'.$currentuser['name'].'";';
-							if(mysqlquerryc($q)) echo('<p class="ok">Poprawnie zmieniono hasło</p>');
-							else echo('<p class="alert">Nie udało się zmienić hasła</p>');
-						}
-						else echo('<p class="alert">Nowe hasło musi zawierać conajmniej 6 znaków!</p>');
-					}
-				}
-			}
-			else echo('<p class="alert">Nowe hasła nie są takie same!</p>');
-		}
-		echo('<p><a href="'.$thisfile.'?logout">'.$lang[$lng][17].'</a></p><br><br>');
-		echo('<p>'.$lang[$lng][234].':<br></p>');
-		echo('<div id="lang" style="float:center; border:none; vertical-align:center;">');
-			foreach($lang as $k1 => $v1){
-				echo('<a href="'.$thisfile.'?set-lang,'.$k1.','.$id.','.$id2.','.$id3.'"><img border="1" src="flags/'.$k1.'.png"></a>');
-			}
-			echo('</div><br><br>');
-		echo('<p><form name="passch" action="'.$thisfile.'?profile" method="POST">
-		<label>'.$lang[$lng][230].': <input type="password" name="oldpass"></label>
-		<label>'.$lang[$lng][231].': <input type="password" name="newpass"></label>
-		<label>'.$lang[$lng][232].': <input type="password" name="newpass2"></label>
-		<input type="submit" name="submit" value="'.$lang[$lng][233].'">
-		</form></p><br><br>
-		<p><a href="'.$old_ver_filename.'">'.$lang[$lng][235].'</a></p>');
 		html_end();
 		break;
 	}
